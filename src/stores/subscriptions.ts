@@ -26,6 +26,7 @@ const useSubscriptionsStore = create<SubscriptionsStoreState>((set) => ({
 
 		const parsedSubscriptions = alephData.posts
 			.map((subscription) => AlephSubscriptionSchema.parse(subscription.content))
+			.filter((sub) => sub.account.address !== "0x7ab98f6b22ecb42e27dc9c7d2d488f69b5cdd0b2") // Exclude team testing address
 			.map(
 				(sub): Subscription => ({
 					start: new Date(sub.started_at * 1000).toISOString(),

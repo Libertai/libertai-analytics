@@ -14,6 +14,10 @@ export const AlephSubscriptionSchema = z.object({
 		.transform((date) => (date !== null ? date : Date.now())), // /!\ TODO: This means that charts in the future can be incorrect
 	type: SubscriptionTypeSchema,
 	provider: SubscriptionProviderSchema,
+	account: z.object({
+		chain: z.union([z.literal("base"), z.literal("solana")]),
+		address: z.string(),
+	}),
 });
 
 export type Subscription = { start: string; end: string; type: SubscriptionType; provider: SubscriptionProvider };
