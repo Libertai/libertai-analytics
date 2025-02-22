@@ -4,7 +4,7 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import useAgentSubscriptions from "@/hooks/useAgentSubscriptions";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { groupSubscriptionsPerDay } from "@/utils/subscriptions";
 
 const formatXAxis = (tickItem: string) => {
@@ -23,6 +23,14 @@ export function AgentsAnalytics() {
 
 	const agentSubscriptions = useAgentSubscriptions();
 	const data = groupSubscriptionsPerDay(agentSubscriptions, selectedTimeframe.days);
+	const totalVouchers = useMemo(
+		() => agentSubscriptions.filter((sub) => sub.provider === "vouchers").length,
+		[agentSubscriptions],
+	);
+	const totalSubscriptions = useMemo(
+		() => agentSubscriptions.filter((sub) => sub.provider === "hold").length,
+		[agentSubscriptions],
+	);
 
 	return (
 		<Card>
@@ -64,6 +72,26 @@ export function AgentsAnalytics() {
 							/>
 						</AreaChart>
 					</ResponsiveContainer>
+				</div>
+				<div className="md:flex max-md:space-y-4">
+					<Card className="w-fit mx-auto">
+						<CardHeader className="text-center">
+							<CardTitle>{agentSubscriptions.length}</CardTitle>
+							<CardDescription>Total agents created</CardDescription>
+						</CardHeader>
+					</Card>
+					<Card className="w-fit mx-auto">
+						<CardHeader className="text-center">
+							<CardTitle>{totalVouchers}</CardTitle>
+							<CardDescription>Total vouchers</CardDescription>
+						</CardHeader>
+					</Card>
+					<Card className="w-fit mx-auto">
+						<CardHeader className="text-center">
+							<CardTitle>{totalSubscriptions}</CardTitle>
+							<CardDescription>Total subscriptions</CardDescription>
+						</CardHeader>
+					</Card>
 				</div>
 			</CardContent>
 		</Card>
