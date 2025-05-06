@@ -10,13 +10,14 @@ export const groupSubscriptionsCustomDatePerDay = (subscriptions: Subscription[]
 	const result: ChartData = {};
 	const diffTime = Math.abs(rangeDate.from.valueOf() - rangeDate.to.valueOf());
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-	const startDate: Date = new Date(rangeDate.from.valueOf());
 
 	for (let i = 0; i <= timeframe; i++) {
+	  const startDate: Date = new Date(rangeDate.from.valueOf());
 		startDate.setDate(rangeDate.from.getDate() + i);
 		const dateStr = startDate.toISOString().split("T")[0];
 		result[dateStr] = { vouchers: 0, hold: 0 };
 	}
+	const startDate: Date = new Date(rangeDate.from.valueOf());
 
 	subscriptions.forEach((sub) => {
 		const endDate = new Date(sub.end);
