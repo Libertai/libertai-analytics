@@ -6,8 +6,8 @@ import useAgentSubscriptions from "@/hooks/useAgentSubscriptions";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { groupSubscriptionsCustomDatePerDay, groupSubscriptionsPerDay } from "@/utils/subscriptions";
-import DateRangePicker from "@/components/DateRangePicker";
 import { DateRange } from "react-day-picker";
+import DateRangePicker from "@/components/DateRangePicker";
 
 const formatXAxis = (tickItem: string) => {
 	const date = new Date(tickItem);
@@ -20,7 +20,7 @@ const timeframes = [
 	{ label: "90 days", days: 90 },
 ];
 
-export function AgentsAnalytics() {
+export function ApiUsageAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false)
@@ -35,6 +35,7 @@ export function AgentsAnalytics() {
 		() => agentSubscriptions.filter((sub) => sub.provider === "hold").length,
 		[agentSubscriptions],
 	);
+
 
 	return (
 		<Card>
