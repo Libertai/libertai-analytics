@@ -18,7 +18,7 @@ const useCreditsStats = create<CreditsStatsState>((set) => ({
 	isLoaded: false,
 
 	fetchCredits: async (rangeDate: ChartDate) => {
-		const res = await axios.get(`${env.INFERENCE_BACKEND_URL}/stats/credits?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`).then(res => res.data);
+		const res = await axios.get(`${env.INFERENCE_BACKEND_URL}/stats/global/credits?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`).then(res => res.data);
 		const credits = res["credits_consumption"];
 		const parsedCredits: Credit[] = credits
 			.map((credit: Credit) => CreditsStatsSchema.parse(credit));

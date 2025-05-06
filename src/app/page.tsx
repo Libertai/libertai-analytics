@@ -18,8 +18,6 @@ export default function Home() {
 			<AgentsAnalytics/>
 			<br/>
 			<CreditsAnalytics/>
-			<br/>
-			{/*<ApiUsageAnalytics/>*/}
 		</main>
 	);
 }
