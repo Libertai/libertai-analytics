@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import useSubscriptionsStore from "@/stores/subscriptions";
-import { AgentsAnalytics } from "@/components/agents-analytics";
-import { CreditsAnalytics } from "@/components/credits-analytics";
+import { AgentsAnalytics } from "@/components/charts/Agents";
+import { CreditsAnalytics } from "@/components/charts/Credits";
+import { ApiAnalytics } from "@/components/charts/Api";
 
 export default function Home() {
 	const { fetchSubscriptions } = useSubscriptionsStore();
@@ -18,6 +19,8 @@ export default function Home() {
 			<AgentsAnalytics/>
 			<br/>
 			<CreditsAnalytics/>
+			<br/>
+			<ApiAnalytics/>
 		</main>
 	);
 }
