@@ -21,3 +21,5 @@ export const AlephSubscriptionSchema = z.object({
 });
 
 export type Subscription = { start: string; end: string; type: SubscriptionType; provider: SubscriptionProvider };
+
+export type ChartSubscriptionData = {date: string, vouchers: number, hold: number}

@@ -1,15 +1,16 @@
 import { Subscription, SubscriptionProvider } from "@/types/subscriptions";
 import { DateRange } from "react-day-picker";
 
-type ChartData = Record<string, Record<SubscriptionProvider, number>>;
+type ChartDataSubscription = Record<string, Record<SubscriptionProvider, number>>;
 
 export const groupSubscriptionsCustomDatePerDay = (subscriptions: Subscription[], rangeDate: DateRange | undefined) => {
 	if (!rangeDate || !rangeDate.from || !rangeDate.to)
 		return [];
 
-	const result: ChartData = {};
 	const diffTime = Math.abs(rangeDate.from.valueOf() - rangeDate.to.valueOf());
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+	const startDate: Date = new Date(rangeDate.from.valueOf());
+  const result: ChartDataSubscription = {};
 
 	for (let i = 0; i <= timeframe; i++) {
 	  const startDate: Date = new Date(rangeDate.from.valueOf());
@@ -17,7 +18,6 @@ export const groupSubscriptionsCustomDatePerDay = (subscriptions: Subscription[]
 		const dateStr = startDate.toISOString().split("T")[0];
 		result[dateStr] = { vouchers: 0, hold: 0 };
 	}
-	const startDate: Date = new Date(rangeDate.from.valueOf());
 
 	subscriptions.forEach((sub) => {
 		const endDate = new Date(sub.end);
@@ -43,7 +43,7 @@ export const groupSubscriptionsCustomDatePerDay = (subscriptions: Subscription[]
 }
 
 export const groupSubscriptionsPerDay = (subscriptions: Subscription[], timeframe: number) => {
-	const result: ChartData = {};
+	const result: ChartDataSubscription = {};
 	const today = new Date();
 	const startTime = new Date();
 	startTime.setDate(today.getDate() - timeframe + 1);
