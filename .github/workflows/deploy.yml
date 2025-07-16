@@ -29,7 +29,7 @@ jobs:
       - name: Deploy with Aleph
         uses: aleph-im/web3-hosting-action@v1.1.2
         with:
-          path: 'dist'
+          path: 'out'
           private-key: ${{ secrets.ALEPH_CLOUD_LTAI_ANALYTICS_PROD }}
           domain: analytics.libertai.io
           retention_days: 1
