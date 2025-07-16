@@ -5,7 +5,7 @@ const envSchema = z.object({
 });
 
 const env = envSchema.parse({
-	INFERENCE_BACKEND_URL: process.env.NEXT_PUBLIC_INFERENCE_BACKEND_URL,
+	INFERENCE_BACKEND_URL: import.meta.env.VITE_INFERENCE_BACKEND_URL,
 });
 
 export default env;

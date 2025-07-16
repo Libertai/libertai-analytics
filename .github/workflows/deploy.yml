@@ -22,14 +22,14 @@ jobs:
         run: npm ci
       - name: Create .env file
         run: |
-          echo "NEXT_PUBLIC_INFERENCE_BACKEND_URL=${{ secrets.NEXT_PUBLIC_INFERENCE_BACKEND_URL }}" >> .env
+          echo "VITE_INFERENCE_BACKEND_URL=${{ secrets.VITE_INFERENCE_BACKEND_URL }}" >> .env
       - name: Build project
         run: npm run build
 
       - name: Deploy with Aleph
         uses: aleph-im/web3-hosting-action@v1.1.2
         with:
-          path: 'out'
+          path: 'dist'
           private-key: ${{ secrets.ALEPH_CLOUD_LTAI_ANALYTICS_PROD }}
           domain: analytics.libertai.io
           retention_days: 1
