@@ -7,12 +7,13 @@ import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/DateRangePicker";
 import useCreditsStats from "@/stores/credits";
 import { getDateRange } from "@/utils/dates";
-import { groupCreditsPerDay } from "@/utils/credits";
+import { groupCreditsPerDay, groupCreditsPerDayAllModels } from "@/utils/credits";
 import FilterModelNames from "@/components/FilterModelNames";
 import { formatDate } from "@/utils/dates";
 import { ChartDate } from "@/types/dates";
 import { getDates, timeframes } from "@/utils/charts";
 import ChartContainer from "../ChartContainer";
+import MultiModelChartContainer from "../MultiModelChartContainer";
 
 export function CreditsAnalytics() {
 	const { fetchCredits } = useCreditsStats();
@@ -21,8 +22,8 @@ export function CreditsAnalytics() {
 	const [selectedDates, setSelectedDates] = useState<ChartDate>(getDates(timeframes[1].days));
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false)
 	const creditsStats = useCreditsStats();
-	const [selectedModel, setSelectedModel] = useState<string>("hermes-3-8b-tee");
-	const data = groupCreditsPerDay(creditsStats.credits, selectedDates, selectedModel);
+	const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
+	const data = groupCreditsPerDayAllModels(creditsStats.credits, selectedDates, selectedModel);
 
 	useEffect(() => {
 		if (!rangeDate || !rangeDate.from || !rangeDate.to) {
@@ -62,10 +63,10 @@ export function CreditsAnalytics() {
 					</div>
 					<FilterModelNames setSelectedModel={setSelectedModel}/>
 				</div>
-				<ChartContainer
+				<MultiModelChartContainer
 				  data={data}
 				  cards={[{number: creditsStats.totalCreditsUsed, description: "Total credits used" }]}
-				  areaDataKey="credits_used"
+				  selectedModel={selectedModel}
 				/>
 			</CardContent>
 		</Card>

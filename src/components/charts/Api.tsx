@@ -10,9 +10,10 @@ import FilterModelNames from "@/components/FilterModelNames";
 import { formatDate } from "@/utils/dates";
 import { ChartDate } from "@/types/dates";
 import useApiUsageStats from "@/stores/api";
-import { groupApiUsagePerDay } from "@/utils/api";
+import { groupApiUsagePerDay, groupApiUsagePerDayAllModels } from "@/utils/api";
 import { getDates, timeframes } from "@/utils/charts";
 import ChartContainer from "../ChartContainer";
+import MultiModelChartContainer from "../MultiModelChartContainer";
 
 export function ApiAnalytics() {
 	const { fetchApiCalls } = useApiUsageStats();
@@ -21,8 +22,8 @@ export function ApiAnalytics() {
 	const [selectedDates, setSelectedDates] = useState<ChartDate>(getDates(timeframes[1].days));
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false)
 	const apiUsageStats = useApiUsageStats();
-	const [selectedModel, setSelectedModel] = useState<string>("hermes-3-8b-tee");
-	const data = groupApiUsagePerDay(apiUsageStats.apiUsage, selectedDates, selectedModel);
+	const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
+	const data = groupApiUsagePerDayAllModels(apiUsageStats.apiUsage, selectedDates, selectedModel);
 
 	useEffect(() => {
 		if (!rangeDate || !rangeDate.from || !rangeDate.to) {
@@ -62,10 +63,10 @@ export function ApiAnalytics() {
 					</div>
 					<FilterModelNames setSelectedModel={setSelectedModel}/>
 				</div>
-				<ChartContainer
+				<MultiModelChartContainer
 				  data={data}
 				  cards={[{number: apiUsageStats.totalCalls, description: "Total api calls" }]}
-				  areaDataKey="calls"
+				  selectedModel={selectedModel}
 				/>
 			</CardContent>
 		</Card>
