@@ -36,6 +36,6 @@ jobs:
         run: npm ci
       - name: Create .env file
         run: |
-          echo "NEXT_PUBLIC_INFERENCE_BACKEND_URL=https://example.org" >> .env
+          echo "VITE_INFERENCE_BACKEND_URL=https://example.org" >> .env
       - name: Build project
         run: npm run build
