@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-	INFERENCE_BACKEND_URL: z.string().url(),
+	INFERENCE_BACKEND_URL: z.url(),
 });
 
 const env = envSchema.parse({
