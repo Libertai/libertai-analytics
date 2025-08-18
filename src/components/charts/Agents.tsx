@@ -3,12 +3,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import useAgentSubscriptions from "@/hooks/useAgentSubscriptions";
 import { Button } from "@/components/ui/button";
-import { useMemo, useState } from "react";
-import { groupSubscriptionsCustomDatePerDay, groupSubscriptionsPerDay } from "@/utils/subscriptions";
+import { useEffect, useState } from "react";
+import { groupAgentsCustomDatePerDay, groupAgentsPerDay } from "@/utils/agents.ts";
 import DateRangePicker from "@/components/DateRangePicker";
 import { DateRange } from "react-day-picker";
-import { timeframes } from "@/utils/charts";
+import { getDates, timeframes } from "@/utils/charts";
 import ChartContainer from "../ChartContainer";
+import useAgentsStore from "@/stores/agents.ts";
 
 
 export function AgentsAnalytics() {
@@ -17,16 +18,17 @@ export function AgentsAnalytics() {
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false)
 
 	const agentSubscriptions = useAgentSubscriptions();
-	const data = selectedCustomDates ? groupSubscriptionsCustomDatePerDay(agentSubscriptions, rangeDate) : groupSubscriptionsPerDay(agentSubscriptions, selectedTimeframe.days);
-	const totalVouchers = useMemo(
-		() => agentSubscriptions.filter((sub) => sub.provider === "vouchers").length,
-		[agentSubscriptions],
-	);
-	const totalSubscriptions = useMemo(
-		() => agentSubscriptions.filter((sub) => sub.provider === "hold").length,
-		[agentSubscriptions],
-	);
-	
+	const data = selectedCustomDates ? groupAgentsCustomDatePerDay(agentSubscriptions, rangeDate) : groupAgentsPerDay(agentSubscriptions, selectedTimeframe.days);
+	const { fetchAgents, totalAgentsCreated, totalVouchers, totalSubscriptions } = useAgentsStore();
+
+	useEffect(() => {
+		if (!rangeDate || !rangeDate.from || !rangeDate.to) {
+			const dates = getDates(selectedTimeframe.days);
+			fetchAgents(dates.start_date, dates.end_date);
+			return;
+		}
+	}, [fetchAgents, rangeDate, selectedCustomDates, selectedTimeframe]);
+
 	return (
 		<Card>
 			<CardHeader>
@@ -38,7 +40,7 @@ export function AgentsAnalytics() {
 					{timeframes.map((timeframe) => (
 						<Button
 							key={timeframe.label}
-							variant={timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"}
+							variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
 							className="mr-2"
 							onClick={() => {
 								setSelectedTimeframe(timeframe)
@@ -54,9 +56,9 @@ export function AgentsAnalytics() {
 				</div>
 				<ChartContainer
 				  data={data}
-				  areaDataKey="vouchers"
+				  areaDataKey="agents"
 				  cards={[
-						{number: agentSubscriptions.length, description: "Total agents created" },
+						{number: totalAgentsCreated, description: "Total agents created" },
 						{number: totalVouchers, description: "Total vouchers" },
 						{number: totalSubscriptions, description: "Total subscriptions" },
 					]}
