@@ -14,7 +14,7 @@ type MultiModelChartContainerProps = {
 	selectedModel?: string;
 };
 
-// Predefined color palette for different models
+
 const COLORS = [
 	"#8884d8",
 	"#82ca9d",
@@ -49,7 +49,6 @@ const MultiModelChartContainer = ({ data, cards, selectedModel }: MultiModelChar
 		return Array.from(allKeys);
 	}, [data]);
 
-	// If a model is selected, show only that model with primary color
 	const modelsToShow = selectedModel ? [selectedModel] : modelNames;
 
 	return (
@@ -66,7 +65,7 @@ const MultiModelChartContainer = ({ data, cards, selectedModel }: MultiModelChar
 						/>
 						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
 						<Tooltip />
-						{!selectedModel && <Legend />}
+						<Legend />
 						{modelsToShow.map((modelName, index) => (
 							<Area
 								key={modelName}

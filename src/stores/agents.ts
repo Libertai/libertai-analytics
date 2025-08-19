@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Agent, AgentsSchema } from "@/types/agents.ts";
+import { Agent, AgentsStatsSchema } from "@/types/agents.ts";
 import axios from "axios";
 import env from "@/config/env.ts";
 
@@ -23,7 +23,7 @@ const useAgentsStore = create<SubscriptionsStoreState>((set) => ({
 	fetchAgents: async (startDate: string, endDate: string) => {
 		try {
 			const response = await axios.get(`${env.INFERENCE_BACKEND_URL}/stats/global/agents?start_date=${startDate}&end_date=${endDate}`).then(res => res.data);
-			const agentsUsage = AgentsSchema.parse(response);
+			const agentsUsage = AgentsStatsSchema.parse(response);
 
 			set({
 				totalAgentsCreated: agentsUsage.total_agents_created,

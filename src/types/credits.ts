@@ -6,8 +6,6 @@ export const CreditsStatsSchema = z.object({
 	model_name: z.string()
 })
 
-export type CreditProvider = "credits_used";
-
 export type Credit = {credits_used: number, used_at: string, model_name: string};
 
 export type ChartCreditData = {date: string, credits_used: number}

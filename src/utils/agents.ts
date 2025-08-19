@@ -5,7 +5,6 @@ import { isSameDay } from "@/utils/dates.ts";
 type ChartDataAgent = Record<string, Record<string, number>>;
 
 export const groupAgentsCustomDatePerDay = (agents: Agent[], rangeDate: DateRange | undefined) => {
-	console.log("1")
 	if (!rangeDate || !rangeDate.from || !rangeDate.to)
 		return [];
 
@@ -13,7 +12,6 @@ export const groupAgentsCustomDatePerDay = (agents: Agent[], rangeDate: DateRang
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 	const result: ChartDataAgent = {};
 
-	// Initialize all days in the range with 0 agents
 	for (let i = 0; i < timeframe; i++) {
 		const currentDate = new Date(rangeDate.from.valueOf());
 		currentDate.setDate(rangeDate.from.getDate() + i);
@@ -21,20 +19,16 @@ export const groupAgentsCustomDatePerDay = (agents: Agent[], rangeDate: DateRang
 		result[dateStr] = { agents: 0 };
 	}
 
-
-	// Count agents created on each day
 	agents.forEach((agent) => {
 		const createdDate = new Date(agent.created_at);
 		const createdDateStr = createdDate.toISOString().split("T")[0];
 		
 
-		// Only count if the creation date falls within our range and we have initialized that date
 		if (result[createdDateStr] !== undefined) {
 			result[createdDateStr].agents++;
 		}
 	});
 
-	console.log(result);
 
 	return Object.entries(result)
 		.map(([date, values]) => ({

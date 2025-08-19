@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AgentsAnalytics } from "@/components/charts/Agents";
 import { CreditsAnalytics } from "@/components/charts/Credits";
 import { ApiAnalytics } from "@/components/charts/Api";
+import { TokensAnalytics } from "@/components/charts/Tokens.tsx";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -14,6 +15,8 @@ function Index() {
 			<AgentsAnalytics />
 			<br />
 			<CreditsAnalytics />
+			<br />
+			<TokensAnalytics />
 			<br />
 			<ApiAnalytics />
 		</main>
