@@ -8,6 +8,7 @@ type Card = {
 };
 
 type TokensChartContainerProps = {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	data: Record<string, any>[];
 	cards: Card[];
 };
