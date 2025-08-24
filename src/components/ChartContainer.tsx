@@ -1,22 +1,19 @@
 import { formatXAxis } from "@/utils/charts"
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { ChartAPIData } from "@/types/api";
-import { ChartCreditData } from "@/types/credits";
-import { ChartSubscriptionData } from "@/types/subscriptions";
 
 type Card = {
   number: number,
   description: string
 }
 
-type chartContainerProps = {
-  data: ChartAPIData[] | ChartCreditData[] | ChartSubscriptionData[],
+type ChartContainerProps = {
+  data: Record<string, string>[];
   areaDataKey: string
   cards: Card[],
 }
 
-const ChartContainer = ({data, areaDataKey, cards}: chartContainerProps) => {
+const ChartContainer = ({data, areaDataKey, cards}: ChartContainerProps) => {
   return (
     <div>
 			<div className="h-[300px]">

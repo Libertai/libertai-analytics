@@ -1,7 +1,7 @@
-import useSubscriptionsStore from "@/stores/subscriptions";
+import useAgentsStore from "@/stores/agents.ts";
 
 export default function useAgentSubscriptions() {
-	const { subscriptions } = useSubscriptionsStore();
+	const { agents } = useAgentsStore();
 
-	return subscriptions.filter((sub) => sub.type === "agent");
+	return agents;
 }
