@@ -11,17 +11,20 @@ export function formatLargeNumber(num: number, decimals: number = 2): string {
 	const sign = num < 0 ? "-" : "";
 
 	if (absNum >= 1_000_000_000) {
-		return sign + (absNum / 1_000_000_000).toFixed(decimals).replace(/\.?0+$/, "") + "B";
+		const value = absNum / 1_000_000_000;
+		return sign + Number(value.toFixed(decimals)) + "B";
 	}
 	if (absNum >= 1_000_000) {
-		return sign + (absNum / 1_000_000).toFixed(decimals).replace(/\.?0+$/, "") + "M";
+		const value = absNum / 1_000_000;
+		return sign + Number(value.toFixed(decimals)) + "M";
 	}
 	if (absNum >= 1_000) {
-		return sign + (absNum / 1_000).toFixed(decimals).replace(/\.?0+$/, "") + "K";
+		const value = absNum / 1_000;
+		return sign + Number(value.toFixed(decimals)) + "K";
 	}
 
 	// For numbers less than 1000, show up to `decimals` decimal places
-	return sign + absNum.toFixed(decimals).replace(/\.?0+$/, "");
+	return sign + Number(absNum.toFixed(decimals));
 }
 
 /**
