@@ -23,7 +23,7 @@ export const createEmptyResultByRangeDate = <T extends Record<string, any>>(
 ): T => {
   const result = {} as T;
 
-  for (let i = 1; i <= timeframe; i++) {
+  for (let i = 1; i < timeframe; i++) {
     const sDate = new Date(rangeDate.start_date);
     sDate.setDate(startDate.getDate() + i);
     const dateStr = sDate.toISOString().split("T")[0];

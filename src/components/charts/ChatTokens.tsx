@@ -1,19 +1,19 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { getDates, timeframes } from "@/utils/charts.ts";
+import { getChatDates, timeframes } from "@/utils/charts.ts";
 import { Button } from "@/components/ui/button.tsx";
 import DateRangePicker from "@/components/DateRangePicker.tsx";
 import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { formatDate } from "@/utils/dates.ts";
 import FilterModelNames from "@/components/FilterModelNames.tsx";
-import { groupTokensPerDayAllModels } from "@/utils/tokens.ts";
+import { groupChatTokensPerDayAllModels } from "@/utils/chat";
 import TokensChartContainer from "@/components/TokensChartContainer.tsx";
-import { useTokensQuery } from "@/hooks/useTokensQuery";
+import { useChatTokensQuery } from "@/hooks/useChatTokensQuery";
 import { formatCount } from "@/utils/format";
 
-export function TokensAnalytics() {
+export function ChatTokensAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
@@ -26,10 +26,10 @@ export function TokensAnalytics() {
 				end_date: formatDate(rangeDate.to),
 			};
 		}
-		return getDates(selectedTimeframe.days);
+		return getChatDates(selectedTimeframe.days);
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
-	const { data: tokensData, isLoading, isFetching } = useTokensQuery(selectedDates);
+	const { data: tokensData, isLoading, isFetching } = useChatTokensQuery(selectedDates);
 
 	// Defer heavy computation to avoid blocking UI
 	const deferredTokensData = useDeferredValue(tokensData);
@@ -37,7 +37,7 @@ export function TokensAnalytics() {
 
 	const data = useMemo(() => {
 		if (!deferredTokensData) return [];
-		return groupTokensPerDayAllModels(deferredTokensData.calls, selectedDates, deferredSelectedModel);
+		return groupChatTokensPerDayAllModels(deferredTokensData.calls, selectedDates, deferredSelectedModel);
 	}, [deferredTokensData, selectedDates, deferredSelectedModel]);
 
 	const cards = useMemo(() => {
@@ -94,8 +94,8 @@ export function TokensAnalytics() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Tokens</CardTitle>
-				<CardDescription>Tokens consumption by users</CardDescription>
+				<CardTitle>Chat Tokens</CardTitle>
+				<CardDescription>Tokens consumption for chat requests</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">

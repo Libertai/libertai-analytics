@@ -18,7 +18,7 @@ export const groupApiUsagePerDay = (apiUsage: ApiUsage[], rangeDate: ChartDate, 
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === apiUsage.used_at && apiUsage.model_name === model_name) {
-				result[dateStr].calls += 1;
+				result[dateStr].calls += apiUsage.call_count;
 			}
 		}
 	})
@@ -56,7 +56,7 @@ export const groupApiUsagePerDayAllModels = (apiUsage: ApiUsage[], rangeDate: Ch
 				if (selectedModel && usage.model_name !== selectedModel) {
 					return;
 				}
-				result[dateStr][usage.model_name] += 1;
+				result[dateStr][usage.model_name] += usage.call_count;
 			}
 		}
 	})

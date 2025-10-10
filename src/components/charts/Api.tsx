@@ -2,81 +2,95 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate, getDateRange } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 import FilterModelNames from "@/components/FilterModelNames";
-import { ChartDate } from "@/types/dates";
-import useApiUsageStats from "@/stores/api";
 import { groupApiUsagePerDayAllModels } from "@/utils/api";
 import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { formatCount } from "@/utils/format";
 
 export function ApiAnalytics() {
-	const { fetchApiCalls } = useApiUsageStats();
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedDates, setSelectedDates] = useState<ChartDate>(getDates(timeframes[1].days));
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const apiUsageStats = useApiUsageStats();
 	const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
-	const data = groupApiUsagePerDayAllModels(apiUsageStats.apiUsage, selectedDates, selectedModel);
 
-	useEffect(() => {
-		if (!rangeDate || !rangeDate.from || !rangeDate.to) {
-			const dates = getDates(selectedTimeframe.days);
-			fetchApiCalls(dates);
-			setSelectedDates(dates);
-			return;
+	const selectedDates = useMemo(() => {
+		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
+			return {
+				start_date: formatDate(rangeDate.from),
+				end_date: formatDate(rangeDate.to),
+			};
 		}
-		const dates = selectedCustomDates
-			? {
-					start_date: formatDate(rangeDate?.from),
-					end_date: formatDate(rangeDate?.to),
-				}
-			: getDateRange(selectedTimeframe.days);
-		fetchApiCalls(dates);
-		setSelectedDates(dates);
-	}, [fetchApiCalls, rangeDate, selectedCustomDates, selectedTimeframe.days, selectedModel]);
+		return getDates(selectedTimeframe.days);
+	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
+
+	const { data: apiData, isLoading, isFetching } = useApiQuery(selectedDates);
+
+	// Defer heavy computation to avoid blocking UI
+	const deferredApiData = useDeferredValue(apiData);
+	const deferredSelectedModel = useDeferredValue(selectedModel);
+
+	const data = useMemo(() => {
+		if (!deferredApiData) return [];
+		return groupApiUsagePerDayAllModels(deferredApiData.api_usage, selectedDates, deferredSelectedModel);
+	}, [deferredApiData, selectedDates, deferredSelectedModel]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>API </CardTitle>
-				<CardDescription>API usage over time</CardDescription>
+				<CardTitle>API</CardTitle>
+				<CardDescription>Number of API calls</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="sm:flex mb-4">
-					{timeframes.map((timeframe) => (
-						<Button
-							key={timeframe.label}
-							variant={
-								timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
-							}
-							className="mr-2"
-							onClick={() => {
-								setSelectedTimeframe(timeframe);
-								setSelectedCustomDates(false);
-							}}
-						>
-							{timeframe.label}
-						</Button>
-					))}
-					<div onClick={() => setSelectedCustomDates(true)} className={"mt-3 sm:mt-0"}>
-						<DateRangePicker
-							hasCustomDateBeenClicked={selectedCustomDates}
-							rangeDate={rangeDate}
-							setRangeDate={setRangeDate}
-						/>
+				<div className="flex flex-col gap-3 mb-4">
+					<div className="flex flex-wrap gap-2">
+						{timeframes.map((timeframe) => (
+							<Button
+								key={timeframe.label}
+								variant={
+									timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
+								}
+								onClick={() => {
+									setSelectedTimeframe(timeframe);
+									setSelectedCustomDates(false);
+								}}
+							>
+								{timeframe.label}
+							</Button>
+						))}
+						<div onClick={() => setSelectedCustomDates(true)}>
+							<DateRangePicker
+								hasCustomDateBeenClicked={selectedCustomDates}
+								rangeDate={rangeDate}
+								setRangeDate={setRangeDate}
+							/>
+						</div>
 					</div>
 					<FilterModelNames setSelectedModel={setSelectedModel} />
 				</div>
-				<MultiModelChartContainer
-					data={data}
-					cards={[{ number: apiUsageStats.totalCalls, description: "Total api calls" }]}
-					selectedModel={selectedModel}
-				/>
+				<div className="relative">
+					{isFetching && (
+						<div className="absolute top-2 right-2 z-10">
+							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+						</div>
+					)}
+					{!apiData && isLoading ? (
+						<div className="flex justify-center items-center py-8">
+							<p className="text-gray-500">Loading...</p>
+						</div>
+					) : (
+						<MultiModelChartContainer
+							data={data}
+							cards={[{ number: apiData?.total_calls || 0, description: "API calls", formatter: formatCount }]}
+							selectedModel={selectedModel}
+						/>
+					)}
+				</div>
 			</CardContent>
 		</Card>
 	);

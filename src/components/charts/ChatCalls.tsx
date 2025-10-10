@@ -6,14 +6,14 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/DateRangePicker";
 import { formatDate } from "@/utils/dates";
-import { groupCreditsPerDayAllModels } from "@/utils/credits";
 import FilterModelNames from "@/components/FilterModelNames";
-import { getDates, timeframes } from "@/utils/charts";
+import { groupChatCallsPerDayAllModels } from "@/utils/chat";
+import { getChatDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
-import { useCreditsQuery } from "@/hooks/useCreditsQuery";
-import { formatCredits } from "@/utils/format";
+import { useChatCallsQuery } from "@/hooks/useChatCallsQuery";
+import { formatCount } from "@/utils/format";
 
-export function CreditsAnalytics() {
+export function ChatCallsAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
@@ -26,25 +26,25 @@ export function CreditsAnalytics() {
 				end_date: formatDate(rangeDate.to),
 			};
 		}
-		return getDates(selectedTimeframe.days);
+		return getChatDates(selectedTimeframe.days);
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
-	const { data: creditsData, isLoading, isFetching } = useCreditsQuery(selectedDates);
+	const { data: chatData, isLoading, isFetching } = useChatCallsQuery(selectedDates);
 
 	// Defer heavy computation to avoid blocking UI
-	const deferredCreditsData = useDeferredValue(creditsData);
+	const deferredChatData = useDeferredValue(chatData);
 	const deferredSelectedModel = useDeferredValue(selectedModel);
 
 	const data = useMemo(() => {
-		if (!deferredCreditsData) return [];
-		return groupCreditsPerDayAllModels(deferredCreditsData.credits_usage, selectedDates, deferredSelectedModel);
-	}, [deferredCreditsData, selectedDates, deferredSelectedModel]);
+		if (!deferredChatData) return [];
+		return groupChatCallsPerDayAllModels(deferredChatData.chat_calls, selectedDates, deferredSelectedModel);
+	}, [deferredChatData, selectedDates, deferredSelectedModel]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Credits</CardTitle>
-				<CardDescription>Number of credits ($) consumed</CardDescription>
+				<CardTitle>Chat Requests</CardTitle>
+				<CardDescription>Number of chat requests</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">
@@ -79,20 +79,14 @@ export function CreditsAnalytics() {
 							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
 						</div>
 					)}
-					{!creditsData && isLoading ? (
+					{!chatData && isLoading ? (
 						<div className="flex justify-center items-center py-8">
 							<p className="text-gray-500">Loading...</p>
 						</div>
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[
-								{
-									number: creditsData?.total_credits_used || 0,
-									description: "Total credits used",
-									formatter: formatCredits,
-								},
-							]}
+							cards={[{ number: chatData?.total_calls || 0, description: "Chat requests", formatter: formatCount }]}
 							selectedModel={selectedModel}
 						/>
 					)}

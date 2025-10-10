@@ -1,11 +1,12 @@
 import { formatXAxis } from "@/utils/charts";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 
 type Card = {
 	number: number;
 	description: string;
+	formatter?: (num: number) => string;
 };
 
 type MultiModelChartContainerProps = {
@@ -33,7 +34,7 @@ const COLORS = [
 	"#ff6347",
 ];
 
-const MultiModelChartContainer = ({ data, cards, selectedModel }: MultiModelChartContainerProps) => {
+const MultiModelChartContainer = memo(({ data, cards, selectedModel }: MultiModelChartContainerProps) => {
 	const modelNames = useMemo(() => {
 		if (!data || data.length === 0) return [];
 
@@ -53,7 +54,7 @@ const MultiModelChartContainer = ({ data, cards, selectedModel }: MultiModelChar
 
 	return (
 		<div>
-			<div className="h-[300px]">
+			<div className="h-[350px] md:h-[300px]">
 				<ResponsiveContainer width="100%" height="100%">
 					<AreaChart data={data}>
 						<XAxis
@@ -66,27 +67,31 @@ const MultiModelChartContainer = ({ data, cards, selectedModel }: MultiModelChar
 						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
 						<Tooltip />
 						<Legend />
-						{modelsToShow.map((modelName, index) => (
-							<Area
-								key={modelName}
-								type="monotone"
-								dataKey={modelName}
-								stroke={selectedModel ? "hsl(var(--primary))" : COLORS[index % COLORS.length]}
-								fill={selectedModel ? "hsl(var(--primary))" : COLORS[index % COLORS.length]}
-								fillOpacity={selectedModel ? 0.2 : 0.1}
-								strokeWidth={2}
-								name={modelName}
-							/>
-						))}
+						{modelsToShow.map((modelName, index) => {
+							const colorIndex = selectedModel ? modelNames.indexOf(selectedModel) : index;
+							return (
+								<Area
+									key={modelName}
+									type="monotone"
+									dataKey={modelName}
+									stroke={COLORS[colorIndex % COLORS.length]}
+									fill={COLORS[colorIndex % COLORS.length]}
+									fillOpacity={0.1}
+									strokeWidth={2}
+									name={modelName}
+								/>
+							);
+						})}
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
-			<div className="md:flex max-md:space-y-4">
+			<div className="md:flex max-md:space-y-3 mt-4">
 				{cards.map((card: Card) => {
+					const displayNumber = card.formatter ? card.formatter(card.number) : card.number;
 					return (
 						<Card key={card.description} className="w-fit mx-auto">
-							<CardHeader className="text-center">
-								<CardTitle>{card.number}</CardTitle>
+							<CardHeader className="text-center py-4">
+								<CardTitle>{displayNumber}</CardTitle>
 								<CardDescription>{card.description}</CardDescription>
 							</CardHeader>
 						</Card>
@@ -95,6 +100,8 @@ const MultiModelChartContainer = ({ data, cards, selectedModel }: MultiModelChar
 			</div>
 		</div>
 	);
-};
+});
+
+MultiModelChartContainer.displayName = "MultiModelChartContainer";
 
 export default MultiModelChartContainer;

@@ -1,10 +1,12 @@
 import { formatXAxis } from "@/utils/charts";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { memo } from "react";
 
 type Card = {
 	number: number;
 	description: string;
+	formatter?: (num: number) => string;
 };
 
 type TokensChartContainerProps = {
@@ -13,10 +15,10 @@ type TokensChartContainerProps = {
 	cards: Card[];
 };
 
-const TokensChartContainer = ({ data, cards }: TokensChartContainerProps) => {
+const TokensChartContainer = memo(({ data, cards }: TokensChartContainerProps) => {
 	return (
 		<div>
-			<div className="h-[300px]">
+			<div className="h-[350px] md:h-[300px]">
 				<ResponsiveContainer width="100%" height="100%">
 					<AreaChart data={data}>
 						<XAxis
@@ -50,12 +52,13 @@ const TokensChartContainer = ({ data, cards }: TokensChartContainerProps) => {
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
-			<div className="md:flex max-md:space-y-4">
+			<div className="md:flex max-md:space-y-3 mt-4">
 				{cards.map((card: Card) => {
+					const displayNumber = card.formatter ? card.formatter(card.number) : card.number;
 					return (
 						<Card key={card.description} className="w-fit mx-auto">
-							<CardHeader className="text-center">
-								<CardTitle>{card.number}</CardTitle>
+							<CardHeader className="text-center py-4">
+								<CardTitle>{displayNumber}</CardTitle>
 								<CardDescription>{card.description}</CardDescription>
 							</CardHeader>
 						</Card>
@@ -64,6 +67,8 @@ const TokensChartContainer = ({ data, cards }: TokensChartContainerProps) => {
 			</div>
 		</div>
 	);
-};
+});
+
+TokensChartContainer.displayName = "TokensChartContainer";
 
 export default TokensChartContainer;
