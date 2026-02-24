@@ -25,6 +25,9 @@ export function Navbar() {
 						<Link to="/chat" className={cn(linkClasses, currentPath === "/chat" && activeLinkClasses)}>
 							Chat
 						</Link>
+						<Link to="/liberclaw" className={cn(linkClasses, currentPath === "/liberclaw" && activeLinkClasses)}>
+							LiberClaw
+						</Link>
 					</div>
 				</div>
 			</div>

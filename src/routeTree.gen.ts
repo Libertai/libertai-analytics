@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LiberclawRouteImport } from './routes/liberclaw'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
 
+const LiberclawRoute = LiberclawRouteImport.update({
+  id: '/liberclaw',
+  path: '/liberclaw',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api': typeof ApiRoute
   '/chat': typeof ChatRoute
+  '/liberclaw': typeof LiberclawRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRoute
   '/chat': typeof ChatRoute
+  '/liberclaw': typeof LiberclawRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api': typeof ApiRoute
   '/chat': typeof ChatRoute
+  '/liberclaw': typeof LiberclawRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api' | '/chat'
+  fullPaths: '/' | '/api' | '/chat' | '/liberclaw'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api' | '/chat'
-  id: '__root__' | '/' | '/api' | '/chat'
+  to: '/' | '/api' | '/chat' | '/liberclaw'
+  id: '__root__' | '/' | '/api' | '/chat' | '/liberclaw'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiRoute: typeof ApiRoute
   ChatRoute: typeof ChatRoute
+  LiberclawRoute: typeof LiberclawRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/liberclaw': {
+      id: '/liberclaw'
+      path: '/liberclaw'
+      fullPath: '/liberclaw'
+      preLoaderRoute: typeof LiberclawRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat': {
       id: '/chat'
       path: '/chat'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiRoute: ApiRoute,
   ChatRoute: ChatRoute,
+  LiberclawRoute: LiberclawRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
