@@ -28,6 +28,9 @@ export function Navbar() {
 						<Link to="/liberclaw" className={cn(linkClasses, currentPath === "/liberclaw" && activeLinkClasses)}>
 							LiberClaw
 						</Link>
+						<Link to="/x402" className={cn(linkClasses, currentPath === "/x402" && activeLinkClasses)}>
+							x402
+						</Link>
 					</div>
 				</div>
 			</div>
