@@ -17,7 +17,7 @@ export function LiberclawTokensAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
+	const [selectedModels, setSelectedModels] = useState<string[]>([]);
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -33,12 +33,12 @@ export function LiberclawTokensAnalytics() {
 
 	// Defer heavy computation to avoid blocking UI
 	const deferredTokensData = useDeferredValue(tokensData);
-	const deferredSelectedModel = useDeferredValue(selectedModel);
+	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredTokensData) return [];
-		return groupTokensPerDayAllModels(deferredTokensData.calls, selectedDates, deferredSelectedModel);
-	}, [deferredTokensData, selectedDates, deferredSelectedModel]);
+		return groupTokensPerDayAllModels(deferredTokensData.calls, selectedDates, deferredSelectedModels);
+	}, [deferredTokensData, selectedDates, deferredSelectedModels]);
 
 	const cards = useMemo(() => {
 		if (!deferredTokensData) {
@@ -48,29 +48,21 @@ export function LiberclawTokensAnalytics() {
 			];
 		}
 
-		if (deferredSelectedModel) {
+		if (deferredSelectedModels.length > 0) {
+			const filtered = deferredTokensData.calls.filter(
+				(token) =>
+					deferredSelectedModels.includes(token.model_name) &&
+					token.date >= selectedDates.start_date &&
+					token.date <= selectedDates.end_date,
+			);
 			return [
 				{
-					number: deferredTokensData.calls
-						.filter(
-							(token) =>
-								token.model_name === deferredSelectedModel &&
-								token.date >= selectedDates.start_date &&
-								token.date <= selectedDates.end_date,
-						)
-						.reduce((sum, token) => sum + token.nb_input_tokens, 0),
+					number: filtered.reduce((sum, token) => sum + token.nb_input_tokens, 0),
 					description: `Input Tokens`,
 					formatter: formatCount,
 				},
 				{
-					number: deferredTokensData.calls
-						.filter(
-							(token) =>
-								token.model_name === deferredSelectedModel &&
-								token.date >= selectedDates.start_date &&
-								token.date <= selectedDates.end_date,
-						)
-						.reduce((sum, token) => sum + token.nb_output_tokens, 0),
+					number: filtered.reduce((sum, token) => sum + token.nb_output_tokens, 0),
 					description: `Output Tokens`,
 					formatter: formatCount,
 				},
@@ -89,7 +81,7 @@ export function LiberclawTokensAnalytics() {
 				formatter: formatCount,
 			},
 		];
-	}, [deferredTokensData, deferredSelectedModel, selectedDates]);
+	}, [deferredTokensData, deferredSelectedModels, selectedDates]);
 
 	return (
 		<Card>
@@ -120,7 +112,7 @@ export function LiberclawTokensAnalytics() {
 							/>
 						</div>
 					</div>
-					<FilterModelNames setSelectedModel={setSelectedModel} />
+					<FilterModelNames setSelectedModels={setSelectedModels} />
 				</div>
 				<div className="relative">
 					{isFetching && (

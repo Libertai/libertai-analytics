@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as X402RouteImport } from './routes/x402'
 import { Route as LiberclawRouteImport } from './routes/liberclaw'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
 
+const X402Route = X402RouteImport.update({
+  id: '/x402',
+  path: '/x402',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LiberclawRoute = LiberclawRouteImport.update({
   id: '/liberclaw',
   path: '/liberclaw',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/api': typeof ApiRoute
   '/chat': typeof ChatRoute
   '/liberclaw': typeof LiberclawRoute
+  '/x402': typeof X402Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRoute
   '/chat': typeof ChatRoute
   '/liberclaw': typeof LiberclawRoute
+  '/x402': typeof X402Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/api': typeof ApiRoute
   '/chat': typeof ChatRoute
   '/liberclaw': typeof LiberclawRoute
+  '/x402': typeof X402Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api' | '/chat' | '/liberclaw'
+  fullPaths: '/' | '/api' | '/chat' | '/liberclaw' | '/x402'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api' | '/chat' | '/liberclaw'
-  id: '__root__' | '/' | '/api' | '/chat' | '/liberclaw'
+  to: '/' | '/api' | '/chat' | '/liberclaw' | '/x402'
+  id: '__root__' | '/' | '/api' | '/chat' | '/liberclaw' | '/x402'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   ApiRoute: typeof ApiRoute
   ChatRoute: typeof ChatRoute
   LiberclawRoute: typeof LiberclawRoute
+  X402Route: typeof X402Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/x402': {
+      id: '/x402'
+      path: '/x402'
+      fullPath: '/x402'
+      preLoaderRoute: typeof X402RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/liberclaw': {
       id: '/liberclaw'
       path: '/liberclaw'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiRoute: ApiRoute,
   ChatRoute: ChatRoute,
   LiberclawRoute: LiberclawRoute,
+  X402Route: X402Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

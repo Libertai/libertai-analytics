@@ -2,7 +2,8 @@ import { ChartDate } from "@/types/dates";
 import { formatDate } from "./dates";
 
 export const formatXAxis = (tickItem: string) => {
-	const date = new Date(tickItem);
+	const [year, month, day] = tickItem.split("-").map(Number);
+	const date = new Date(year, month - 1, day);
 	return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 

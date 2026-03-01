@@ -15,7 +15,7 @@ async function fetchChatTokens(rangeDate: ChartDate): Promise<ChatTokensResponse
 		`${env.INFERENCE_BACKEND_URL}/stats/global/chat/tokens?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`
 	);
 
-	const tokenUsage = res.data["token_usage"];
+	const tokenUsage = res.data["token_usage"] ?? [];
 	const parsedCalls: ChatToken[] = tokenUsage.map((call: ChatToken) => ChatTokensSchema.parse(call));
 
 	return {

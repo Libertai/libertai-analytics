@@ -14,7 +14,7 @@ async function fetchX402Credits(rangeDate: ChartDate): Promise<X402CreditsRespon
 		`${env.INFERENCE_BACKEND_URL}/stats/global/x402/credits?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
-	const credits = res.data["credits_usage"];
+	const credits = res.data["credits_usage"] ?? [];
 	const parsedCredits: Credit[] = credits.map((credit: Credit) => CreditsStatsSchema.parse(credit));
 
 	return {

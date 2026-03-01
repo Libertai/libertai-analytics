@@ -50,5 +50,10 @@
     "vite": "^7.1.11",
     "vite-plugin-node-polyfills": "^0.24.0"
   },
-  "packageManager": "pnpm@10.18.2"
+  "packageManager": "pnpm@10.18.2",
+  "pnpm": {
+    "overrides": {
+      "baseline-browser-mapping": "latest"
+    }
+  }
 }

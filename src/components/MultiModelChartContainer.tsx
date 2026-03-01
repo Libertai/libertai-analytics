@@ -12,7 +12,7 @@ type Card = {
 type MultiModelChartContainerProps = {
 	data: Record<string, string>[];
 	cards: Card[];
-	selectedModel?: string;
+	selectedModels?: string[];
 };
 
 
@@ -34,7 +34,7 @@ const COLORS = [
 	"#ff6347",
 ];
 
-const MultiModelChartContainer = memo(({ data, cards, selectedModel }: MultiModelChartContainerProps) => {
+const MultiModelChartContainer = memo(({ data, cards, selectedModels }: MultiModelChartContainerProps) => {
 	const modelNames = useMemo(() => {
 		if (!data || data.length === 0) return [];
 
@@ -50,7 +50,7 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModel }: MultiMode
 		return Array.from(allKeys);
 	}, [data]);
 
-	const modelsToShow = selectedModel ? [selectedModel] : modelNames;
+	const modelsToShow = selectedModels && selectedModels.length > 0 ? selectedModels : modelNames;
 
 	return (
 		<div>
@@ -68,7 +68,7 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModel }: MultiMode
 						<Tooltip />
 						<Legend />
 						{modelsToShow.map((modelName, index) => {
-							const colorIndex = selectedModel ? modelNames.indexOf(selectedModel) : index;
+							const colorIndex = selectedModels && selectedModels.length > 0 ? modelNames.indexOf(modelName) : index;
 							return (
 								<Area
 									key={modelName}

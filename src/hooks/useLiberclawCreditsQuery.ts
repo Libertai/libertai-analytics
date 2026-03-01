@@ -14,7 +14,7 @@ async function fetchLiberclawCredits(rangeDate: ChartDate): Promise<LiberclawCre
 		`${env.INFERENCE_BACKEND_URL}/stats/global/liberclaw/credits?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
-	const credits = res.data["credits_usage"];
+	const credits = res.data["credits_usage"] ?? [];
 	const parsedCredits: Credit[] = credits.map((credit: Credit) => CreditsStatsSchema.parse(credit));
 
 	return {

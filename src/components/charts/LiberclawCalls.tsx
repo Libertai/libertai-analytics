@@ -17,7 +17,7 @@ export function LiberclawAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
+	const [selectedModels, setSelectedModels] = useState<string[]>([]);
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -33,12 +33,12 @@ export function LiberclawAnalytics() {
 
 	// Defer heavy computation to avoid blocking UI
 	const deferredApiData = useDeferredValue(apiData);
-	const deferredSelectedModel = useDeferredValue(selectedModel);
+	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredApiData) return [];
-		return groupApiUsagePerDayAllModels(deferredApiData.api_usage, selectedDates, deferredSelectedModel);
-	}, [deferredApiData, selectedDates, deferredSelectedModel]);
+		return groupApiUsagePerDayAllModels(deferredApiData.api_usage, selectedDates, deferredSelectedModels);
+	}, [deferredApiData, selectedDates, deferredSelectedModels]);
 
 	return (
 		<Card>
@@ -71,7 +71,7 @@ export function LiberclawAnalytics() {
 							/>
 						</div>
 					</div>
-					<FilterModelNames setSelectedModel={setSelectedModel} />
+					<FilterModelNames setSelectedModels={setSelectedModels} />
 				</div>
 				<div className="relative">
 					{isFetching && (
@@ -87,7 +87,7 @@ export function LiberclawAnalytics() {
 						<MultiModelChartContainer
 							data={data}
 							cards={[{ number: apiData?.total_calls || 0, description: "Liberclaw API calls", formatter: formatCount }]}
-							selectedModel={selectedModel}
+							selectedModels={selectedModels}
 						/>
 					)}
 				</div>

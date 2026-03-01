@@ -2,7 +2,7 @@ import { ChartDate } from "@/types/dates";
 import { createEmptyResultByRangeDate } from "./dates";
 import { Token } from "@/types/tokens.ts";
 
-export const groupTokensPerDayAllModels = (tokens: Token[], rangeDate: ChartDate, selectedModel?: string) => {
+export const groupTokensPerDayAllModels = (tokens: Token[], rangeDate: ChartDate, selectedModels?: string[]) => {
 	const startDate = new Date(rangeDate.start_date);
 	const endDate = new Date(rangeDate.end_date);
 	const diffTime = Math.abs(startDate.valueOf() - endDate.valueOf())
@@ -11,13 +11,12 @@ export const groupTokensPerDayAllModels = (tokens: Token[], rangeDate: ChartDate
 	const initialData = { total_input_tokens: 0, total_output_tokens: 0 };
 	const result: Record<string, { total_input_tokens: number; total_output_tokens: number }> = createEmptyResultByRangeDate<Record<string, { total_input_tokens: number; total_output_tokens: number }>>(timeframe, rangeDate, startDate, initialData);
 
-	// Filter tokens by selected model if specified
-	const filteredTokens = selectedModel 
-		? tokens.filter(token => token.model_name === selectedModel)
+	const filteredTokens = selectedModels && selectedModels.length > 0
+		? tokens.filter(token => selectedModels.includes(token.model_name))
 		: tokens;
 
-	filteredTokens.forEach((token: Token) => {
-		for (let i = 1; i < timeframe; i++) {
+	for (const token of filteredTokens) {
+		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
 			date.setDate(date.getDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
@@ -27,7 +26,7 @@ export const groupTokensPerDayAllModels = (tokens: Token[], rangeDate: ChartDate
 				result[dateStr].total_output_tokens += token.nb_output_tokens;
 			}
 		}
-	})
+	}
 
 	return Object.entries(result)
 		.map(([date, values]) => ({

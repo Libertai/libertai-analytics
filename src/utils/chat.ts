@@ -5,7 +5,7 @@ import { createEmptyResultByRangeDate } from "./dates";
 export const groupChatCallsPerDayAllModels = (
 	chatCalls: ChatCall[],
 	rangeDate: ChartDate,
-	selectedModel?: string
+	selectedModels?: string[]
 ) => {
 	const startDate = new Date(rangeDate.start_date);
 	const endDate = new Date(rangeDate.end_date);
@@ -23,20 +23,21 @@ export const groupChatCallsPerDayAllModels = (
 		Record<string, Record<string, number>>
 	>(timeframe, rangeDate, startDate, initialModelData);
 
-	chatCalls.forEach((call: ChatCall) => {
-		for (let i = 1; i < timeframe; i++) {
+	const filteredCalls = selectedModels && selectedModels.length > 0
+		? chatCalls.filter(call => selectedModels.includes(call.model_name))
+		: chatCalls;
+
+	for (const call of filteredCalls) {
+		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
 			date.setDate(date.getDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === call.used_at) {
-				if (selectedModel && call.model_name !== selectedModel) {
-					return;
-				}
 				result[dateStr][call.model_name] += call.call_count;
 			}
 		}
-	});
+	}
 
 	return Object.entries(result)
 		.map(([date, values]) => ({
@@ -49,7 +50,7 @@ export const groupChatCallsPerDayAllModels = (
 export const groupChatTokensPerDayAllModels = (
 	tokens: ChatToken[],
 	rangeDate: ChartDate,
-	selectedModel?: string
+	selectedModels?: string[]
 ) => {
 	const startDate = new Date(rangeDate.start_date);
 	const endDate = new Date(rangeDate.end_date);
@@ -65,11 +66,12 @@ export const groupChatTokensPerDayAllModels = (
 			initialData
 		);
 
-	// Filter tokens by selected model if specified
-	const filteredTokens = selectedModel ? tokens.filter((token) => token.model_name === selectedModel) : tokens;
+	const filteredTokens = selectedModels && selectedModels.length > 0
+		? tokens.filter(token => selectedModels.includes(token.model_name))
+		: tokens;
 
-	filteredTokens.forEach((token: ChatToken) => {
-		for (let i = 1; i < timeframe; i++) {
+	for (const token of filteredTokens) {
+		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
 			date.setDate(date.getDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
@@ -79,7 +81,7 @@ export const groupChatTokensPerDayAllModels = (
 				result[dateStr].total_output_tokens += token.nb_output_tokens;
 			}
 		}
-	});
+	}
 
 	return Object.entries(result)
 		.map(([date, values]) => ({

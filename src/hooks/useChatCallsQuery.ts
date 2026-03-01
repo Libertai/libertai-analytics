@@ -14,7 +14,7 @@ async function fetchChatCalls(rangeDate: ChartDate): Promise<ChatCallsResponse> 
 		`${env.INFERENCE_BACKEND_URL}/stats/global/chat/calls?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`
 	);
 
-	const chatUsage = res.data["chat_usage"];
+	const chatUsage = res.data["chat_usage"] ?? [];
 	const parsedChatCalls: ChatCall[] = chatUsage.map((call: ChatCall) => ChatCallsSchema.parse(call));
 
 	return {

@@ -14,7 +14,7 @@ async function fetchX402Calls(rangeDate: ChartDate): Promise<X402CallsResponse> 
 		`${env.INFERENCE_BACKEND_URL}/stats/global/x402/calls?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
-	const apiUsage = res.data["api_usage"];
+	const apiUsage = res.data["api_usage"] ?? [];
 	const parsedApiUsage: ApiUsage[] = apiUsage.map((usage: ApiUsage) => ApiUsageStatsSchema.parse(usage));
 
 	return {

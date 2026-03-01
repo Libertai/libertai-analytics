@@ -17,7 +17,7 @@ export function X402CallsAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
+	const [selectedModels, setSelectedModels] = useState<string[]>([]);
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -32,12 +32,12 @@ export function X402CallsAnalytics() {
 	const { data: apiData, isLoading, isFetching } = useX402CallsQuery(selectedDates);
 
 	const deferredApiData = useDeferredValue(apiData);
-	const deferredSelectedModel = useDeferredValue(selectedModel);
+	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredApiData) return [];
-		return groupApiUsagePerDayAllModels(deferredApiData.api_usage, selectedDates, deferredSelectedModel);
-	}, [deferredApiData, selectedDates, deferredSelectedModel]);
+		return groupApiUsagePerDayAllModels(deferredApiData.api_usage, selectedDates, deferredSelectedModels);
+	}, [deferredApiData, selectedDates, deferredSelectedModels]);
 
 	return (
 		<Card>
@@ -70,7 +70,7 @@ export function X402CallsAnalytics() {
 							/>
 						</div>
 					</div>
-					<FilterModelNames setSelectedModel={setSelectedModel} />
+					<FilterModelNames setSelectedModels={setSelectedModels} />
 				</div>
 				<div className="relative">
 					{isFetching && (
@@ -86,7 +86,7 @@ export function X402CallsAnalytics() {
 						<MultiModelChartContainer
 							data={data}
 							cards={[{ number: apiData?.total_calls || 0, description: "x402 API calls", formatter: formatCount }]}
-							selectedModel={selectedModel}
+							selectedModels={selectedModels}
 						/>
 					)}
 				</div>

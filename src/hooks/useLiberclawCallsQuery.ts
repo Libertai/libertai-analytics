@@ -14,7 +14,7 @@ async function fetchLiberclawCalls(rangeDate: ChartDate): Promise<LiberclawCalls
 		`${env.INFERENCE_BACKEND_URL}/stats/global/liberclaw/calls?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
-	const apiUsage = res.data["api_usage"];
+	const apiUsage = res.data["api_usage"] ?? [];
 	const parsedApiUsage: ApiUsage[] = apiUsage.map((usage: ApiUsage) => ApiUsageStatsSchema.parse(usage));
 
 	return {
