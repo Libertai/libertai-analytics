@@ -52,6 +52,7 @@ export function ApiAnalytics() {
 						{timeframes.map((timeframe) => (
 							<Button
 								key={timeframe.label}
+								className="max-md:h-8 max-md:px-3 max-md:text-xs"
 								variant={
 									timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
 								}

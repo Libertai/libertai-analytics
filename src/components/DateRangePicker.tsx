@@ -16,11 +16,16 @@ const DateRangePicker = ({hasCustomDateBeenClicked, rangeDate, setRangeDate}: Da
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<Button variant={hasCustomDateBeenClicked ? "default" : "outline"}>
+				<Button className="max-md:h-8 max-md:px-3 max-md:text-xs" variant={hasCustomDateBeenClicked ? "default" : "outline"}>
 					{rangeDate?.from ? (
 						rangeDate?.to ? (
 							<>
-								{format(rangeDate?.from, "LLL dd, y")} - {format(rangeDate?.to, "LLL dd, y")}
+								<span className="hidden sm:inline">
+									{format(rangeDate?.from, "LLL dd, y")} - {format(rangeDate?.to, "LLL dd, y")}
+								</span>
+								<span className="sm:hidden">
+									{format(rangeDate?.from, "MM/dd")} - {format(rangeDate?.to, "MM/dd")}
+								</span>
 							</>
 						) : (
 							format(rangeDate?.from, "LLL dd, y")
@@ -30,9 +35,9 @@ const DateRangePicker = ({hasCustomDateBeenClicked, rangeDate, setRangeDate}: Da
 					)}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent>
+			<PopoverContent className="w-auto p-0" align="start">
 				<Calendar
-					className={""}
+					className=""
 					mode="range"
 					selected={rangeDate}
 					onSelect={setRangeDate}

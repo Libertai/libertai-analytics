@@ -52,11 +52,11 @@ const TokensChartContainer = memo(({ data, cards }: TokensChartContainerProps) =
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
-			<div className="md:flex max-md:space-y-3 mt-4">
+			<div className="grid grid-cols-2 md:flex gap-3 mt-4">
 				{cards.map((card: Card) => {
 					const displayNumber = card.formatter ? card.formatter(card.number) : card.number;
 					return (
-						<Card key={card.description} className="w-fit mx-auto">
+						<Card key={card.description} className="md:w-fit md:mx-auto">
 							<CardHeader className="text-center py-4">
 								<CardTitle>{displayNumber}</CardTitle>
 								<CardDescription>{card.description}</CardDescription>
