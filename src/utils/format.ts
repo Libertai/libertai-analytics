@@ -42,5 +42,5 @@ export function formatCredits(num: number): string {
  * @returns Formatted string with K, M, B suffixes (no decimals for whole numbers)
  */
 export function formatCount(num: number): string {
-	return formatLargeNumber(num, 0);
+	return formatLargeNumber(num, 2);
 }
