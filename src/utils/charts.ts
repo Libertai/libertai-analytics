@@ -21,7 +21,7 @@ export const getDates = (days: number | null, allTimeStartDate?: string): ChartD
 		startDate = new Date(allTimeStartDate || "2025-04-26");
 	} else {
 		startDate = new Date();
-		startDate.setDate(startDate.getDate() - days);
+		startDate.setUTCDate(startDate.getUTCDate() - days);
 	}
 
 	return {

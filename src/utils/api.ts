@@ -15,7 +15,7 @@ export const groupApiUsagePerDay = (apiUsage: ApiUsage[], rangeDate: ChartDate, 
 		if (usage.model_name !== model_name) continue;
 		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
-			date.setDate(date.getDate() + i);
+			date.setUTCDate(date.getUTCDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === usage.used_at) {
@@ -54,7 +54,7 @@ export const groupApiUsagePerDayAllModels = (apiUsage: ApiUsage[], rangeDate: Ch
 	for (const usage of filteredUsage) {
 		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
-			date.setDate(date.getDate() + i);
+			date.setUTCDate(date.getUTCDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === usage.used_at) {

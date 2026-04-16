@@ -30,7 +30,7 @@ export const groupChatCallsPerDayAllModels = (
 	for (const call of filteredCalls) {
 		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
-			date.setDate(date.getDate() + i);
+			date.setUTCDate(date.getUTCDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === call.used_at) {
@@ -73,7 +73,7 @@ export const groupChatTokensPerDayAllModels = (
 	for (const token of filteredTokens) {
 		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
-			date.setDate(date.getDate() + i);
+			date.setUTCDate(date.getUTCDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === token.date) {

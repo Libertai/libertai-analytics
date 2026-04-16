@@ -24,7 +24,7 @@ export const groupCreditsPerDayAllModels = (credits: Credit[], rangeDate: ChartD
 	for (const credit of filteredCredits) {
 		for (let i = 0; i < timeframe; i++) {
 			const date: Date = new Date(startDate.valueOf());
-			date.setDate(date.getDate() + i);
+			date.setUTCDate(date.getUTCDate() + i);
 			const dateStr = date.toISOString().split("T")[0];
 
 			if (dateStr === credit.used_at) {

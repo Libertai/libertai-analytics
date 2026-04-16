@@ -6,7 +6,7 @@ export const formatDate = (date: Date) => date.toISOString().split("T")[0];
 export function getDateRange(days: number): ChartDate {
 	const end_date = new Date();
 	const start_date = new Date();
-	start_date.setDate(end_date.getDate() - days);
+	start_date.setUTCDate(end_date.getUTCDate() - days);
 
 	return {
 		start_date: formatDate(start_date),
@@ -25,7 +25,7 @@ export const createEmptyResultByRangeDate = <T extends Record<string, any>>(
 
   for (let i = 0; i < timeframe; i++) {
     const sDate = new Date(rangeDate.start_date);
-    sDate.setDate(sDate.getDate() + i);
+    sDate.setUTCDate(sDate.getUTCDate() + i);
     const dateStr = sDate.toISOString().split("T")[0];
 
     (result as Record<string, any>)[dateStr] = { ...defaultValue };
