@@ -38,19 +38,24 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels }: MultiMod
 	const modelNames = useMemo(() => {
 		if (!data || data.length === 0) return [];
 
-		const allKeys = new Set<string>();
+		const maxByKey = new Map<string, number>();
 		data.forEach((item) => {
 			Object.keys(item).forEach((key) => {
-				if (key !== "date") {
-					allKeys.add(key);
-				}
+				if (key === "date") return;
+				const value = Number(item[key]) || 0;
+				const current = maxByKey.get(key) ?? -Infinity;
+				if (value > current) maxByKey.set(key, value);
 			});
 		});
 
-		return Array.from(allKeys);
+		return Array.from(maxByKey.keys()).sort((a, b) => (maxByKey.get(b) ?? 0) - (maxByKey.get(a) ?? 0));
 	}, [data]);
 
-	const modelsToShow = selectedModels && selectedModels.length > 0 ? selectedModels : modelNames;
+	const modelsToShow = useMemo(() => {
+		if (!selectedModels || selectedModels.length === 0) return modelNames;
+		const selected = new Set(selectedModels);
+		return modelNames.filter((name) => selected.has(name));
+	}, [modelNames, selectedModels]);
 
 	return (
 		<div>
@@ -65,7 +70,7 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels }: MultiMod
 							tickFormatter={formatXAxis}
 						/>
 						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
-						<Tooltip />
+						<Tooltip itemSorter={(item) => -(Number(item.value) || 0)} />
 						<Legend />
 						{modelsToShow.map((modelName, index) => {
 							const colorIndex = selectedModels && selectedModels.length > 0 ? modelNames.indexOf(modelName) : index;
