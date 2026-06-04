@@ -1,18 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ChatCallsAnalytics } from "@/components/charts/ChatCalls";
-import { ChatTokensAnalytics } from "@/components/charts/ChatTokens";
+import { InferenceAnalytics } from "@/components/InferenceAnalytics";
+import { REQUEST_TYPES } from "@/config/requestTypes";
 
 export const Route = createFileRoute("/chat")({
-	component: ChatPage,
+	component: () => <InferenceAnalytics type={REQUEST_TYPES.chat} />,
 });
-
-function ChatPage() {
-	return (
-		<main className="container mx-auto px-4 py-8">
-			<h2 className="text-2xl sm:text-3xl font-bold mb-6">Chat Analytics</h2>
-			<ChatCallsAnalytics />
-			<br />
-			<ChatTokensAnalytics />
-		</main>
-	);
-}

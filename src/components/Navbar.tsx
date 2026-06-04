@@ -17,6 +17,7 @@ const navLinks = [
 	{ to: "/chat", label: "Chat" },
 	{ to: "/liberclaw", label: "LiberClaw" },
 	{ to: "/x402", label: "x402" },
+	{ to: "/cli", label: "CLI" },
 ] as const;
 
 export function Navbar() {

@@ -1,19 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { getDates, timeframes } from "@/utils/charts.ts";
-import { Button } from "@/components/ui/button.tsx";
-import DateRangePicker from "@/components/DateRangePicker.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDates, timeframes } from "@/utils/charts";
+import { Button } from "@/components/ui/button";
+import DateRangePicker from "@/components/DateRangePicker";
 import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { formatDate } from "@/utils/dates.ts";
-import FilterModelNames from "@/components/FilterModelNames.tsx";
-import { groupTokensPerDayAllModels } from "@/utils/tokens.ts";
-import TokensChartContainer from "@/components/TokensChartContainer.tsx";
+import { formatDate } from "@/utils/dates";
+import FilterModelNames from "@/components/FilterModelNames";
+import { groupTokensPerDayAllModels } from "@/utils/tokens";
+import TokensChartContainer from "@/components/TokensChartContainer";
 import { useTokensQuery } from "@/hooks/useTokensQuery";
 import { formatCount } from "@/utils/format";
+import { RequestTypeConfig } from "@/config/requestTypes";
 
-export function TokensAnalytics() {
+export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
@@ -26,18 +27,17 @@ export function TokensAnalytics() {
 				end_date: formatDate(rangeDate.to),
 			};
 		}
-		return getDates(selectedTimeframe.days);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
+		return getDates(selectedTimeframe.days, type.allTimeStartDate);
+	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
 
-	const { data: tokensData, isLoading, isFetching } = useTokensQuery(selectedDates);
+	const { data: tokensData, isLoading, isFetching } = useTokensQuery(type, selectedDates);
 
-	// Defer heavy computation to avoid blocking UI
 	const deferredTokensData = useDeferredValue(tokensData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredTokensData) return [];
-		return groupTokensPerDayAllModels(deferredTokensData.calls, selectedDates, deferredSelectedModels);
+		return groupTokensPerDayAllModels(deferredTokensData.tokens, selectedDates, deferredSelectedModels);
 	}, [deferredTokensData, selectedDates, deferredSelectedModels]);
 
 	const cards = useMemo(() => {
@@ -49,7 +49,7 @@ export function TokensAnalytics() {
 		}
 
 		if (deferredSelectedModels.length > 0) {
-			const filtered = deferredTokensData.calls.filter(
+			const filtered = deferredTokensData.tokens.filter(
 				(token) =>
 					deferredSelectedModels.includes(token.model_name) &&
 					token.date >= selectedDates.start_date &&
@@ -86,8 +86,8 @@ export function TokensAnalytics() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Tokens</CardTitle>
-				<CardDescription>Tokens consumption by users</CardDescription>
+				<CardTitle>{type.tokens.title}</CardTitle>
+				<CardDescription>{type.tokens.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">

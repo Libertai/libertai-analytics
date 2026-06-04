@@ -7,10 +7,8 @@ import DateRangePicker from "@/components/DateRangePicker";
 import { formatDate } from "@/utils/dates";
 import { getDates, timeframes, formatXAxis } from "@/utils/charts";
 import { useSummaryQuery } from "@/hooks/useSummaryQuery";
-import { useApiQuery } from "@/hooks/useApiQuery";
-import { useChatCallsQuery } from "@/hooks/useChatCallsQuery";
-import { useX402CallsQuery } from "@/hooks/useX402CallsQuery";
-import { useLiberclawCallsQuery } from "@/hooks/useLiberclawCallsQuery";
+import { useCallsQuery } from "@/hooks/useCallsQuery";
+import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
 import MultiModelChartContainer from "@/components/MultiModelChartContainer";
@@ -36,20 +34,22 @@ function Index() {
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
 	const { data: summaryData, isLoading, isFetching } = useSummaryQuery(selectedDates);
-	const { data: apiData } = useApiQuery(selectedDates);
-	const { data: chatData } = useChatCallsQuery(selectedDates);
-	const { data: x402Data } = useX402CallsQuery(selectedDates);
-	const { data: liberclawData } = useLiberclawCallsQuery(selectedDates);
+	const { data: apiData } = useCallsQuery(REQUEST_TYPES.api, selectedDates);
+	const { data: chatData } = useCallsQuery(REQUEST_TYPES.chat, selectedDates);
+	const { data: x402Data } = useCallsQuery(REQUEST_TYPES.x402, selectedDates);
+	const { data: liberclawData } = useCallsQuery(REQUEST_TYPES.liberclaw, selectedDates);
+	const { data: cliData } = useCallsQuery(REQUEST_TYPES.cli, selectedDates);
 
 	const allCalls = useMemo(() => {
 		const calls = [
-			...(apiData?.api_usage ?? []),
-			...(chatData?.chat_calls ?? []),
-			...(x402Data?.api_usage ?? []),
-			...(liberclawData?.api_usage ?? []),
+			...(apiData?.calls ?? []),
+			...(chatData?.calls ?? []),
+			...(x402Data?.calls ?? []),
+			...(liberclawData?.calls ?? []),
+			...(cliData?.calls ?? []),
 		];
 		return calls;
-	}, [apiData, chatData, x402Data, liberclawData]);
+	}, [apiData, chatData, x402Data, liberclawData, cliData]);
 
 	const deferredAllCalls = useDeferredValue(allCalls);
 

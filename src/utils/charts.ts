@@ -29,7 +29,3 @@ export const getDates = (days: number | null, allTimeStartDate?: string): ChartD
 		end_date: formatDate(new Date()),
 	};
 };
-
-export const getChatDates = (days: number | null): ChartDate => {
-	return getDates(days, "2025-10-02");
-};

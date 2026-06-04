@@ -10,10 +10,11 @@ import { groupCreditsPerDayAllModels } from "@/utils/credits";
 import FilterModelNames from "@/components/FilterModelNames";
 import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
-import { useX402CreditsQuery } from "@/hooks/useX402CreditsQuery";
+import { useCreditsQuery } from "@/hooks/useCreditsQuery";
 import { formatCredits } from "@/utils/format";
+import { RequestTypeConfig } from "@/config/requestTypes";
 
-export function X402CreditsAnalytics() {
+export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
@@ -26,24 +27,24 @@ export function X402CreditsAnalytics() {
 				end_date: formatDate(rangeDate.to),
 			};
 		}
-		return getDates(selectedTimeframe.days);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
+		return getDates(selectedTimeframe.days, type.allTimeStartDate);
+	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
 
-	const { data: creditsData, isLoading, isFetching } = useX402CreditsQuery(selectedDates);
+	const { data: creditsData, isLoading, isFetching } = useCreditsQuery(type, selectedDates);
 
 	const deferredCreditsData = useDeferredValue(creditsData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredCreditsData) return [];
-		return groupCreditsPerDayAllModels(deferredCreditsData.credits_usage, selectedDates, deferredSelectedModels);
+		return groupCreditsPerDayAllModels(deferredCreditsData.credits, selectedDates, deferredSelectedModels);
 	}, [deferredCreditsData, selectedDates, deferredSelectedModels]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>x402 Credits</CardTitle>
-				<CardDescription>Credits ($) consumed by x402</CardDescription>
+				<CardTitle>{type.credits?.title}</CardTitle>
+				<CardDescription>{type.credits?.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">
