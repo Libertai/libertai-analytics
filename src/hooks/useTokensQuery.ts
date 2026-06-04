@@ -1,25 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { TokensStatsSchema } from "@/types/tokens";
+import { Token, TokenItemSchema } from "@/types/tokens";
 import { ChartDate } from "@/types/dates";
+import { RequestTypeConfig } from "@/config/requestTypes";
 import env from "@/config/env";
 
-async function fetchTokens(rangeDate: ChartDate) {
-	const response = await axios.get(
-		`${env.INFERENCE_BACKEND_URL}/stats/global/api/tokens?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+type TokensResponse = {
+	total_input_tokens: number;
+	total_output_tokens: number;
+	tokens: Token[];
+};
+
+async function fetchTokens(type: RequestTypeConfig, rangeDate: ChartDate): Promise<TokensResponse> {
+	const res = await axios.get(
+		`${env.INFERENCE_BACKEND_URL}/stats/global/${type.key}/tokens?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
-	return TokensStatsSchema.parse(response.data);
+	const usage = res.data[type.tokens.responseField] ?? [];
+	const tokens: Token[] = usage.map((t: Token) => TokenItemSchema.parse(t));
+
+	return {
+		total_input_tokens: res.data["total_input_tokens"],
+		total_output_tokens: res.data["total_output_tokens"],
+		tokens,
+	};
 }
 
-export function useTokensQuery(rangeDate: ChartDate) {
+export function useTokensQuery(type: RequestTypeConfig, rangeDate: ChartDate) {
 	return useQuery({
-		queryKey: ["tokens", rangeDate.start_date, rangeDate.end_date],
-		queryFn: () => fetchTokens(rangeDate),
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		queryKey: [`${type.key}-tokens`, rangeDate.start_date, rangeDate.end_date],
+		queryFn: () => fetchTokens(type, rangeDate),
+		staleTime: 5 * 60 * 1000,
 		gcTime: 10 * 60 * 1000,
-		placeholderData: (previousData) => previousData, // Keep showing old data while fetching new
-		refetchOnMount: false, // Don't refetch on mount if data is fresh
+		placeholderData: (previousData) => previousData,
+		refetchOnMount: false,
 		refetchOnReconnect: false,
 	});
 }

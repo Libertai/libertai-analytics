@@ -6,14 +6,15 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/DateRangePicker";
 import { formatDate } from "@/utils/dates";
-import { groupCreditsPerDayAllModels } from "@/utils/credits";
 import FilterModelNames from "@/components/FilterModelNames";
+import { groupApiUsagePerDayAllModels } from "@/utils/api";
 import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
-import { useLiberclawCreditsQuery } from "@/hooks/useLiberclawCreditsQuery";
-import { formatCredits } from "@/utils/format";
+import { useCallsQuery } from "@/hooks/useCallsQuery";
+import { formatCount } from "@/utils/format";
+import { RequestTypeConfig } from "@/config/requestTypes";
 
-export function LiberclawCreditsAnalytics() {
+export function CallsAnalytics({ type }: { type: RequestTypeConfig }) {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
@@ -26,25 +27,24 @@ export function LiberclawCreditsAnalytics() {
 				end_date: formatDate(rangeDate.to),
 			};
 		}
-		return getDates(selectedTimeframe.days);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
+		return getDates(selectedTimeframe.days, type.allTimeStartDate);
+	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
 
-	const { data: creditsData, isLoading, isFetching } = useLiberclawCreditsQuery(selectedDates);
+	const { data: apiData, isLoading, isFetching } = useCallsQuery(type, selectedDates);
 
-	// Defer heavy computation to avoid blocking UI
-	const deferredCreditsData = useDeferredValue(creditsData);
+	const deferredApiData = useDeferredValue(apiData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
-		if (!deferredCreditsData) return [];
-		return groupCreditsPerDayAllModels(deferredCreditsData.credits_usage, selectedDates, deferredSelectedModels);
-	}, [deferredCreditsData, selectedDates, deferredSelectedModels]);
+		if (!deferredApiData) return [];
+		return groupApiUsagePerDayAllModels(deferredApiData.calls, selectedDates, deferredSelectedModels);
+	}, [deferredApiData, selectedDates, deferredSelectedModels]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Liberclaw Credits</CardTitle>
-				<CardDescription>Credits ($) consumed by Liberclaw</CardDescription>
+				<CardTitle>{type.calls.title}</CardTitle>
+				<CardDescription>{type.calls.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">
@@ -80,20 +80,14 @@ export function LiberclawCreditsAnalytics() {
 							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
 						</div>
 					)}
-					{!creditsData && isLoading ? (
+					{!apiData && isLoading ? (
 						<div className="flex justify-center items-center py-8">
 							<p className="text-gray-500">Loading...</p>
 						</div>
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[
-								{
-									number: creditsData?.total_credits_used || 0,
-									description: "Total credits used",
-									formatter: formatCredits,
-								},
-							]}
+							cards={[{ number: apiData?.total_calls || 0, description: type.calls.cardLabel, formatter: formatCount }]}
 							selectedModels={selectedModels}
 						/>
 					)}
