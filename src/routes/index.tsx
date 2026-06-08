@@ -8,9 +8,11 @@ import { formatDate } from "@/utils/dates";
 import { getDates, timeframes, formatXAxis } from "@/utils/charts";
 import { useSummaryQuery } from "@/hooks/useSummaryQuery";
 import { useCallsQuery } from "@/hooks/useCallsQuery";
+import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
+import { averageDau, groupDauPerDay } from "@/utils/users";
 import MultiModelChartContainer from "@/components/MultiModelChartContainer";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -34,6 +36,7 @@ function Index() {
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
 	const { data: summaryData, isLoading, isFetching } = useSummaryQuery(selectedDates);
+	const { data: usersData } = useGlobalUsersQuery(selectedDates);
 	const { data: apiData } = useCallsQuery(REQUEST_TYPES.api, selectedDates);
 	const { data: chatData } = useCallsQuery(REQUEST_TYPES.chat, selectedDates);
 	const { data: x402Data } = useCallsQuery(REQUEST_TYPES.x402, selectedDates);
@@ -62,6 +65,15 @@ function Index() {
 		if (deferredAllCalls.length === 0) return [];
 		return groupCumulativePerModel(deferredAllCalls, selectedDates);
 	}, [deferredAllCalls, selectedDates]);
+
+	const deferredUsersData = useDeferredValue(usersData);
+
+	const dauData = useMemo(() => {
+		if (!deferredUsersData) return [];
+		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates);
+	}, [deferredUsersData, selectedDates]);
+
+	const avgDau = useMemo(() => (usersData ? averageDau(usersData.daily_active_users) : 0), [usersData]);
 
 	const stats = [
 		{ label: "Total Requests", value: summaryData?.total_requests ?? 0 },
@@ -176,6 +188,24 @@ function Index() {
 					</CardContent>
 				</Card>
 			</div>
+
+			<Card className="mt-6">
+				<CardHeader>
+					<CardTitle>Active Users</CardTitle>
+					<CardDescription>
+						Distinct users per day across API, CLI, Chat and Liberclaw (deduplicated; excludes x402)
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="max-md:px-3">
+					<MultiModelChartContainer
+						data={dauData}
+						cards={[
+							{ number: usersData?.total_unique_users ?? 0, description: "Unique users (range)", formatter: formatCount },
+							{ number: avgDau, description: "Avg DAU (active days)", formatter: formatCount },
+						]}
+					/>
+				</CardContent>
+			</Card>
 		</main>
 	);
 }

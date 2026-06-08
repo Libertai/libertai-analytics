@@ -29,6 +29,8 @@ export type RequestTypeConfig = {
 	};
 	// null when the type has no credits (chat).
 	credits: { title: string; description: string } | null;
+	// Daily-active-users (DAU) chart config. null when distinct users aren't tracked (x402).
+	users: { title: string; description: string } | null;
 };
 
 export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
@@ -39,6 +41,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		calls: { title: "API", description: "Number of API calls", cardLabel: "API calls", responseField: "api_usage" },
 		tokens: { title: "Tokens", description: "Tokens consumption by users", responseField: "calls" },
 		credits: { title: "Credits", description: "Number of credits ($) consumed" },
+		users: { title: "Active Users", description: "Distinct users making API calls per day" },
 	},
 	chat: {
 		key: "chat",
@@ -57,6 +60,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 			responseField: "token_usage",
 		},
 		credits: null,
+		users: { title: "Active Users", description: "Distinct users making chat requests per day" },
 	},
 	liberclaw: {
 		key: "liberclaw",
@@ -70,6 +74,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		},
 		tokens: { title: "Liberclaw Tokens", description: "Tokens consumption by Liberclaw users", responseField: "calls" },
 		credits: { title: "Liberclaw Credits", description: "Credits ($) consumed by Liberclaw" },
+		users: { title: "Active Users", description: "Distinct Liberclaw users per day" },
 	},
 	x402: {
 		key: "x402",
@@ -83,6 +88,8 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		},
 		tokens: { title: "x402 Tokens", description: "Tokens consumption by x402", responseField: "calls" },
 		credits: { title: "x402 Credits", description: "Credits ($) consumed by x402" },
+		// x402 payments are anonymous — no user identity to count.
+		users: null,
 	},
 	cli: {
 		key: "cli",
@@ -91,5 +98,6 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		calls: { title: "CLI", description: "Number of CLI calls", cardLabel: "CLI calls", responseField: "api_usage" },
 		tokens: { title: "CLI Tokens", description: "Tokens consumption by CLI", responseField: "calls" },
 		credits: { title: "CLI Credits", description: "Credits ($) consumed by CLI" },
+		users: { title: "Active Users", description: "Distinct users making CLI calls per day" },
 	},
 };

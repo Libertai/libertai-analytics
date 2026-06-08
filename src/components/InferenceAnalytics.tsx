@@ -1,9 +1,10 @@
 import { CallsAnalytics } from "@/components/charts/CallsAnalytics";
 import { TokensAnalytics } from "@/components/charts/TokensAnalytics";
 import { CreditsAnalytics } from "@/components/charts/CreditsAnalytics";
+import { UsersAnalytics } from "@/components/charts/UsersAnalytics";
 import { RequestTypeConfig } from "@/config/requestTypes";
 
-// Stacks the calls / tokens / (optional) credits charts for one request type.
+// Stacks the calls / tokens / (optional) credits / (optional) users charts for one request type.
 export function InferenceAnalytics({ type }: { type: RequestTypeConfig }) {
 	return (
 		<main className="container mx-auto px-4 py-8">
@@ -15,6 +16,12 @@ export function InferenceAnalytics({ type }: { type: RequestTypeConfig }) {
 				<>
 					<br />
 					<CreditsAnalytics type={type} />
+				</>
+			)}
+			{type.users && (
+				<>
+					<br />
+					<UsersAnalytics type={type} />
 				</>
 			)}
 		</main>
