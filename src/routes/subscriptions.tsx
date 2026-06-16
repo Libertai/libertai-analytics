@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SubscribersByTier } from "@/components/charts/SubscribersByTier";
-import { MessagesBySegmentAnalytics } from "@/components/charts/MessagesBySegmentAnalytics";
+import { UsersBySegment } from "@/components/charts/UsersBySegment";
 import { CreditsConsumptionAnalytics } from "@/components/charts/CreditsConsumptionAnalytics";
 
 export const Route = createFileRoute("/subscriptions")({
@@ -13,11 +12,10 @@ function Subscriptions() {
 			<div>
 				<h1 className="text-2xl font-bold">Subscriptions &amp; credits</h1>
 				<p className="text-sm text-muted-foreground mt-1">
-					Plan adoption, chat volume per segment, and credit consumption.
+					User base by segment and credit consumption across all usage (chat, API, CLI).
 				</p>
 			</div>
-			<SubscribersByTier />
-			<MessagesBySegmentAnalytics />
+			<UsersBySegment />
 			<CreditsConsumptionAnalytics />
 		</div>
 	);

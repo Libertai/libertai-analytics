@@ -3,14 +3,24 @@ import axios from "axios";
 import { TierSubscribers, TierSubscribersSchema } from "@/types/subscriptions";
 import env from "@/config/env";
 
-type Response = { subscribers_by_tier: TierSubscribers[]; total_paid_subscribers: number };
+type Response = {
+	subscribers_by_tier: TierSubscribers[];
+	total_paid_subscribers: number;
+	free_users: number;
+	anonymous_users: number;
+};
 
 async function fetchSubscriptions(): Promise<Response> {
 	const res = await axios.get(`${env.INFERENCE_BACKEND_URL}/stats/global/subscriptions`);
 	const subscribers_by_tier: TierSubscribers[] = (res.data["subscribers_by_tier"] ?? []).map((t: TierSubscribers) =>
 		TierSubscribersSchema.parse(t),
 	);
-	return { subscribers_by_tier, total_paid_subscribers: res.data["total_paid_subscribers"] ?? 0 };
+	return {
+		subscribers_by_tier,
+		total_paid_subscribers: res.data["total_paid_subscribers"] ?? 0,
+		free_users: res.data["free_users"] ?? 0,
+		anonymous_users: res.data["anonymous_users"] ?? 0,
+	};
 }
 
 export function useSubscriptionsQuery() {

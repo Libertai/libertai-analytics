@@ -4,20 +4,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useSubscriptionsQuery } from "@/hooks/useSubscriptionsQuery";
 
 const TIER_ORDER = ["go", "plus", "max"];
-const tierLabel = (tier: string) => tier.charAt(0).toUpperCase() + tier.slice(1);
+const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function SubscribersByTier() {
+/** User base by segment (snapshot): anonymous + free + paid tiers. Subscriptions cover all usage,
+ * so this is a users view, not a chat metric. */
+export function UsersBySegment() {
 	const { data, isLoading } = useSubscriptionsQuery();
 
 	const byTier = [...(data?.subscribers_by_tier ?? [])].sort(
 		(a, b) => (TIER_ORDER.indexOf(a.tier) + 1 || 99) - (TIER_ORDER.indexOf(b.tier) + 1 || 99),
 	);
 
+	const cards = [
+		{ key: "anonymous", value: data?.anonymous_users ?? 0, label: "Anonymous" },
+		{ key: "free", value: data?.free_users ?? 0, label: "Free" },
+		...byTier.map((t) => ({ key: t.tier, value: t.active_subscribers, label: label(t.tier) })),
+	];
+
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Active subscribers</CardTitle>
-				<CardDescription>Current paid subscribers per tier (live snapshot)</CardDescription>
+				<CardTitle>Users by segment</CardTitle>
+				<CardDescription>
+					Anonymous (distinct logged-out IPs), registered free users, and active paid subscribers per tier
+				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				{isLoading ? (
@@ -26,21 +36,14 @@ export function SubscribersByTier() {
 					</div>
 				) : (
 					<div className="grid grid-cols-2 md:flex gap-3">
-						<Card className="md:w-fit md:mx-auto">
-							<CardHeader className="text-center py-4">
-								<CardTitle>{data?.total_paid_subscribers ?? 0}</CardTitle>
-								<CardDescription>Total paid</CardDescription>
-							</CardHeader>
-						</Card>
-						{byTier.map((t) => (
-							<Card key={t.tier} className="md:w-fit md:mx-auto">
+						{cards.map((c) => (
+							<Card key={c.key} className="md:w-fit md:mx-auto">
 								<CardHeader className="text-center py-4">
-									<CardTitle>{t.active_subscribers}</CardTitle>
-									<CardDescription>{tierLabel(t.tier)}</CardDescription>
+									<CardTitle>{c.value}</CardTitle>
+									<CardDescription>{c.label}</CardDescription>
 								</CardHeader>
 							</Card>
 						))}
-						{byTier.length === 0 && <p className="text-gray-500 py-4">No active paid subscribers yet.</p>}
 					</div>
 				)}
 			</CardContent>
