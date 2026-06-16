@@ -13,6 +13,7 @@ import {
 
 const navLinks = [
 	{ to: "/", label: "Dashboard" },
+	{ to: "/subscriptions", label: "Subscriptions" },
 	{ to: "/api", label: "API" },
 	{ to: "/chat", label: "Chat" },
 	{ to: "/liberclaw", label: "LiberClaw" },
