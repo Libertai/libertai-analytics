@@ -49,6 +49,15 @@ const TokensChartContainer = memo(({ data, cards }: TokensChartContainerProps) =
 							strokeWidth={2}
 							name="Output Tokens"
 						/>
+						<Area
+							type="monotone"
+							dataKey="total_cached_tokens"
+							stroke="#ffc658"
+							fill="#ffc658"
+							fillOpacity={0.1}
+							strokeWidth={2}
+							name="Cached Input Tokens"
+						/>
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>

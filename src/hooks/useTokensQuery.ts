@@ -8,6 +8,7 @@ import env from "@/config/env";
 type TokensResponse = {
 	total_input_tokens: number;
 	total_output_tokens: number;
+	total_cached_tokens: number;
 	tokens: Token[];
 };
 
@@ -22,6 +23,7 @@ async function fetchTokens(type: RequestTypeConfig, rangeDate: ChartDate): Promi
 	return {
 		total_input_tokens: res.data["total_input_tokens"],
 		total_output_tokens: res.data["total_output_tokens"],
+		total_cached_tokens: res.data["total_cached_tokens"] ?? 0,
 		tokens,
 	};
 }

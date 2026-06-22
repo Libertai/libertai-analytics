@@ -40,6 +40,20 @@ export function CallsAnalytics({ type }: { type: RequestTypeConfig }) {
 		return groupApiUsagePerDayAllModels(deferredApiData.calls, selectedDates, deferredSelectedModels);
 	}, [deferredApiData, selectedDates, deferredSelectedModels]);
 
+	// Scope the total-calls card to the selected models (whole range when none selected).
+	const totalCalls = useMemo(() => {
+		if (!deferredApiData) return 0;
+		if (deferredSelectedModels.length === 0) return deferredApiData.total_calls;
+		return deferredApiData.calls
+			.filter(
+				(call) =>
+					deferredSelectedModels.includes(call.model_name) &&
+					call.used_at >= selectedDates.start_date &&
+					call.used_at <= selectedDates.end_date,
+			)
+			.reduce((sum, call) => sum + call.call_count, 0);
+	}, [deferredApiData, deferredSelectedModels, selectedDates]);
+
 	return (
 		<Card>
 			<CardHeader>
@@ -87,7 +101,7 @@ export function CallsAnalytics({ type }: { type: RequestTypeConfig }) {
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[{ number: apiData?.total_calls || 0, description: type.calls.cardLabel, formatter: formatCount }]}
+							cards={[{ number: totalCalls, description: type.calls.cardLabel, formatter: formatCount }]}
 							selectedModels={selectedModels}
 						/>
 					)}

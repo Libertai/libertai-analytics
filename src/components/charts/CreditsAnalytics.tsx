@@ -40,6 +40,20 @@ export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
 		return groupCreditsPerDayAllModels(deferredCreditsData.credits, selectedDates, deferredSelectedModels);
 	}, [deferredCreditsData, selectedDates, deferredSelectedModels]);
 
+	// Scope the total-credits card to the selected models (whole range when none selected).
+	const totalCreditsUsed = useMemo(() => {
+		if (!deferredCreditsData) return 0;
+		if (deferredSelectedModels.length === 0) return deferredCreditsData.total_credits_used;
+		return deferredCreditsData.credits
+			.filter(
+				(credit) =>
+					deferredSelectedModels.includes(credit.model_name) &&
+					credit.used_at >= selectedDates.start_date &&
+					credit.used_at <= selectedDates.end_date,
+			)
+			.reduce((sum, credit) => sum + credit.credits_used, 0);
+	}, [deferredCreditsData, deferredSelectedModels, selectedDates]);
+
 	return (
 		<Card>
 			<CardHeader>
@@ -89,7 +103,7 @@ export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
 							data={data}
 							cards={[
 								{
-									number: creditsData?.total_credits_used || 0,
+									number: totalCreditsUsed,
 									description: "Total credits used",
 									formatter: formatCredits,
 								},

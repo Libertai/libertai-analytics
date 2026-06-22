@@ -45,6 +45,7 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 			return [
 				{ number: 0, description: "Total Input Tokens", formatter: formatCount },
 				{ number: 0, description: "Total Output Tokens", formatter: formatCount },
+				{ number: 0, description: "Total Cached Input Tokens", formatter: formatCount },
 			];
 		}
 
@@ -66,6 +67,11 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 					description: `Output Tokens`,
 					formatter: formatCount,
 				},
+				{
+					number: filtered.reduce((sum, token) => sum + token.nb_cached_tokens, 0),
+					description: `Cached Input Tokens`,
+					formatter: formatCount,
+				},
 			];
 		}
 
@@ -78,6 +84,11 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 			{
 				number: deferredTokensData.total_output_tokens,
 				description: "Output Tokens",
+				formatter: formatCount,
+			},
+			{
+				number: deferredTokensData.total_cached_tokens,
+				description: "Cached Input Tokens",
 				formatter: formatCount,
 			},
 		];
