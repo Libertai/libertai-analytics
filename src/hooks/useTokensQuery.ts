@@ -18,12 +18,19 @@ async function fetchTokens(type: RequestTypeConfig, rangeDate: ChartDate): Promi
 	);
 
 	const usage = res.data[type.tokens.responseField] ?? [];
-	const tokens: Token[] = usage.map((t: Token) => TokenItemSchema.parse(t));
+
+	// Backend `nb_input_tokens` includes cached as a subset; expose non-cached here so buckets are disjoint.
+	const tokens: Token[] = usage.map((t: Token) => {
+		const parsed = TokenItemSchema.parse(t);
+		return { ...parsed, nb_input_tokens: Math.max(0, parsed.nb_input_tokens - parsed.nb_cached_tokens) };
+	});
+
+	const totalCached = res.data["total_cached_tokens"] ?? 0;
 
 	return {
-		total_input_tokens: res.data["total_input_tokens"],
+		total_input_tokens: Math.max(0, res.data["total_input_tokens"] - totalCached),
 		total_output_tokens: res.data["total_output_tokens"],
-		total_cached_tokens: res.data["total_cached_tokens"] ?? 0,
+		total_cached_tokens: totalCached,
 		tokens,
 	};
 }
