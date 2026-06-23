@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as X402RouteImport } from './routes/x402'
+import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as LiberclawRouteImport } from './routes/liberclaw'
 import { Route as CliRouteImport } from './routes/cli'
 import { Route as ChatRouteImport } from './routes/chat'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const X402Route = X402RouteImport.update({
   id: '/x402',
   path: '/x402',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionsRoute = SubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LiberclawRoute = LiberclawRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/x402': typeof X402Route
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/x402': typeof X402Route
 }
 export interface FileRoutesById {
@@ -70,14 +78,37 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/x402': typeof X402Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api' | '/chat' | '/cli' | '/liberclaw' | '/x402'
+  fullPaths:
+    | '/'
+    | '/api'
+    | '/chat'
+    | '/cli'
+    | '/liberclaw'
+    | '/subscriptions'
+    | '/x402'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api' | '/chat' | '/cli' | '/liberclaw' | '/x402'
-  id: '__root__' | '/' | '/api' | '/chat' | '/cli' | '/liberclaw' | '/x402'
+  to:
+    | '/'
+    | '/api'
+    | '/chat'
+    | '/cli'
+    | '/liberclaw'
+    | '/subscriptions'
+    | '/x402'
+  id:
+    | '__root__'
+    | '/'
+    | '/api'
+    | '/chat'
+    | '/cli'
+    | '/liberclaw'
+    | '/subscriptions'
+    | '/x402'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +117,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   CliRoute: typeof CliRoute
   LiberclawRoute: typeof LiberclawRoute
+  SubscriptionsRoute: typeof SubscriptionsRoute
   X402Route: typeof X402Route
 }
 
@@ -96,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/x402'
       fullPath: '/x402'
       preLoaderRoute: typeof X402RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscriptions': {
+      id: '/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof SubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/liberclaw': {
@@ -142,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   CliRoute: CliRoute,
   LiberclawRoute: LiberclawRoute,
+  SubscriptionsRoute: SubscriptionsRoute,
   X402Route: X402Route,
 }
 export const routeTree = rootRouteImport
