@@ -19,3 +19,10 @@ export const TierSubscribersSchema = z.object({
 	active_subscribers: z.number(),
 });
 export type TierSubscribers = { tier: string; active_subscribers: number };
+
+export const TierSubscribersDaySchema = z.object({
+	date: z.string(),
+	tier: z.string(),
+	active_subscribers: z.number(),
+});
+export type TierSubscribersDay = { date: string; tier: string; active_subscribers: number };

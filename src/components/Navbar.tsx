@@ -13,12 +13,12 @@ import {
 
 const navLinks = [
 	{ to: "/", label: "Dashboard" },
-	{ to: "/subscriptions", label: "Subscriptions" },
 	{ to: "/api", label: "API" },
 	{ to: "/chat", label: "Chat" },
 	{ to: "/liberclaw", label: "LiberClaw" },
-	{ to: "/x402", label: "x402" },
+	{ to: "/subscriptions", label: "Subscriptions" },
 	{ to: "/cli", label: "CLI" },
+	{ to: "/x402", label: "x402" },
 ] as const;
 
 export function Navbar() {

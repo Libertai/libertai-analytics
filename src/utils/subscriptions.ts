@@ -1,8 +1,9 @@
 import { ChartDate } from "@/types/dates";
-import { CreditsConsumptionDay, SegmentMessage } from "@/types/subscriptions";
+import { CreditsConsumptionDay, SegmentMessage, TierSubscribersDay } from "@/types/subscriptions";
 import { createEmptyResultByRangeDate } from "./dates";
 
 const SEGMENT_ORDER = ["anonymous", "free", "go", "plus", "max"];
+const TIER_ORDER = ["go", "plus", "max"];
 
 /** "free" -> "Free", "go" -> "Go", etc. — the chart series label. */
 export const segmentLabel = (segment: string): string => segment.charAt(0).toUpperCase() + segment.slice(1);
@@ -36,6 +37,35 @@ export const groupMessagesBySegmentPerDay = (messages: SegmentMessage[], rangeDa
 
 	for (const m of messages) {
 		if (result[m.date]) result[m.date][segmentLabel(m.segment)] += m.message_count;
+	}
+
+	return Object.entries(result)
+		.map(([date, values]) => ({ date, ...values }))
+		.sort((a, b) => a.date.localeCompare(b.date));
+};
+
+/** [{date, Go, Plus, Max}] — one zero-filled row per day, active paid subscribers per tier. */
+export const groupSubscribersByTierPerDay = (daily: TierSubscribersDay[], rangeDate: ChartDate) => {
+	const startDate = new Date(rangeDate.start_date);
+	const timeframe = timeframeDays(rangeDate);
+
+	const tiers = Array.from(new Set(daily.map((d) => d.tier))).sort(
+		(a, b) => (TIER_ORDER.indexOf(a) + 1 || 99) - (TIER_ORDER.indexOf(b) + 1 || 99),
+	);
+	const initial: Record<string, number> = {};
+	tiers.forEach((t) => {
+		initial[segmentLabel(t)] = 0;
+	});
+
+	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(
+		timeframe,
+		rangeDate,
+		startDate,
+		initial,
+	);
+
+	for (const d of daily) {
+		if (result[d.date]) result[d.date][segmentLabel(d.tier)] = d.active_subscribers;
 	}
 
 	return Object.entries(result)
