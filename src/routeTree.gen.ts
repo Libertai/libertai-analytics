@@ -16,6 +16,8 @@ import { Route as CliRouteImport } from './routes/cli'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
 const X402Route = X402RouteImport.update({
   id: '/x402',
@@ -52,6 +54,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerifyRoute = AuthVerifyRouteImport.update({
+  id: '/auth/verify',
+  path: '/auth/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +73,8 @@ export interface FileRoutesByFullPath {
   '/liberclaw': typeof LiberclawRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/x402': typeof X402Route
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/verify': typeof AuthVerifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +84,8 @@ export interface FileRoutesByTo {
   '/liberclaw': typeof LiberclawRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/x402': typeof X402Route
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/verify': typeof AuthVerifyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +96,8 @@ export interface FileRoutesById {
   '/liberclaw': typeof LiberclawRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/x402': typeof X402Route
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/verify': typeof AuthVerifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +109,8 @@ export interface FileRouteTypes {
     | '/liberclaw'
     | '/subscriptions'
     | '/x402'
+    | '/auth/callback'
+    | '/auth/verify'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +120,8 @@ export interface FileRouteTypes {
     | '/liberclaw'
     | '/subscriptions'
     | '/x402'
+    | '/auth/callback'
+    | '/auth/verify'
   id:
     | '__root__'
     | '/'
@@ -109,6 +131,8 @@ export interface FileRouteTypes {
     | '/liberclaw'
     | '/subscriptions'
     | '/x402'
+    | '/auth/callback'
+    | '/auth/verify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +143,8 @@ export interface RootRouteChildren {
   LiberclawRoute: typeof LiberclawRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
   X402Route: typeof X402Route
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthVerifyRoute: typeof AuthVerifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +198,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/verify': {
+      id: '/auth/verify'
+      path: '/auth/verify'
+      fullPath: '/auth/verify'
+      preLoaderRoute: typeof AuthVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +223,8 @@ const rootRouteChildren: RootRouteChildren = {
   LiberclawRoute: LiberclawRoute,
   SubscriptionsRoute: SubscriptionsRoute,
   X402Route: X402Route,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthVerifyRoute: AuthVerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { Credit, CreditsStatsSchema } from "@/types/credits";
 import { ChartDate } from "@/types/dates";
 import { RequestTypeConfig } from "@/config/requestTypes";
-import env from "@/config/env";
+import { api } from "@/utils/http";
 
 type CreditsResponse = {
 	total_credits_used: number;
@@ -11,8 +10,8 @@ type CreditsResponse = {
 };
 
 async function fetchCredits(type: RequestTypeConfig, rangeDate: ChartDate): Promise<CreditsResponse> {
-	const res = await axios.get(
-		`${env.INFERENCE_BACKEND_URL}/stats/global/${type.key}/credits?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+	const res = await api.get(
+		`/stats/global/${type.key}/credits?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
 	const usage = res.data["credits_usage"] ?? [];

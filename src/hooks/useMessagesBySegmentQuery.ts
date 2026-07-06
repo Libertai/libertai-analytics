@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { SegmentMessage, SegmentMessageSchema } from "@/types/subscriptions";
 import { ChartDate } from "@/types/dates";
-import env from "@/config/env";
+import { api } from "@/utils/http";
 
 type Response = { total_messages: number; messages: SegmentMessage[] };
 
 async function fetchMessagesBySegment(rangeDate: ChartDate): Promise<Response> {
-	const res = await axios.get(
-		`${env.INFERENCE_BACKEND_URL}/stats/global/messages-by-segment?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+	const res = await api.get(
+		`/stats/global/messages-by-segment?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 	const messages: SegmentMessage[] = (res.data["messages"] ?? []).map((m: SegmentMessage) => SegmentMessageSchema.parse(m));
 	return { total_messages: res.data["total_messages"] ?? 0, messages };
