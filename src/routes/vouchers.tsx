@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { VoucherForm } from "@/components/VoucherForm";
+import { VoucherLookup } from "@/components/VoucherLookup";
 
 export const Route = createFileRoute("/vouchers")({
 	component: Vouchers,
@@ -13,6 +14,7 @@ function Vouchers() {
 				<p className="text-sm text-muted-foreground mt-1">Grant credits to a user account or wallet.</p>
 			</div>
 			<VoucherForm />
+			<VoucherLookup />
 		</div>
 	);
 }

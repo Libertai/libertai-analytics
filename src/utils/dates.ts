@@ -2,6 +2,11 @@ import { ChartDate } from "@/types/dates";
 
 export const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
+// react-day-picker returns local midnight; serialize from local parts so the
+// selected calendar day survives UTC conversion, expiring at that day's end.
+export const expirationPayload = (d: Date) =>
+	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T23:59:59Z`;
+
 
 export function getDateRange(days: number): ChartDate {
 	const end_date = new Date();
