@@ -10,7 +10,7 @@ type Card = {
 };
 
 type MultiModelChartContainerProps = {
-	data: Record<string, string>[];
+	data: Record<string, string | number>[];
 	cards: Card[];
 	selectedModels?: string[];
 	mode?: "by-model" | "combined";

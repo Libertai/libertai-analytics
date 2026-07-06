@@ -9,9 +9,17 @@ export const api = axios.create({
 
 // A 401 means the session cookie expired mid-use: re-probe so the root gate
 // flips back to the login screen instead of every chart erroring silently.
+// `probing` collapses the burst of parallel 401s a page-load fires into one probe.
+let probing = false;
 api.interceptors.response.use(undefined, (error) => {
-	if (error?.response?.status === 401) {
-		void useAccountStore.getState().checkSession();
+	if (error?.response?.status === 401 && !probing) {
+		probing = true;
+		void useAccountStore
+			.getState()
+			.checkSession()
+			.finally(() => {
+				probing = false;
+			});
 	}
 	return Promise.reject(error);
 });

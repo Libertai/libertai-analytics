@@ -40,7 +40,14 @@ export function VoucherForm() {
 
 	const recipient = recipientMode === "email" ? email.trim() : address.trim();
 	const parsedAmount = Number(amount);
-	const valid = recipient.length > 0 && Number.isFinite(parsedAmount) && parsedAmount > 0;
+	// Minimal shape checks to catch obvious typos before the round-trip; the backend fully validates.
+	const recipientValid =
+		recipientMode === "email"
+			? recipient.includes("@")
+			: chain === "base"
+				? /^0x[0-9a-fA-F]{40}$/.test(recipient)
+				: recipient.length >= 32 && recipient.length <= 44;
+	const valid = recipientValid && Number.isFinite(parsedAmount) && parsedAmount > 0;
 
 	const grant = async () => {
 		setSubmitting(true);
