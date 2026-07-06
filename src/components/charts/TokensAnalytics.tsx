@@ -13,12 +13,20 @@ import TokensChartContainer from "@/components/TokensChartContainer";
 import { useTokensQuery } from "@/hooks/useTokensQuery";
 import { formatCount } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
+import { ChartModeToggle } from "@/components/ChartModeToggle";
+
+const TOKEN_MODES = [
+	{ value: "by-model", label: "By model" },
+	{ value: "combined", label: "Combined" },
+] as const;
+type TokenMode = (typeof TOKEN_MODES)[number]["value"];
 
 export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
 	const [selectedModels, setSelectedModels] = useState<string[]>([]);
+	const [mode, setMode] = useState<TokenMode>("by-model");
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -102,27 +110,30 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">
-					<div className="flex flex-wrap gap-2">
-						{timeframes.map((timeframe) => (
-							<Button
-								key={timeframe.label}
-								className="max-md:h-8 max-md:px-3 max-md:text-xs"
-								variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-								onClick={() => {
-									setSelectedTimeframe(timeframe);
-									setSelectedCustomDates(false);
-								}}
-							>
-								{timeframe.label}
-							</Button>
-						))}
-						<div onClick={() => setSelectedCustomDates(true)}>
-							<DateRangePicker
-								hasCustomDateBeenClicked={selectedCustomDates}
-								rangeDate={rangeDate}
-								setRangeDate={setRangeDate}
-							/>
+					<div className="flex items-center justify-between gap-2">
+						<div className="flex flex-wrap gap-2">
+							{timeframes.map((timeframe) => (
+								<Button
+									key={timeframe.label}
+									className="max-md:h-8 max-md:px-3 max-md:text-xs"
+									variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
+									onClick={() => {
+										setSelectedTimeframe(timeframe);
+										setSelectedCustomDates(false);
+									}}
+								>
+									{timeframe.label}
+								</Button>
+							))}
+							<div onClick={() => setSelectedCustomDates(true)}>
+								<DateRangePicker
+									hasCustomDateBeenClicked={selectedCustomDates}
+									rangeDate={rangeDate}
+									setRangeDate={setRangeDate}
+								/>
+							</div>
 						</div>
+						<ChartModeToggle modes={TOKEN_MODES} value={mode} onChange={setMode} />
 					</div>
 					<FilterModelNames setSelectedModels={setSelectedModels} />
 				</div>
@@ -137,7 +148,7 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 							<p className="text-gray-500">Loading...</p>
 						</div>
 					) : (
-						<TokensChartContainer data={data} cards={cards} />
+						<TokensChartContainer data={data} cards={cards} mode={mode} />
 					)}
 				</div>
 			</CardContent>

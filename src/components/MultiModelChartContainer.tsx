@@ -13,6 +13,8 @@ type MultiModelChartContainerProps = {
 	data: Record<string, string>[];
 	cards: Card[];
 	selectedModels?: string[];
+	mode?: "by-model" | "combined";
+	combineLabel?: string;
 };
 
 
@@ -34,12 +36,25 @@ const COLORS = [
 	"#ff6347",
 ];
 
-const MultiModelChartContainer = memo(({ data, cards, selectedModels }: MultiModelChartContainerProps) => {
+const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, combineLabel }: MultiModelChartContainerProps) => {
+	const chartData = useMemo(() => {
+		if (mode !== "combined") return data;
+		return data.map((row) => {
+			let total = 0;
+			Object.entries(row).forEach(([key, value]) => {
+				if (key === "date") return;
+				if (selectedModels && selectedModels.length > 0 && !selectedModels.includes(key)) return;
+				total += Number(value) || 0;
+			});
+			return { date: row.date, [combineLabel ?? "Total"]: total };
+		});
+	}, [data, mode, selectedModels, combineLabel]);
+
 	const modelNames = useMemo(() => {
-		if (!data || data.length === 0) return [];
+		if (!chartData || chartData.length === 0) return [];
 
 		const maxByKey = new Map<string, number>();
-		data.forEach((item) => {
+		chartData.forEach((item) => {
 			Object.keys(item).forEach((key) => {
 				if (key === "date") return;
 				const value = Number(item[key]) || 0;
@@ -49,19 +64,20 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels }: MultiMod
 		});
 
 		return Array.from(maxByKey.keys()).sort((a, b) => (maxByKey.get(b) ?? 0) - (maxByKey.get(a) ?? 0));
-	}, [data]);
+	}, [chartData]);
 
 	const modelsToShow = useMemo(() => {
+		if (mode === "combined") return modelNames;
 		if (!selectedModels || selectedModels.length === 0) return modelNames;
 		const selected = new Set(selectedModels);
 		return modelNames.filter((name) => selected.has(name));
-	}, [modelNames, selectedModels]);
+	}, [modelNames, selectedModels, mode]);
 
 	return (
 		<div>
 			<div className="h-[350px] md:h-[300px]">
 				<ResponsiveContainer width="100%" height="100%">
-					<AreaChart data={data}>
+					<AreaChart data={chartData}>
 						<XAxis
 							dataKey="date"
 							tickLine={false}

@@ -1,7 +1,7 @@
 import { formatXAxis } from "@/utils/charts";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 type Card = {
 	number: number;
@@ -13,14 +13,23 @@ type TokensChartContainerProps = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	data: Record<string, any>[];
 	cards: Card[];
+	mode?: "by-model" | "combined";
 };
 
-const TokensChartContainer = memo(({ data, cards }: TokensChartContainerProps) => {
+const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerProps) => {
+	const chartData = useMemo(() => {
+		if (mode !== "combined") return data;
+		return data.map((row) => {
+			const total = (Number(row.total_input_tokens) || 0) + (Number(row.total_cached_tokens) || 0) + (Number(row.total_output_tokens) || 0);
+			return { date: row.date, "Total tokens": total };
+		});
+	}, [data, mode]);
+
 	return (
 		<div>
 			<div className="h-[350px] md:h-[300px]">
 				<ResponsiveContainer width="100%" height="100%">
-					<AreaChart data={data}>
+					<AreaChart data={chartData}>
 						<XAxis
 							dataKey="date"
 							tickLine={false}
@@ -31,33 +40,47 @@ const TokensChartContainer = memo(({ data, cards }: TokensChartContainerProps) =
 						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
 						<Tooltip />
 						<Legend />
-						<Area
-							type="monotone"
-							dataKey="total_input_tokens"
-							stroke="#8884d8"
-							fill="#8884d8"
-							fillOpacity={0.1}
-							strokeWidth={2}
-							name="Input Tokens"
-						/>
-						<Area
-							type="monotone"
-							dataKey="total_output_tokens"
-							stroke="#82ca9d"
-							fill="#82ca9d"
-							fillOpacity={0.1}
-							strokeWidth={2}
-							name="Output Tokens"
-						/>
-						<Area
-							type="monotone"
-							dataKey="total_cached_tokens"
-							stroke="#ffc658"
-							fill="#ffc658"
-							fillOpacity={0.1}
-							strokeWidth={2}
-							name="Cached Input Tokens"
-						/>
+						{mode === "combined" ? (
+							<Area
+								type="monotone"
+								dataKey="Total tokens"
+								stroke="#8884d8"
+								fill="#8884d8"
+								fillOpacity={0.1}
+								strokeWidth={2}
+								name="Total tokens"
+							/>
+						) : (
+							<>
+								<Area
+									type="monotone"
+									dataKey="total_input_tokens"
+									stroke="#8884d8"
+									fill="#8884d8"
+									fillOpacity={0.1}
+									strokeWidth={2}
+									name="Input Tokens"
+								/>
+								<Area
+									type="monotone"
+									dataKey="total_output_tokens"
+									stroke="#82ca9d"
+									fill="#82ca9d"
+									fillOpacity={0.1}
+									strokeWidth={2}
+									name="Output Tokens"
+								/>
+								<Area
+									type="monotone"
+									dataKey="total_cached_tokens"
+									stroke="#ffc658"
+									fill="#ffc658"
+									fillOpacity={0.1}
+									strokeWidth={2}
+									name="Cached Input Tokens"
+								/>
+							</>
+						)}
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
