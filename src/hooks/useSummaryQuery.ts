@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { z } from "zod";
 import { ChartDate } from "@/types/dates";
-import env from "@/config/env";
+import { api } from "@/utils/http";
 
 const SummaryStatsSchema = z.object({
 	total_requests: z.number(),
@@ -13,8 +12,8 @@ const SummaryStatsSchema = z.object({
 export type SummaryStats = z.infer<typeof SummaryStatsSchema>;
 
 async function fetchSummary(rangeDate: ChartDate): Promise<SummaryStats> {
-	const res = await axios.get(
-		`${env.INFERENCE_BACKEND_URL}/stats/global/summary?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+	const res = await api.get(
+		`/stats/global/summary?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
 	return SummaryStatsSchema.parse(res.data);

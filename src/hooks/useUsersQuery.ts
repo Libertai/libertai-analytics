@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { DailyActiveUsers, DailyActiveUsersSchema } from "@/types/users";
 import { ChartDate } from "@/types/dates";
 import { RequestTypeConfig } from "@/config/requestTypes";
-import env from "@/config/env";
+import { api } from "@/utils/http";
 
 export type UsersResponse = {
 	total_unique_users: number;
@@ -11,8 +10,8 @@ export type UsersResponse = {
 };
 
 async function fetchUsers(type: RequestTypeConfig, rangeDate: ChartDate): Promise<UsersResponse> {
-	const res = await axios.get(
-		`${env.INFERENCE_BACKEND_URL}/stats/global/${type.key}/users?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+	const res = await api.get(
+		`/stats/global/${type.key}/users?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 
 	const daily = (res.data["daily_active_users"] ?? []).map((d: DailyActiveUsers) => DailyActiveUsersSchema.parse(d));

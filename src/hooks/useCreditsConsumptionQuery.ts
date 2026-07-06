@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { CreditsConsumptionDay, CreditsConsumptionDaySchema } from "@/types/subscriptions";
 import { ChartDate } from "@/types/dates";
-import env from "@/config/env";
+import { api } from "@/utils/http";
 
 type Response = {
 	total_credits: number;
@@ -12,8 +11,8 @@ type Response = {
 };
 
 async function fetchCreditsConsumption(rangeDate: ChartDate): Promise<Response> {
-	const res = await axios.get(
-		`${env.INFERENCE_BACKEND_URL}/stats/global/credits-consumption?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+	const res = await api.get(
+		`/stats/global/credits-consumption?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
 	);
 	const daily: CreditsConsumptionDay[] = (res.data["daily"] ?? []).map((d: CreditsConsumptionDay) =>
 		CreditsConsumptionDaySchema.parse(d),

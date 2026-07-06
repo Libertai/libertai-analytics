@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { TierSubscribers, TierSubscribersSchema } from "@/types/subscriptions";
-import env from "@/config/env";
+import { api } from "@/utils/http";
 
 type Response = {
 	subscribers_by_tier: TierSubscribers[];
@@ -11,7 +10,7 @@ type Response = {
 };
 
 async function fetchSubscriptions(): Promise<Response> {
-	const res = await axios.get(`${env.INFERENCE_BACKEND_URL}/stats/global/subscriptions`);
+	const res = await api.get(`/stats/global/subscriptions`);
 	const subscribers_by_tier: TierSubscribers[] = (res.data["subscribers_by_tier"] ?? []).map((t: TierSubscribers) =>
 		TierSubscribersSchema.parse(t),
 	);
