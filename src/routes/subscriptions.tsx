@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UsersBySegment } from "@/components/charts/UsersBySegment";
 import { CreditsConsumptionAnalytics } from "@/components/charts/CreditsConsumptionAnalytics";
+import { RevenueAnalytics } from "@/components/charts/RevenueAnalytics";
+import { ChurnAnalytics } from "@/components/charts/ChurnAnalytics";
+import { LatestSubscribersTable } from "@/components/LatestSubscribersTable";
 
 export const Route = createFileRoute("/subscriptions")({
 	component: Subscriptions,
@@ -16,7 +19,10 @@ function Subscriptions() {
 				</p>
 			</div>
 			<UsersBySegment />
+			<RevenueAnalytics />
+			<ChurnAnalytics />
 			<CreditsConsumptionAnalytics />
+			<LatestSubscribersTable />
 		</div>
 	);
 }
