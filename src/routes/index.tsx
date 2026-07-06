@@ -15,6 +15,14 @@ import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulativ
 import { averageDau, groupDauPerDay } from "@/utils/users";
 import MultiModelChartContainer from "@/components/MultiModelChartContainer";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ChartModeToggle } from "@/components/ChartModeToggle";
+import { UsersWindow } from "@/types/users";
+
+const USER_WINDOWS = [
+	{ value: "day", label: "DAU" },
+	{ value: "week", label: "WAU" },
+	{ value: "month", label: "MAU" },
+] as const;
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -24,6 +32,7 @@ function Index() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+	const [usersWindow, setUsersWindow] = useState<UsersWindow>("day");
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -36,7 +45,12 @@ function Index() {
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
 	const { data: summaryData, isLoading, isFetching } = useSummaryQuery(selectedDates);
-	const { data: usersData } = useGlobalUsersQuery(selectedDates);
+	const { data: usersData } = useGlobalUsersQuery(selectedDates, usersWindow);
+	const { data: dauData } = useGlobalUsersQuery(selectedDates, "day");
+	const { data: wauData } = useGlobalUsersQuery(selectedDates, "week");
+	const { data: mauData } = useGlobalUsersQuery(selectedDates, "month");
+	const currentWau = wauData?.daily_active_users.at(-1)?.active_users ?? 0;
+	const currentMau = mauData?.daily_active_users.at(-1)?.active_users ?? 0;
 	const { data: apiData } = useCallsQuery(REQUEST_TYPES.api, selectedDates);
 	const { data: chatData } = useCallsQuery(REQUEST_TYPES.chat, selectedDates);
 	const { data: x402Data } = useCallsQuery(REQUEST_TYPES.x402, selectedDates);
@@ -68,12 +82,12 @@ function Index() {
 
 	const deferredUsersData = useDeferredValue(usersData);
 
-	const dauData = useMemo(() => {
+	const dauChartData = useMemo(() => {
 		if (!deferredUsersData) return [];
 		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates);
 	}, [deferredUsersData, selectedDates]);
 
-	const avgDau = useMemo(() => (usersData ? averageDau(usersData.daily_active_users) : 0), [usersData]);
+	const avgDau = useMemo(() => (dauData ? averageDau(dauData.daily_active_users) : 0), [dauData]);
 
 	const stats = [
 		{ label: "Total Requests", value: summaryData?.total_requests ?? 0 },
@@ -197,11 +211,16 @@ function Index() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="max-md:px-3">
+					<div className="flex items-center justify-end gap-2 mb-4">
+						<ChartModeToggle modes={USER_WINDOWS} value={usersWindow} onChange={setUsersWindow} />
+					</div>
 					<MultiModelChartContainer
-						data={dauData}
+						data={dauChartData}
 						cards={[
 							{ number: usersData?.total_unique_users ?? 0, description: "Unique users (range)", formatter: formatCount },
 							{ number: avgDau, description: "Avg DAU (active days)", formatter: formatCount },
+							{ number: currentWau, description: "WAU (last day)", formatter: formatCount },
+							{ number: currentMau, description: "MAU (last day)", formatter: formatCount },
 						]}
 					/>
 				</CardContent>

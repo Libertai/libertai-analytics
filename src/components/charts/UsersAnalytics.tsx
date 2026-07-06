@@ -12,6 +12,14 @@ import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useUsersQuery } from "@/hooks/useUsersQuery";
 import { formatCount } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
+import { ChartModeToggle } from "@/components/ChartModeToggle";
+import { UsersWindow } from "@/types/users";
+
+const USER_WINDOWS = [
+	{ value: "day", label: "DAU" },
+	{ value: "week", label: "WAU" },
+	{ value: "month", label: "MAU" },
+] as const;
 
 // Daily-active-users (DAU) chart for one request type. Single series (no per-model split),
 // with headline cards for unique users over the range and the average DAU on active days.
@@ -19,6 +27,7 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+	const [usersWindow, setUsersWindow] = useState<UsersWindow>("day");
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -30,7 +39,12 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 		return getDates(selectedTimeframe.days, type.allTimeStartDate);
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
 
-	const { data: usersData, isLoading, isFetching } = useUsersQuery(type, selectedDates);
+	const { data: usersData, isLoading, isFetching } = useUsersQuery(type, selectedDates, usersWindow);
+	const { data: dauData } = useUsersQuery(type, selectedDates, "day");
+	const { data: wauData } = useUsersQuery(type, selectedDates, "week");
+	const { data: mauData } = useUsersQuery(type, selectedDates, "month");
+	const currentWau = wauData?.daily_active_users.at(-1)?.active_users ?? 0;
+	const currentMau = mauData?.daily_active_users.at(-1)?.active_users ?? 0;
 
 	const deferredUsersData = useDeferredValue(usersData);
 
@@ -40,8 +54,8 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 	}, [deferredUsersData, selectedDates]);
 
 	const avgDau = useMemo(
-		() => (usersData ? averageDau(usersData.daily_active_users) : 0),
-		[usersData],
+		() => (dauData ? averageDau(dauData.daily_active_users) : 0),
+		[dauData],
 	);
 
 	return (
@@ -52,29 +66,32 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">
-					<div className="flex flex-wrap gap-2">
-						{timeframes.map((timeframe) => (
-							<Button
-								key={timeframe.label}
-								className="max-md:h-8 max-md:px-3 max-md:text-xs"
-								variant={
-									timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
-								}
-								onClick={() => {
-									setSelectedTimeframe(timeframe);
-									setSelectedCustomDates(false);
-								}}
-							>
-								{timeframe.label}
-							</Button>
-						))}
-						<div onClick={() => setSelectedCustomDates(true)}>
-							<DateRangePicker
-								hasCustomDateBeenClicked={selectedCustomDates}
-								rangeDate={rangeDate}
-								setRangeDate={setRangeDate}
-							/>
+					<div className="flex items-center justify-between gap-2">
+						<div className="flex flex-wrap gap-2">
+							{timeframes.map((timeframe) => (
+								<Button
+									key={timeframe.label}
+									className="max-md:h-8 max-md:px-3 max-md:text-xs"
+									variant={
+										timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
+									}
+									onClick={() => {
+										setSelectedTimeframe(timeframe);
+										setSelectedCustomDates(false);
+									}}
+								>
+									{timeframe.label}
+								</Button>
+							))}
+							<div onClick={() => setSelectedCustomDates(true)}>
+								<DateRangePicker
+									hasCustomDateBeenClicked={selectedCustomDates}
+									rangeDate={rangeDate}
+									setRangeDate={setRangeDate}
+								/>
+							</div>
 						</div>
+						<ChartModeToggle modes={USER_WINDOWS} value={usersWindow} onChange={setUsersWindow} />
 					</div>
 				</div>
 				<div className="relative">
@@ -93,6 +110,8 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 							cards={[
 								{ number: usersData?.total_unique_users || 0, description: "Unique users (range)", formatter: formatCount },
 								{ number: avgDau, description: "Avg DAU (active days)", formatter: formatCount },
+								{ number: currentWau, description: "WAU (last day)", formatter: formatCount },
+								{ number: currentMau, description: "MAU (last day)", formatter: formatCount },
 							]}
 						/>
 					)}

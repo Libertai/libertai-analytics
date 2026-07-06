@@ -6,3 +6,5 @@ export const DailyActiveUsersSchema = z.object({
 });
 
 export type DailyActiveUsers = z.infer<typeof DailyActiveUsersSchema>;
+
+export type UsersWindow = "day" | "week" | "month";

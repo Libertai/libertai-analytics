@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DailyActiveUsers, DailyActiveUsersSchema } from "@/types/users";
+import { DailyActiveUsers, DailyActiveUsersSchema, UsersWindow } from "@/types/users";
 import { ChartDate } from "@/types/dates";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { api } from "@/utils/http";
@@ -9,9 +9,9 @@ export type UsersResponse = {
 	daily_active_users: DailyActiveUsers[];
 };
 
-async function fetchUsers(type: RequestTypeConfig, rangeDate: ChartDate): Promise<UsersResponse> {
+async function fetchUsers(type: RequestTypeConfig, rangeDate: ChartDate, window: UsersWindow): Promise<UsersResponse> {
 	const res = await api.get(
-		`/stats/global/${type.key}/users?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}`,
+		`/stats/global/${type.key}/users?start_date=${rangeDate.start_date}&end_date=${rangeDate.end_date}&window=${window}`,
 	);
 
 	const daily = (res.data["daily_active_users"] ?? []).map((d: DailyActiveUsers) => DailyActiveUsersSchema.parse(d));
@@ -22,10 +22,10 @@ async function fetchUsers(type: RequestTypeConfig, rangeDate: ChartDate): Promis
 	};
 }
 
-export function useUsersQuery(type: RequestTypeConfig, rangeDate: ChartDate) {
+export function useUsersQuery(type: RequestTypeConfig, rangeDate: ChartDate, window: UsersWindow = "day") {
 	return useQuery({
-		queryKey: [`${type.key}-users`, rangeDate.start_date, rangeDate.end_date],
-		queryFn: () => fetchUsers(type, rangeDate),
+		queryKey: [`${type.key}-users`, rangeDate.start_date, rangeDate.end_date, window],
+		queryFn: () => fetchUsers(type, rangeDate, window),
 		staleTime: 5 * 60 * 1000,
 		gcTime: 10 * 60 * 1000,
 		placeholderData: (previousData) => previousData,
