@@ -6,7 +6,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/DateRangePicker";
 import { formatDate } from "@/utils/dates";
-import { averageDau, groupDauPerDay } from "@/utils/users";
+import { averageDau, describeWindow, DAU_SERIES_KEY, groupDauPerDay, WINDOW_LABEL_SUFFIX } from "@/utils/users";
 import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useUsersQuery } from "@/hooks/useUsersQuery";
@@ -48,10 +48,14 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 
 	const deferredUsersData = useDeferredValue(usersData);
 
+	const seriesLabel = `${DAU_SERIES_KEY}${WINDOW_LABEL_SUFFIX[usersWindow]}`;
+
 	const data = useMemo(() => {
 		if (!deferredUsersData) return [];
-		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates);
-	}, [deferredUsersData, selectedDates]);
+		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates, seriesLabel);
+	}, [deferredUsersData, selectedDates, seriesLabel]);
+
+	const description = type.users ? describeWindow(type.users.description, usersWindow) : type.users?.description;
 
 	const avgDau = useMemo(
 		() => (dauData ? averageDau(dauData.daily_active_users) : 0),
@@ -62,7 +66,7 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 		<Card>
 			<CardHeader>
 				<CardTitle>{type.users?.title}</CardTitle>
-				<CardDescription>{type.users?.description}</CardDescription>
+				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">

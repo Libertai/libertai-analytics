@@ -6,7 +6,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/DateRangePicker";
 import { formatDate } from "@/utils/dates";
-import { getDates, timeframes } from "@/utils/charts";
+import { getDates, timeframes, formatXAxis } from "@/utils/charts";
 import { useSubscriptionsChurnQuery } from "@/hooks/useSubscriptionsChurnQuery";
 import { formatCount } from "@/utils/format";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -27,7 +27,7 @@ export function ChurnAnalytics() {
 	const deferredChurn = useDeferredValue(churn);
 
 	const weekly = useMemo(() => deferredChurn?.weekly ?? [], [deferredChurn]);
-	const net = (churn?.total_new ?? 0) - (churn?.total_churned ?? 0);
+	const net = (deferredChurn?.total_new ?? 0) - (deferredChurn?.total_churned ?? 0);
 
 	return (
 		<Card>
@@ -73,7 +73,13 @@ export function ChurnAnalytics() {
 							<div className="h-[350px] md:h-[300px]">
 								<ResponsiveContainer width="100%" height="100%">
 									<BarChart data={weekly}>
-										<XAxis dataKey="week_start" tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
+										<XAxis
+											dataKey="week_start"
+											tickLine={false}
+											axisLine={false}
+											tick={{ fontSize: 12 }}
+											tickFormatter={formatXAxis}
+										/>
 										<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} allowDecimals={false} />
 										<Tooltip />
 										<Legend />
@@ -84,8 +90,8 @@ export function ChurnAnalytics() {
 							</div>
 							<div className="grid grid-cols-2 md:flex gap-3 mt-4">
 								{[
-									{ number: churn?.total_new ?? 0, description: "Total new" },
-									{ number: churn?.total_churned ?? 0, description: "Total churned" },
+									{ number: deferredChurn?.total_new ?? 0, description: "Total new" },
+									{ number: deferredChurn?.total_churned ?? 0, description: "Total churned" },
 									{ number: net, description: "Net" },
 								].map((card) => (
 									<Card key={card.description} className="md:w-fit md:mx-auto">

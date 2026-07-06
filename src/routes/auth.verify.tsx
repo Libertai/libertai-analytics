@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAccountStore } from "@libertai/auth";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,16 @@ function AuthVerify() {
 	const navigate = useNavigate();
 	const token = new URLSearchParams(window.location.search).get("token");
 	const [failed, setFailed] = useState(!token);
+	const fired = useRef(false);
 
 	useEffect(() => {
 		if (!token) {
 			return;
 		}
+		if (fired.current) {
+			return;
+		}
+		fired.current = true;
 		verifyMagicLinkToken(token).then((ok) => {
 			if (ok) {
 				void navigate({ to: "/" });

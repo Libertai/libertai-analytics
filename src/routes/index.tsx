@@ -12,7 +12,7 @@ import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
-import { averageDau, groupDauPerDay } from "@/utils/users";
+import { averageDau, describeWindow, DAU_SERIES_KEY, groupDauPerDay, WINDOW_LABEL_SUFFIX } from "@/utils/users";
 import MultiModelChartContainer from "@/components/MultiModelChartContainer";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
@@ -82,10 +82,12 @@ function Index() {
 
 	const deferredUsersData = useDeferredValue(usersData);
 
+	const usersSeriesLabel = `${DAU_SERIES_KEY}${WINDOW_LABEL_SUFFIX[usersWindow]}`;
+
 	const dauChartData = useMemo(() => {
 		if (!deferredUsersData) return [];
-		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates);
-	}, [deferredUsersData, selectedDates]);
+		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates, usersSeriesLabel);
+	}, [deferredUsersData, selectedDates, usersSeriesLabel]);
 
 	const avgDau = useMemo(() => (dauData ? averageDau(dauData.daily_active_users) : 0), [dauData]);
 
@@ -207,7 +209,10 @@ function Index() {
 				<CardHeader>
 					<CardTitle>Active Users</CardTitle>
 					<CardDescription>
-						Distinct users per day across API, CLI, Chat and Liberclaw (deduplicated; excludes x402)
+						{describeWindow(
+							"Distinct users per day across API, CLI, Chat and Liberclaw (deduplicated; excludes x402)",
+							usersWindow,
+						)}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="max-md:px-3">
