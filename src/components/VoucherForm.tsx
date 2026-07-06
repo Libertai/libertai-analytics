@@ -16,17 +16,13 @@ import {
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { DatePicker } from "@/components/DatePicker";
 import { api } from "@/utils/http";
+import { expirationPayload } from "@/utils/dates";
 
 const RECIPIENT_MODES = [
 	{ value: "email", label: "Email" },
 	{ value: "wallet", label: "Wallet" },
 ] as const;
 type RecipientMode = (typeof RECIPIENT_MODES)[number]["value"];
-
-// react-day-picker returns local midnight; serialize from local parts so the
-// selected calendar day survives UTC conversion, expiring at that day's end.
-const expirationPayload = (d: Date) =>
-	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T23:59:59Z`;
 
 export function VoucherForm() {
 	const [recipientMode, setRecipientMode] = useState<RecipientMode>("email");
