@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as X402RouteImport } from './routes/x402'
+import { Route as VouchersRouteImport } from './routes/vouchers'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as LiberclawRouteImport } from './routes/liberclaw'
 import { Route as CliRouteImport } from './routes/cli'
@@ -22,6 +23,11 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 const X402Route = X402RouteImport.update({
   id: '/x402',
   path: '/x402',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VouchersRoute = VouchersRouteImport.update({
+  id: '/vouchers',
+  path: '/vouchers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SubscriptionsRoute = SubscriptionsRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/vouchers': typeof VouchersRoute
   '/x402': typeof X402Route
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/vouchers': typeof VouchersRoute
   '/x402': typeof X402Route
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/vouchers': typeof VouchersRoute
   '/x402': typeof X402Route
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/cli'
     | '/liberclaw'
     | '/subscriptions'
+    | '/vouchers'
     | '/x402'
     | '/auth/callback'
     | '/auth/verify'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/cli'
     | '/liberclaw'
     | '/subscriptions'
+    | '/vouchers'
     | '/x402'
     | '/auth/callback'
     | '/auth/verify'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/cli'
     | '/liberclaw'
     | '/subscriptions'
+    | '/vouchers'
     | '/x402'
     | '/auth/callback'
     | '/auth/verify'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   CliRoute: typeof CliRoute
   LiberclawRoute: typeof LiberclawRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
+  VouchersRoute: typeof VouchersRoute
   X402Route: typeof X402Route
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthVerifyRoute: typeof AuthVerifyRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/x402'
       fullPath: '/x402'
       preLoaderRoute: typeof X402RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vouchers': {
+      id: '/vouchers'
+      path: '/vouchers'
+      fullPath: '/vouchers'
+      preLoaderRoute: typeof VouchersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/subscriptions': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   CliRoute: CliRoute,
   LiberclawRoute: LiberclawRoute,
   SubscriptionsRoute: SubscriptionsRoute,
+  VouchersRoute: VouchersRoute,
   X402Route: X402Route,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthVerifyRoute: AuthVerifyRoute,

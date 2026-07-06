@@ -19,6 +19,7 @@ const navLinks = [
 	{ to: "/subscriptions", label: "Subscriptions" },
 	{ to: "/cli", label: "CLI" },
 	{ to: "/x402", label: "x402" },
+	{ to: "/vouchers", label: "Vouchers" },
 ] as const;
 
 export function Navbar() {
