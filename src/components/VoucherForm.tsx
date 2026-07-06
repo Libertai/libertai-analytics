@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,11 @@ const RECIPIENT_MODES = [
 ] as const;
 type RecipientMode = (typeof RECIPIENT_MODES)[number]["value"];
 
+// react-day-picker returns local midnight; serialize from local parts so the
+// selected calendar day survives UTC conversion, expiring at that day's end.
+const expirationPayload = (d: Date) =>
+	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T23:59:59Z`;
+
 export function VoucherForm() {
 	const [recipientMode, setRecipientMode] = useState<RecipientMode>("email");
 	const [email, setEmail] = useState("");
@@ -41,7 +47,7 @@ export function VoucherForm() {
 		try {
 			await api.post("/credits/vouchers", {
 				amount: parsedAmount,
-				expired_at: expiration ? expiration.toISOString() : undefined,
+				expired_at: expiration ? expirationPayload(expiration) : undefined,
 				...(recipientMode === "email" ? { email: email.trim() } : { chain, address: address.trim() }),
 			});
 			toast.success(`Granted $${parsedAmount} to ${recipient}`);
@@ -98,7 +104,7 @@ export function VoucherForm() {
 							<DialogDescription>
 								Grant <span className="font-semibold">${parsedAmount}</span> to{" "}
 								<span className="font-semibold">{recipient}</span>
-								{expiration ? ` (expires ${expiration.toISOString().slice(0, 10)})` : " (no expiration)"}?
+								{expiration ? ` (expires ${format(expiration, "PPP")})` : " (no expiration)"}?
 							</DialogDescription>
 						</DialogHeader>
 						<DialogFooter>
