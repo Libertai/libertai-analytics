@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
+import { useAccountStore } from "@libertai/auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ export function Navbar() {
 	const [open, setOpen] = useState(false);
 	const routerState = useRouterState();
 	const currentPath = routerState.location.pathname;
+	const logout = useAccountStore((s) => s.logout);
 
 	const linkClasses =
 		"px-4 py-2 rounded-md font-medium transition-colors hover:bg-accent";
@@ -40,7 +42,7 @@ export function Navbar() {
 					</Link>
 
 					{/* Desktop nav */}
-					<div className="hidden md:flex gap-1">
+					<div className="hidden md:flex items-center gap-1">
 						{navLinks.map((link) => (
 							<Link
 								key={link.to}
@@ -53,6 +55,10 @@ export function Navbar() {
 								{link.label}
 							</Link>
 						))}
+						<Button variant="ghost" onClick={() => void logout()}>
+							<LogOut className="h-4 w-4" />
+							Sign out
+						</Button>
 					</div>
 
 					{/* Mobile nav */}
@@ -80,6 +86,17 @@ export function Navbar() {
 										{link.label}
 									</Link>
 								))}
+								<Button
+									variant="ghost"
+									className="justify-start"
+									onClick={() => {
+										setOpen(false);
+										void logout();
+									}}
+								>
+									<LogOut className="h-4 w-4" />
+									Sign out
+								</Button>
 							</div>
 						</SheetContent>
 					</Sheet>

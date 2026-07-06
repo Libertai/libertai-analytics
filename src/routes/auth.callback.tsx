@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAccountStore } from "@libertai/auth";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,16 @@ function AuthCallback() {
 	const navigate = useNavigate();
 	const code = new URLSearchParams(window.location.search).get("code");
 	const [failed, setFailed] = useState(!code);
+	const fired = useRef(false);
 
 	useEffect(() => {
 		if (!code) {
 			return;
 		}
+		if (fired.current) {
+			return;
+		}
+		fired.current = true;
 		exchangeOAuthCode(code).then((ok) => {
 			if (ok) {
 				void navigate({ to: "/" });

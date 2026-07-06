@@ -56,9 +56,8 @@ export function VoucherForm() {
 			setAmount("");
 			setExpiration(undefined);
 		} catch (error) {
-			const detail =
-				(error as { response?: { data?: { detail?: string } } }).response?.data?.detail ?? "Voucher grant failed";
-			toast.error(detail);
+			const detail = (error as { response?: { data?: { detail?: unknown } } }).response?.data?.detail;
+			toast.error(typeof detail === "string" ? detail : "Voucher grant failed");
 		} finally {
 			setSubmitting(false);
 			setConfirming(false);
