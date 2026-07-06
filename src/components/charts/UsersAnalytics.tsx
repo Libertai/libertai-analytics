@@ -55,7 +55,7 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates, seriesLabel);
 	}, [deferredUsersData, selectedDates, seriesLabel]);
 
-	const description = type.users ? describeWindow(type.users.description, usersWindow) : type.users?.description;
+	const description = type.users && describeWindow(type.users.description, usersWindow);
 
 	const avgDau = useMemo(
 		() => (dauData ? averageDau(dauData.daily_active_users) : 0),
