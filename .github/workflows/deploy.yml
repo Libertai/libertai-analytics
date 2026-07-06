@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install pnpm
         uses: pnpm/action-setup@v6
       - name: Set up Node.js
@@ -25,6 +28,10 @@ jobs:
       - name: Create .env file
         run: |
           echo "VITE_INFERENCE_BACKEND_URL=${{ secrets.VITE_INFERENCE_BACKEND_URL }}" >> .env
+          echo "VITE_THIRDWEB_CLIENT_ID=${{ secrets.THIRDWEB_CLIENT_ID }}" >> .env
+          echo "VITE_SOLANA_RPC=${{ secrets.SOLANA_RPC }}" >> .env
+          echo "VITE_LTAI_BASE_ADDRESS=${{ secrets.LTAI_BASE_ADDRESS }}" >> .env
+          echo "VITE_LTAI_SOLANA_ADDRESS=${{ secrets.LTAI_SOLANA_ADDRESS }}" >> .env
       - name: Build project
         run: pnpm run build
 

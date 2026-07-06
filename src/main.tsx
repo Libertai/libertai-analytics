@@ -1,35 +1,51 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { routeTree } from './routeTree.gen'
-import './globals.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+import { initLibertaiAuth, useAccountStore, LibertaiProviders } from "@libertai/auth";
+import { routeTree } from "./routeTree.gen";
+import env from "@/config/env";
+import "./globals.css";
 
-const router = createRouter({ routeTree })
+initLibertaiAuth({
+	apiBaseUrl: env.INFERENCE_BACKEND_URL,
+	thirdwebClientId: env.THIRDWEB_CLIENT_ID,
+	solanaRpc: env.SOLANA_RPC,
+	ltaiBaseAddress: env.LTAI_BASE_ADDRESS,
+	ltaiSolanaAddress: env.LTAI_SOLANA_ADDRESS,
+});
+
+const router = createRouter({ routeTree });
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      refetchOnWindowFocus: false,
-      retry: 1,
-      suspense: false, // Don't suspend rendering while fetching
-      networkMode: 'always',
-    },
-  },
-})
+	defaultOptions: {
+		queries: {
+			staleTime: 5 * 60 * 1000,
+			gcTime: 10 * 60 * 1000,
+			refetchOnWindowFocus: false,
+			retry: 1,
+			networkMode: "always",
+		},
+	},
+});
 
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
+useAccountStore.getState().setQueryClient(queryClient);
+void useAccountStore.getState().checkSession();
+
+declare module "@tanstack/react-router" {
+	interface Register {
+		router: typeof router;
+	}
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </React.StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById("root")!).render(
+	<React.StrictMode>
+		<QueryClientProvider client={queryClient}>
+			<LibertaiProviders>
+				<RouterProvider router={router} />
+				<Toaster richColors />
+			</LibertaiProviders>
+		</QueryClientProvider>
+	</React.StrictMode>,
+);
