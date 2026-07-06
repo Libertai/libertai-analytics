@@ -4,13 +4,22 @@ import path from "path";
 import react from "@vitejs/plugin-react";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // https://vite.dev/config/
 export default defineConfig({
-	plugins: [TanStackRouterVite({ target: "react", autoCodeSplitting: true }), tailwindcss(), react()],
+	plugins: [
+		TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
+		tailwindcss(),
+		react(),
+		nodePolyfills(),
+	],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+			"@libertai/auth": path.resolve(__dirname, "./src/shared/auth"),
+			"@libertai/branding": path.resolve(__dirname, "./src/shared/branding"),
+			"@libertai/inference-sdk": path.resolve(__dirname, "./src/shared/inference-sdk"),
 		},
 	},
 });
