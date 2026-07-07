@@ -23,10 +23,11 @@ export function AuthGate({ children }: { children: ReactNode }) {
 	if (!isAuthenticated) {
 		return (
 			<div className="flex min-h-screen items-center justify-center px-4">
-				<div className="w-full max-w-md space-y-6">
-					<div className="text-center">
-						<h1 className="text-2xl font-bold">LibertAI Backoffice</h1>
-						<p className="text-sm text-muted-foreground mt-1">Sign in to continue</p>
+				<div className="w-full max-w-sm space-y-6">
+					<div className="flex flex-col items-center space-y-3 text-center">
+						<img src="/favicon.ico" alt="LibertAI" className="h-14 w-14 rounded-2xl shadow-sm" />
+						<h1 className="text-2xl font-bold">Sign in to LibertAI</h1>
+						<p className="text-sm text-muted-foreground">Use your email, a social account, or a wallet.</p>
 					</div>
 					<LoginPanel />
 				</div>

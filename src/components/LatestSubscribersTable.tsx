@@ -2,13 +2,25 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useLatestSubscribersQuery } from "@/hooks/useLatestSubscribersQuery";
+import { Select } from "@/components/ui/select";
+import { SubscriberStatusFilter, useLatestSubscribersQuery } from "@/hooks/useLatestSubscribersQuery";
 
 const LIMITS = [20, 50, 100] as const;
 
+const STATUS_OPTIONS: { value: SubscriberStatusFilter; label: string }[] = [
+	{ value: "default", label: "All (no pending)" },
+	{ value: "all", label: "All statuses" },
+	{ value: "active", label: "Active" },
+	{ value: "pending", label: "Pending" },
+	{ value: "overdue", label: "Overdue" },
+	{ value: "cancelled", label: "Cancelled" },
+	{ value: "expired", label: "Expired" },
+];
+
 export function LatestSubscribersTable() {
 	const [limit, setLimit] = useState<number>(20);
-	const { data, isLoading } = useLatestSubscribersQuery(limit);
+	const [status, setStatus] = useState<SubscriberStatusFilter>("default");
+	const { data, isLoading } = useLatestSubscribersQuery(limit, status);
 
 	return (
 		<Card>
@@ -17,12 +29,25 @@ export function LatestSubscribersTable() {
 					<CardTitle>Latest subscribers</CardTitle>
 					<CardDescription>Most recent plan subscriptions across all providers</CardDescription>
 				</div>
-				<div className="flex gap-1">
-					{LIMITS.map((l) => (
-						<Button key={l} size="sm" variant={l === limit ? "default" : "outline"} onClick={() => setLimit(l)}>
-							{l}
-						</Button>
-					))}
+				<div className="flex items-center gap-2">
+					<Select
+						value={status}
+						onChange={(e) => setStatus(e.target.value as SubscriberStatusFilter)}
+						className="w-40"
+					>
+						{STATUS_OPTIONS.map((option) => (
+							<option key={option.value} value={option.value}>
+								{option.label}
+							</option>
+						))}
+					</Select>
+					<div className="flex gap-1">
+						{LIMITS.map((l) => (
+							<Button key={l} size="sm" variant={l === limit ? "default" : "outline"} onClick={() => setLimit(l)}>
+								{l}
+							</Button>
+						))}
+					</div>
 				</div>
 			</CardHeader>
 			<CardContent>
