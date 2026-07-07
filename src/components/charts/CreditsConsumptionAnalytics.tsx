@@ -11,14 +11,22 @@ import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCreditsConsumptionQuery } from "@/hooks/useCreditsConsumptionQuery";
 import { groupCreditsConsumptionPerDay } from "@/utils/subscriptions";
 import { formatCredits } from "@/utils/format";
+import { ChartModeToggle } from "@/components/ChartModeToggle";
 
 // Credits are only tracked since metering launched.
 const ALL_TIME_START = "2026-06-01";
+
+const CONSUMPTION_MODES = [
+	{ value: "by-model", label: "By tier" },
+	{ value: "combined", label: "Combined" },
+] as const;
+type ConsumptionMode = (typeof CONSUMPTION_MODES)[number]["value"];
 
 export function CreditsConsumptionAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+	const [mode, setMode] = useState<ConsumptionMode>("by-model");
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -42,27 +50,30 @@ export function CreditsConsumptionAnalytics() {
 				<CardDescription>Credits ($) consumed per day, split by tier-covered (subscription) vs prepaid balance</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-wrap gap-2 mb-4">
-					{timeframes.map((timeframe) => (
-						<Button
-							key={timeframe.label}
-							className="max-md:h-8 max-md:px-3 max-md:text-xs"
-							variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-							onClick={() => {
-								setSelectedTimeframe(timeframe);
-								setSelectedCustomDates(false);
-							}}
-						>
-							{timeframe.label}
-						</Button>
-					))}
-					<div onClick={() => setSelectedCustomDates(true)}>
-						<DateRangePicker
-							hasCustomDateBeenClicked={selectedCustomDates}
-							rangeDate={rangeDate}
-							setRangeDate={setRangeDate}
-						/>
+				<div className="flex items-center justify-between gap-2 mb-4">
+					<div className="flex flex-wrap gap-2">
+						{timeframes.map((timeframe) => (
+							<Button
+								key={timeframe.label}
+								className="max-md:h-8 max-md:px-3 max-md:text-xs"
+								variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
+								onClick={() => {
+									setSelectedTimeframe(timeframe);
+									setSelectedCustomDates(false);
+								}}
+							>
+								{timeframe.label}
+							</Button>
+						))}
+						<div onClick={() => setSelectedCustomDates(true)}>
+							<DateRangePicker
+								hasCustomDateBeenClicked={selectedCustomDates}
+								rangeDate={rangeDate}
+								setRangeDate={setRangeDate}
+							/>
+						</div>
 					</div>
+					<ChartModeToggle modes={CONSUMPTION_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">
 					{isFetching && (
@@ -82,6 +93,8 @@ export function CreditsConsumptionAnalytics() {
 								{ number: queryData?.total_tier_credits || 0, description: "Tier-covered", formatter: formatCredits },
 								{ number: queryData?.total_prepaid_credits || 0, description: "Prepaid", formatter: formatCredits },
 							]}
+							mode={mode}
+							combineLabel="Total credits"
 						/>
 					)}
 				</div>
