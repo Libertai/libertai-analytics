@@ -1,26 +1,46 @@
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
-import { SubscriberStatusFilter, useLatestSubscribersQuery } from "@/hooks/useLatestSubscribersQuery";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SubscriberStatus, SUBSCRIBER_STATUSES, useLatestSubscribersQuery } from "@/hooks/useLatestSubscribersQuery";
 
 const LIMITS = [20, 50, 100] as const;
 
-const STATUS_OPTIONS: { value: SubscriberStatusFilter; label: string }[] = [
-	{ value: "default", label: "All (no pending)" },
-	{ value: "all", label: "All statuses" },
-	{ value: "active", label: "Active" },
-	{ value: "pending", label: "Pending" },
-	{ value: "overdue", label: "Overdue" },
-	{ value: "cancelled", label: "Cancelled" },
-	{ value: "expired", label: "Expired" },
-];
+const STATUS_LABELS: Record<SubscriberStatus, string> = {
+	active: "Active",
+	pending: "Pending",
+	overdue: "Overdue",
+	cancelled: "Cancelled",
+	expired: "Expired",
+	upgrading: "Upgrading",
+};
+
+const DEFAULT_STATUSES = SUBSCRIBER_STATUSES.filter((s) => s !== "pending");
+
+function statusLabel(statuses: SubscriberStatus[]): string {
+	if (statuses.length === SUBSCRIBER_STATUSES.length) return "All statuses";
+	if (statuses.length === DEFAULT_STATUSES.length && !statuses.includes("pending")) return "All (no pending)";
+	if (statuses.length === 1) return STATUS_LABELS[statuses[0]];
+	return `${statuses.length} statuses`;
+}
 
 export function LatestSubscribersTable() {
 	const [limit, setLimit] = useState<number>(20);
-	const [status, setStatus] = useState<SubscriberStatusFilter>("default");
-	const { data, isLoading } = useLatestSubscribersQuery(limit, status);
+	const [statuses, setStatuses] = useState<SubscriberStatus[]>(DEFAULT_STATUSES);
+	const { data, isLoading } = useLatestSubscribersQuery(limit, statuses);
+
+	const toggleStatus = (status: SubscriberStatus) => {
+		setStatuses((prev) => {
+			if (prev.includes(status)) {
+				if (prev.length === 1) return prev; // keep at least one selected
+				return prev.filter((s) => s !== status);
+			}
+			return [...prev, status];
+		});
+	};
 
 	return (
 		<Card>
@@ -30,17 +50,32 @@ export function LatestSubscribersTable() {
 					<CardDescription>Most recent plan subscriptions across all providers</CardDescription>
 				</div>
 				<div className="flex items-center gap-2">
-					<Select
-						value={status}
-						onChange={(e) => setStatus(e.target.value as SubscriberStatusFilter)}
-						className="w-40"
-					>
-						{STATUS_OPTIONS.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</Select>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button variant="outline" size="sm" className="w-40 justify-between font-normal">
+								{statusLabel(statuses)}
+								<ChevronDown className="h-4 w-4 opacity-50" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent align="end" className="w-48 p-1">
+							{SUBSCRIBER_STATUSES.map((status) => {
+								const checked = statuses.includes(status);
+								return (
+									<label
+										key={status}
+										className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+									>
+										<Checkbox
+											checked={checked}
+											disabled={checked && statuses.length === 1}
+											onCheckedChange={() => toggleStatus(status)}
+										/>
+										{STATUS_LABELS[status]}
+									</label>
+								);
+							})}
+						</PopoverContent>
+					</Popover>
 					<div className="flex gap-1">
 						{LIMITS.map((l) => (
 							<Button key={l} size="sm" variant={l === limit ? "default" : "outline"} onClick={() => setLimit(l)}>
