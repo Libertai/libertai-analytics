@@ -19,6 +19,15 @@ export const LatestSubscriberSchema = z.object({
 	current_period_end: z.string().nullable(),
 });
 
+export const SubscriptionActivityEventSchema = z.object({
+	created_at: z.string(),
+	type: z.enum(["subscribed", "upgraded", "downgraded", "cancelled", "churned", "payment_failed"]),
+	user_label: z.string(),
+	tier: z.string(),
+	provider: z.string(),
+});
+
+export type SubscriptionActivityEvent = z.infer<typeof SubscriptionActivityEventSchema>;
 export type MrrDay = z.infer<typeof MrrDaySchema>;
 export type MrrByTier = z.infer<typeof MrrByTierSchema>;
 export type ChurnWeek = z.infer<typeof ChurnWeekSchema>;

@@ -3,7 +3,8 @@ import { UsersBySegment } from "@/components/charts/UsersBySegment";
 import { CreditsConsumptionAnalytics } from "@/components/charts/CreditsConsumptionAnalytics";
 import { RevenueAnalytics } from "@/components/charts/RevenueAnalytics";
 import { ChurnAnalytics } from "@/components/charts/ChurnAnalytics";
-import { LatestSubscribersTable } from "@/components/LatestSubscribersTable";
+import { CurrentSubscribersTable } from "@/components/CurrentSubscribersTable";
+import { RecentActivityTable } from "@/components/RecentActivityTable";
 
 export const Route = createFileRoute("/subscriptions")({
 	component: Subscriptions,
@@ -22,7 +23,8 @@ function Subscriptions() {
 			<RevenueAnalytics />
 			<ChurnAnalytics />
 			<CreditsConsumptionAnalytics />
-			<LatestSubscribersTable />
+			<CurrentSubscribersTable />
+			<RecentActivityTable />
 		</div>
 	);
 }
