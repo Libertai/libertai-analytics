@@ -51,8 +51,10 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 								name="Total tokens"
 							/>
 						) : (
-							<>
+							// recharts ignores children wrapped in a Fragment — must be an array of direct Area children
+							[
 								<Area
+									key="total_input_tokens"
 									type="monotone"
 									dataKey="total_input_tokens"
 									stroke="#8884d8"
@@ -60,8 +62,9 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 									fillOpacity={0.1}
 									strokeWidth={2}
 									name="Input Tokens"
-								/>
+								/>,
 								<Area
+									key="total_output_tokens"
 									type="monotone"
 									dataKey="total_output_tokens"
 									stroke="#82ca9d"
@@ -69,8 +72,9 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 									fillOpacity={0.1}
 									strokeWidth={2}
 									name="Output Tokens"
-								/>
+								/>,
 								<Area
+									key="total_cached_tokens"
 									type="monotone"
 									dataKey="total_cached_tokens"
 									stroke="#ffc658"
@@ -78,8 +82,8 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 									fillOpacity={0.1}
 									strokeWidth={2}
 									name="Cached Input Tokens"
-								/>
-							</>
+								/>,
+							]
 						)}
 					</AreaChart>
 				</ResponsiveContainer>
