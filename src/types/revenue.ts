@@ -24,6 +24,7 @@ export const SubscriptionActivityEventSchema = z.object({
 	type: z.enum(["subscribed", "upgraded", "downgraded", "cancelled", "churned", "payment_failed"]),
 	user_label: z.string(),
 	tier: z.string(),
+	from_tier: z.string().nullish(),
 	provider: z.string(),
 });
 

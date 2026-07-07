@@ -103,7 +103,9 @@ export function RecentActivityTable() {
 										<TableCell>{event.created_at.slice(0, 10)}</TableCell>
 										<TableCell className="font-medium">{event.user_label}</TableCell>
 										<TableCell>{TYPE_LABELS[event.type]}</TableCell>
-										<TableCell className="capitalize">{event.tier}</TableCell>
+										<TableCell className="capitalize">
+											{event.from_tier ? `${event.from_tier} → ${event.tier}` : event.tier}
+										</TableCell>
 										<TableCell>{event.provider}</TableCell>
 									</TableRow>
 								))}
