@@ -23,7 +23,6 @@ export function getDateRange(days: number): ChartDate {
 export const createEmptyResultByRangeDate = <T extends Record<string, any>>(
   timeframe: number,
   rangeDate: { start_date: string },
-  startDate: Date,
   defaultValue: T[keyof T]
 ): T => {
   const result = {} as T;

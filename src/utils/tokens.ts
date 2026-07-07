@@ -9,7 +9,7 @@ export const groupTokensPerDayAllModels = (tokens: Token[], rangeDate: ChartDate
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
 	const initialData = { total_input_tokens: 0, total_output_tokens: 0, total_cached_tokens: 0 };
-	const result: Record<string, { total_input_tokens: number; total_output_tokens: number; total_cached_tokens: number }> = createEmptyResultByRangeDate<Record<string, { total_input_tokens: number; total_output_tokens: number; total_cached_tokens: number }>>(timeframe, rangeDate, startDate, initialData);
+	const result: Record<string, { total_input_tokens: number; total_output_tokens: number; total_cached_tokens: number }> = createEmptyResultByRangeDate<Record<string, { total_input_tokens: number; total_output_tokens: number; total_cached_tokens: number }>>(timeframe, rangeDate, initialData);
 
 	const filteredTokens = selectedModels && selectedModels.length > 0
 		? tokens.filter(token => selectedModels.includes(token.model_name))

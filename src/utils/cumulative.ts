@@ -10,7 +10,7 @@ export const groupCumulativeTotal = (calls: CallEntry[], rangeDate: ChartDate) =
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
 	const daily: Record<string, { total: number }> = createEmptyResultByRangeDate<Record<string, { total: number }>>(
-		timeframe, rangeDate, startDate, { total: 0 },
+		timeframe, rangeDate, { total: 0 },
 	);
 
 	for (const call of calls) {
@@ -39,7 +39,7 @@ export const groupCumulativePerModel = (calls: CallEntry[], rangeDate: ChartDate
 	modelNames.forEach(m => { initialModelData[m] = 0; });
 
 	const daily: Record<string, Record<string, number>> = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(
-		timeframe, rangeDate, startDate, initialModelData,
+		timeframe, rangeDate, initialModelData,
 	);
 
 	for (const call of calls) {

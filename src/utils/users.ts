@@ -32,7 +32,7 @@ export const groupDauPerDay = (daily: DailyActiveUsers[], rangeDate: ChartDate, 
 	const diffTime = Math.abs(startDate.valueOf() - endDate.valueOf());
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-	const result: ChartDataDAU = createEmptyResultByRangeDate<ChartDataDAU>(timeframe, rangeDate, startDate, {
+	const result: ChartDataDAU = createEmptyResultByRangeDate<ChartDataDAU>(timeframe, rangeDate, {
 		[seriesLabel]: 0,
 	});
 

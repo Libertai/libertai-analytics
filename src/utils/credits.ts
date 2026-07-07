@@ -15,7 +15,7 @@ export const groupCreditsPerDayAllModels = (credits: Credit[], rangeDate: ChartD
 		initialModelData[model] = 0;
 	});
 
-	const result: Record<string, Record<string, number>> = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, startDate, initialModelData);
+	const result: Record<string, Record<string, number>> = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, initialModelData);
 
 	const filteredCredits = selectedModels && selectedModels.length > 0
 		? credits.filter(credit => selectedModels.includes(credit.model_name))

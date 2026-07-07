@@ -9,7 +9,7 @@ export const groupApiUsagePerDay = (apiUsage: ApiUsage[], rangeDate: ChartDate, 
 	const endDate = new Date(rangeDate.end_date);
 	const diffTime = Math.abs(startDate.valueOf() - endDate.valueOf())
 	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  const result: ChartDataAPI = createEmptyResultByRangeDate<ChartDataAPI>(timeframe, rangeDate, startDate, {calls: 0});
+  const result: ChartDataAPI = createEmptyResultByRangeDate<ChartDataAPI>(timeframe, rangeDate, {calls: 0});
 
 	for (const usage of apiUsage) {
 		if (usage.model_name !== model_name) continue;
@@ -45,7 +45,7 @@ export const groupApiUsagePerDayAllModels = (apiUsage: ApiUsage[], rangeDate: Ch
 		initialModelData[model] = 0;
 	});
 
-	const result: Record<string, Record<string, number>> = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, startDate, initialModelData);
+	const result: Record<string, Record<string, number>> = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, initialModelData);
 
 	const filteredUsage = selectedModels && selectedModels.length > 0
 		? apiUsage.filter(usage => selectedModels.includes(usage.model_name))

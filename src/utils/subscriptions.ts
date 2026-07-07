@@ -17,7 +17,6 @@ const timeframeDays = (rangeDate: ChartDate): number => {
 
 /** [{date, Anonymous, Free, Go, Plus, Max}] — one zero-filled row per day, message counts per segment. */
 export const groupMessagesBySegmentPerDay = (messages: SegmentMessage[], rangeDate: ChartDate) => {
-	const startDate = new Date(rangeDate.start_date);
 	const timeframe = timeframeDays(rangeDate);
 
 	const segments = Array.from(new Set(messages.map((m) => m.segment))).sort(
@@ -28,12 +27,7 @@ export const groupMessagesBySegmentPerDay = (messages: SegmentMessage[], rangeDa
 		initial[segmentLabel(s)] = 0;
 	});
 
-	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(
-		timeframe,
-		rangeDate,
-		startDate,
-		initial,
-	);
+	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, initial);
 
 	for (const m of messages) {
 		if (result[m.date]) result[m.date][segmentLabel(m.segment)] += m.message_count;
@@ -46,7 +40,6 @@ export const groupMessagesBySegmentPerDay = (messages: SegmentMessage[], rangeDa
 
 /** [{date, Go, Plus, Max}] — one zero-filled row per day, active paid subscribers per tier. */
 export const groupSubscribersByTierPerDay = (daily: TierSubscribersDay[], rangeDate: ChartDate) => {
-	const startDate = new Date(rangeDate.start_date);
 	const timeframe = timeframeDays(rangeDate);
 
 	const tiers = Array.from(new Set(daily.map((d) => d.tier))).sort(
@@ -57,12 +50,7 @@ export const groupSubscribersByTierPerDay = (daily: TierSubscribersDay[], rangeD
 		initial[segmentLabel(t)] = 0;
 	});
 
-	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(
-		timeframe,
-		rangeDate,
-		startDate,
-		initial,
-	);
+	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, initial);
 
 	for (const d of daily) {
 		if (result[d.date]) result[d.date][segmentLabel(d.tier)] = d.active_subscribers;
@@ -75,10 +63,9 @@ export const groupSubscribersByTierPerDay = (daily: TierSubscribersDay[], rangeD
 
 /** [{date, "Tier-covered", "Prepaid"}] — daily credit consumption split by what paid for it. */
 export const groupCreditsConsumptionPerDay = (daily: CreditsConsumptionDay[], rangeDate: ChartDate) => {
-	const startDate = new Date(rangeDate.start_date);
 	const timeframe = timeframeDays(rangeDate);
 
-	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, startDate, {
+	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, {
 		"Tier-covered": 0,
 		Prepaid: 0,
 	});
