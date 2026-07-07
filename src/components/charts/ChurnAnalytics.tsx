@@ -8,7 +8,7 @@ import DateRangePicker from "@/components/DateRangePicker";
 import { formatDate } from "@/utils/dates";
 import { getDates, timeframes, formatXAxis } from "@/utils/charts";
 import { useSubscriptionsChurnQuery } from "@/hooks/useSubscriptionsChurnQuery";
-import { formatCount } from "@/utils/format";
+import { formatCount, formatLargeNumber } from "@/utils/format";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export function ChurnAnalytics() {
@@ -80,8 +80,14 @@ export function ChurnAnalytics() {
 											tick={{ fontSize: 12 }}
 											tickFormatter={formatXAxis}
 										/>
-										<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} allowDecimals={false} />
-										<Tooltip />
+										<YAxis
+											tickLine={false}
+											axisLine={false}
+											tick={{ fontSize: 12 }}
+											allowDecimals={false}
+											tickFormatter={formatLargeNumber}
+										/>
+										<Tooltip formatter={(value) => formatLargeNumber(Number(value) || 0)} />
 										<Legend />
 										<Bar dataKey="new" name="New" fill="#82ca9d" radius={[3, 3, 0, 0]} />
 										<Bar dataKey="churned" name="Churned" fill="#ff7300" radius={[3, 3, 0, 0]} />

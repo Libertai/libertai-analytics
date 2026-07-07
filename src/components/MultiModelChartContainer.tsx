@@ -1,4 +1,5 @@
 import { formatXAxis } from "@/utils/charts";
+import { formatLargeNumber } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useMemo, memo } from "react";
@@ -85,8 +86,11 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, comb
 							tick={{ fontSize: 12 }}
 							tickFormatter={formatXAxis}
 						/>
-						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
-						<Tooltip itemSorter={(item) => -(Number(item.value) || 0)} />
+						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatLargeNumber} />
+						<Tooltip
+							itemSorter={(item) => -(Number(item.value) || 0)}
+							formatter={(value) => formatLargeNumber(Number(value) || 0)}
+						/>
 						<Legend />
 						{modelsToShow.map((modelName, index) => {
 							const colorIndex = selectedModels && selectedModels.length > 0 ? modelNames.indexOf(modelName) : index;

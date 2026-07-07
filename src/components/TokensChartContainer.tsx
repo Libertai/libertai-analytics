@@ -1,4 +1,5 @@
 import { formatXAxis } from "@/utils/charts";
+import { formatLargeNumber } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { memo, useMemo } from "react";
@@ -37,8 +38,8 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 							tick={{ fontSize: 12 }}
 							tickFormatter={formatXAxis}
 						/>
-						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
-						<Tooltip />
+						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatLargeNumber} />
+						<Tooltip formatter={(value) => formatLargeNumber(Number(value) || 0)} />
 						<Legend />
 						{mode === "combined" ? (
 							<Area
