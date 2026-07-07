@@ -48,12 +48,11 @@ jobs:
           cache-dependency-path: 'pnpm-lock.yaml'
       - name: Install dependencies
         run: pnpm install
-      - name: Create .env file
-        run: |
-          echo "VITE_INFERENCE_BACKEND_URL=https://example.org" >> .env
-          echo "VITE_THIRDWEB_CLIENT_ID=example" >> .env
-          echo "VITE_SOLANA_RPC=https://example.org" >> .env
-          echo "VITE_LTAI_BASE_ADDRESS=0x92e1d72210429Ce7eE8a0d64D526D4b9752801FF" >> .env
-          echo "VITE_LTAI_SOLANA_ADDRESS=5ooRTqmvm95bHwp4HMo3iszCwsEseY5hksfSa9EDVpBY" >> .env
       - name: Build project
         run: pnpm run build
+        env:
+          VITE_INFERENCE_BACKEND_URL: https://example.org
+          VITE_THIRDWEB_CLIENT_ID: example
+          VITE_SOLANA_RPC: https://example.org
+          VITE_LTAI_BASE_ADDRESS: 0x92e1d72210429Ce7eE8a0d64D526D4b9752801FF
+          VITE_LTAI_SOLANA_ADDRESS: 5ooRTqmvm95bHwp4HMo3iszCwsEseY5hksfSa9EDVpBY
