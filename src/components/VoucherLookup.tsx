@@ -15,27 +15,27 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { DatePicker } from "@/components/DatePicker";
-import { useVouchersQuery } from "@/hooks/useVouchersQuery";
+import { useVouchersQuery, VoucherLookupType } from "@/hooks/useVouchersQuery";
 import { Voucher } from "@/types/vouchers";
 import { api } from "@/utils/http";
 import { expirationPayload } from "@/utils/dates";
 
 export function VoucherLookup() {
-	const [chain, setChain] = useState<"base" | "solana">("base");
-	const [address, setAddress] = useState("");
-	const [submitted, setSubmitted] = useState<{ chain: "base" | "solana"; address: string }>({
-		chain: "base",
-		address: "",
+	const [type, setType] = useState<VoucherLookupType>("base");
+	const [value, setValue] = useState("");
+	const [submitted, setSubmitted] = useState<{ type: VoucherLookupType; value: string }>({
+		type: "base",
+		value: "",
 	});
 
-	const { data: vouchers, isLoading } = useVouchersQuery(submitted.chain, submitted.address);
+	const { data: vouchers, isLoading } = useVouchersQuery(submitted.type, submitted.value);
 	const queryClient = useQueryClient();
 
 	const [editing, setEditing] = useState<Voucher | null>(null);
 	const [expiration, setExpiration] = useState<Date | undefined>();
 	const [saving, setSaving] = useState(false);
 
-	const search = () => setSubmitted({ chain, address: address.trim() });
+	const search = () => setSubmitted({ type, value: value.trim() });
 
 	const openEdit = (voucher: Voucher) => {
 		setEditing(voucher);
@@ -51,7 +51,7 @@ export function VoucherLookup() {
 				expired_at: expiration ? expirationPayload(expiration) : null,
 			});
 			toast.success("Voucher expiration updated");
-			await queryClient.invalidateQueries({ queryKey: ["vouchers", submitted.chain, submitted.address] });
+			await queryClient.invalidateQueries({ queryKey: ["vouchers", submitted.type, submitted.value] });
 			setEditing(null);
 		} catch (error) {
 			const detail = (error as { response?: { data?: { detail?: unknown } } }).response?.data?.detail;
@@ -65,23 +65,28 @@ export function VoucherLookup() {
 		<Card className="max-w-3xl">
 			<CardHeader>
 				<CardTitle>Vouchers lookup</CardTitle>
-				<CardDescription>Search vouchers by wallet address and edit their expiration.</CardDescription>
+				<CardDescription>Search vouchers by wallet address or email, and edit their expiration.</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="flex gap-2">
-					<Select value={chain} onChange={(e) => setChain(e.target.value as "base" | "solana")} className="w-32">
+					<Select value={type} onChange={(e) => setType(e.target.value as VoucherLookupType)} className="w-32">
 						<option value="base">Base</option>
 						<option value="solana">Solana</option>
+						<option value="email">Email</option>
 					</Select>
-					<Input placeholder="0x… / wallet address" value={address} onChange={(e) => setAddress(e.target.value)} />
-					<Button onClick={search} disabled={!address.trim()}>
+					<Input
+						placeholder={type === "email" ? "user@example.com" : "0x… / wallet address"}
+						value={value}
+						onChange={(e) => setValue(e.target.value)}
+					/>
+					<Button onClick={search} disabled={!value.trim()}>
 						Search
 					</Button>
 				</div>
 
 				{isLoading ? (
 					<p className="py-8 text-center text-muted-foreground">Loading...</p>
-				) : submitted.address.length > 0 ? (
+				) : submitted.value.length > 0 ? (
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
