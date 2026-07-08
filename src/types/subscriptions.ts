@@ -7,6 +7,13 @@ export const SegmentMessageSchema = z.object({
 });
 export type SegmentMessage = { date: string; segment: string; message_count: number };
 
+export const SegmentCallSchema = z.object({
+	date: z.string(),
+	segment: z.string(),
+	call_count: z.number(),
+});
+export type SegmentCall = { date: string; segment: string; call_count: number };
+
 export const CreditsConsumptionDaySchema = z.object({
 	date: z.string(),
 	tier_credits: z.number(),

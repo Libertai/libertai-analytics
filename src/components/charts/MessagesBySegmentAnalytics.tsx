@@ -9,7 +9,7 @@ import { formatDate } from "@/utils/dates";
 import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useMessagesBySegmentQuery } from "@/hooks/useMessagesBySegmentQuery";
-import { groupMessagesBySegmentPerDay } from "@/utils/subscriptions";
+import { groupBySegmentPerDay } from "@/utils/subscriptions";
 import { formatCount } from "@/utils/format";
 
 // Chat messages predate metering, so the series is continuous across the legacy/new boundary.
@@ -32,7 +32,7 @@ export function MessagesBySegmentAnalytics() {
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
-		return groupMessagesBySegmentPerDay(deferred.messages, selectedDates);
+		return groupBySegmentPerDay(deferred.messages, selectedDates, "message_count");
 	}, [deferred, selectedDates]);
 
 	return (

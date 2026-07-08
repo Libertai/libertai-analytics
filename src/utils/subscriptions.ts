@@ -1,5 +1,5 @@
 import { ChartDate } from "@/types/dates";
-import { CreditsConsumptionDay, SegmentMessage, TierSubscribersDay } from "@/types/subscriptions";
+import { CreditsConsumptionDay, TierSubscribersDay } from "@/types/subscriptions";
 import { createEmptyResultByRangeDate } from "./dates";
 
 const SEGMENT_ORDER = ["anonymous", "free", "go", "plus", "max"];
@@ -15,11 +15,15 @@ const timeframeDays = (rangeDate: ChartDate): number => {
 	return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
 };
 
-/** [{date, Anonymous, Free, Go, Plus, Max}] — one zero-filled row per day, message counts per segment. */
-export const groupMessagesBySegmentPerDay = (messages: SegmentMessage[], rangeDate: ChartDate) => {
+/** [{date, Free, Go, Plus, Max}] — one zero-filled row per day, `countKey` summed per segment. */
+export const groupBySegmentPerDay = <T extends { date: string; segment: string }>(
+	rows: T[],
+	rangeDate: ChartDate,
+	countKey: keyof T & string,
+) => {
 	const timeframe = timeframeDays(rangeDate);
 
-	const segments = Array.from(new Set(messages.map((m) => m.segment))).sort(
+	const segments = Array.from(new Set(rows.map((r) => r.segment))).sort(
 		(a, b) => (SEGMENT_ORDER.indexOf(a) + 1 || 99) - (SEGMENT_ORDER.indexOf(b) + 1 || 99),
 	);
 	const initial: Record<string, number> = {};
@@ -29,8 +33,8 @@ export const groupMessagesBySegmentPerDay = (messages: SegmentMessage[], rangeDa
 
 	const result = createEmptyResultByRangeDate<Record<string, Record<string, number>>>(timeframe, rangeDate, initial);
 
-	for (const m of messages) {
-		if (result[m.date]) result[m.date][segmentLabel(m.segment)] += m.message_count;
+	for (const r of rows) {
+		if (result[r.date]) result[r.date][segmentLabel(r.segment)] += Number(r[countKey]);
 	}
 
 	return Object.entries(result)
