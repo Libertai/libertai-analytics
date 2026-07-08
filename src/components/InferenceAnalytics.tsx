@@ -3,6 +3,7 @@ import { CallsAnalytics } from "@/components/charts/CallsAnalytics";
 import { TokensAnalytics } from "@/components/charts/TokensAnalytics";
 import { CreditsAnalytics } from "@/components/charts/CreditsAnalytics";
 import { UsersAnalytics } from "@/components/charts/UsersAnalytics";
+import { CallsBySegmentAnalytics } from "@/components/charts/CallsBySegmentAnalytics";
 import { RequestTypeConfig } from "@/config/requestTypes";
 
 // Stacks the calls / tokens / (optional) credits / (optional) users charts for one request type.
@@ -24,6 +25,12 @@ export function InferenceAnalytics({ type, extra }: { type: RequestTypeConfig; e
 				<>
 					<br />
 					<UsersAnalytics type={type} />
+				</>
+			)}
+			{type.callsBySegment && (
+				<>
+					<br />
+					<CallsBySegmentAnalytics type={type} />
 				</>
 			)}
 			{extra && (

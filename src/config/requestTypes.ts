@@ -31,6 +31,8 @@ export type RequestTypeConfig = {
 	credits: { title: string; description: string } | null;
 	// Daily-active-users (DAU) chart config. null when distinct users aren't tracked (x402).
 	users: { title: string; description: string } | null;
+	// "Calls by plan" chart config. null when the type has no per-plan split (chat/liberclaw/x402).
+	callsBySegment: { title: string; description: string } | null;
 };
 
 export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
@@ -42,6 +44,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		tokens: { title: "Tokens", description: "Tokens consumption by users", responseField: "calls" },
 		credits: { title: "Credits", description: "Number of credits ($) consumed" },
 		users: { title: "Active Users", description: "Distinct users making API calls per day" },
+		callsBySegment: { title: "Calls by plan", description: "API calls per day, split by subscriber tier" },
 	},
 	chat: {
 		key: "chat",
@@ -61,6 +64,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		},
 		credits: null,
 		users: { title: "Active Users", description: "Distinct users making chat requests per day" },
+		callsBySegment: null,
 	},
 	liberclaw: {
 		key: "liberclaw",
@@ -75,6 +79,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		tokens: { title: "Liberclaw Tokens", description: "Tokens consumption by Liberclaw users", responseField: "calls" },
 		credits: { title: "Liberclaw Credits", description: "Credits ($) consumed by Liberclaw" },
 		users: { title: "Active Users", description: "Distinct Liberclaw users per day" },
+		callsBySegment: null,
 	},
 	x402: {
 		key: "x402",
@@ -90,6 +95,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		credits: { title: "x402 Credits", description: "Credits ($) consumed by x402" },
 		// x402 payments are anonymous — no user identity to count.
 		users: null,
+		callsBySegment: null,
 	},
 	cli: {
 		key: "cli",
@@ -99,5 +105,6 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		tokens: { title: "CLI Tokens", description: "Tokens consumption by CLI", responseField: "calls" },
 		credits: { title: "CLI Credits", description: "Credits ($) consumed by CLI" },
 		users: { title: "Active Users", description: "Distinct users making CLI calls per day" },
+		callsBySegment: { title: "Calls by plan", description: "CLI calls per day, split by subscriber tier" },
 	},
 };
