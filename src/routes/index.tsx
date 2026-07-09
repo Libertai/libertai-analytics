@@ -10,7 +10,7 @@ import { useSummaryQuery } from "@/hooks/useSummaryQuery";
 import { useCallsQuery } from "@/hooks/useCallsQuery";
 import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
-import { formatCount } from "@/utils/format";
+import { formatCount, formatLargeNumber } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
 import { averageDau, describeWindow, DAU_SERIES_KEY, groupDauPerDay, WINDOW_LABEL_SUFFIX } from "@/utils/users";
 import MultiModelChartContainer from "@/components/MultiModelChartContainer";
@@ -173,8 +173,13 @@ function Index() {
 										tick={{ fontSize: 12 }}
 										tickFormatter={formatXAxis}
 									/>
-									<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
-									<Tooltip />
+									<YAxis
+										tickLine={false}
+										axisLine={false}
+										tick={{ fontSize: 12 }}
+										tickFormatter={(value) => formatLargeNumber(Number(value) || 0)}
+									/>
+									<Tooltip formatter={(value) => formatLargeNumber(Number(value) || 0)} />
 									<Area
 										type="monotone"
 										dataKey="total"
