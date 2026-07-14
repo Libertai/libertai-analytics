@@ -56,12 +56,12 @@ export function TierEconomicsAnalytics() {
 
 	const cards = useMemo(() => {
 		if (!deferred) return [];
-		return tierRangeTotals(deferred.daily, deferred.tier_prices, selectedDates).map((t) => ({
+		return tierRangeTotals(deferred.daily, deferred.tier_prices).map((t) => ({
 			number: t.ratio ?? 0,
-			description: `${segmentLabel(t.tier)}: ${t.subscribers} subs · $${t.revenue} paid · ${t.credits} credits`,
+			description: segmentLabel(t.tier),
 			formatter: formatCredits,
 		}));
-	}, [deferred, selectedDates]);
+	}, [deferred]);
 
 	return (
 		<Card>

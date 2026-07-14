@@ -83,23 +83,17 @@ const value = (
 	return Number((t.credits / t.subscribers).toFixed(3));
 };
 
-/** Per-tier totals over the whole range, for the summary cards. */
+/** Per-tier cumulative PAYG ratio over the whole range, for the summary cards. */
 export const tierRangeTotals = (
 	daily: TierEconomicsDay[],
 	tierPrices: TierPrice[],
-	rangeDate: ChartDate,
-): { tier: string; subscribers: number; revenue: number; credits: number; ratio: number | null }[] =>
+): { tier: string; ratio: number | null }[] =>
 	tierPrices.map(({ tier, monthly_price }) => {
 		const rows = daily.filter((d) => d.tier === tier);
 		const credits = rows.reduce((sum, d) => sum + d.credits, 0);
 		const revenue = rows.reduce((sum, d) => sum + (d.active_subscribers * monthly_price) / DAYS_PER_MONTH, 0);
-		const subscribers =
-			daily.find((d) => d.tier === tier && d.date === rangeDate.end_date)?.active_subscribers ?? 0;
 		return {
 			tier,
-			subscribers,
-			revenue: Number(revenue.toFixed(2)),
-			credits: Number(credits.toFixed(2)),
 			ratio: revenue > 0 ? Number((credits / revenue).toFixed(2)) : null,
 		};
 	});
