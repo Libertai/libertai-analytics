@@ -44,10 +44,10 @@ export function RevenueAnalytics() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Revenue (MRR + prepaid topups)</CardTitle>
+				<CardTitle>Revenue (MRR and prepaid topups)</CardTitle>
 				<CardDescription>
 					Monthly recurring revenue from fiat (Revolut) subscriptions — nominal, VAT-inclusive for EUR.
-					Topups is completed Revolut credit purchases, accumulated within each calendar month.
+					Topups are completed Revolut credit purchases, accumulated within each calendar month.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
