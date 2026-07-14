@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CreditsConsumptionDay, CreditsConsumptionDaySchema } from "@/types/subscriptions";
+import { CreditsConsumptionDay, CreditsConsumptionDaySchema, TierCreditsDay, TierCreditsDaySchema } from "@/types/subscriptions";
 import { ChartDate } from "@/types/dates";
 import { api } from "@/utils/http";
 
@@ -8,6 +8,7 @@ type Response = {
 	total_tier_credits: number;
 	total_prepaid_credits: number;
 	daily: CreditsConsumptionDay[];
+	daily_by_tier: TierCreditsDay[];
 };
 
 async function fetchCreditsConsumption(rangeDate: ChartDate): Promise<Response> {
@@ -22,6 +23,7 @@ async function fetchCreditsConsumption(rangeDate: ChartDate): Promise<Response> 
 		total_tier_credits: res.data["total_tier_credits"] ?? 0,
 		total_prepaid_credits: res.data["total_prepaid_credits"] ?? 0,
 		daily,
+		daily_by_tier: (res.data["daily_by_tier"] ?? []).map((d: TierCreditsDay) => TierCreditsDaySchema.parse(d)),
 	};
 }
 

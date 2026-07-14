@@ -9,7 +9,7 @@ import { formatDate } from "@/utils/dates";
 import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCreditsConsumptionQuery } from "@/hooks/useCreditsConsumptionQuery";
-import { groupCreditsConsumptionPerDay } from "@/utils/subscriptions";
+import { groupCreditsByTierPerDay, groupCreditsConsumptionPerDay } from "@/utils/subscriptions";
 import { formatCredits } from "@/utils/format";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 
@@ -17,7 +17,8 @@ import { ChartModeToggle } from "@/components/ChartModeToggle";
 const ALL_TIME_START = "2026-06-01";
 
 const CONSUMPTION_MODES = [
-	{ value: "by-model", label: "By tier" },
+	{ value: "per-tier", label: "Per tier" },
+	{ value: "tier-vs-prepaid", label: "Tier vs prepaid" },
 	{ value: "combined", label: "Combined" },
 ] as const;
 type ConsumptionMode = (typeof CONSUMPTION_MODES)[number]["value"];
@@ -26,7 +27,7 @@ export function CreditsConsumptionAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const [mode, setMode] = useState<ConsumptionMode>("by-model");
+	const [mode, setMode] = useState<ConsumptionMode>("per-tier");
 
 	const selectedDates = useMemo(() => {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
@@ -40,14 +41,18 @@ export function CreditsConsumptionAnalytics() {
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
+		if (mode === "per-tier") return groupCreditsByTierPerDay(deferred.daily_by_tier, selectedDates);
 		return groupCreditsConsumptionPerDay(deferred.daily, selectedDates);
-	}, [deferred, selectedDates]);
+	}, [deferred, selectedDates, mode]);
 
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle>Credits consumption</CardTitle>
-				<CardDescription>Credits ($) consumed per day, split by tier-covered (subscription) vs prepaid balance</CardDescription>
+				<CardDescription>
+						Credits ($) consumed per day — by the tier the user was on that day, or split by what covered them
+						(subscription entitlement vs prepaid balance)
+					</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex items-center justify-between gap-2 mb-4">
@@ -93,7 +98,7 @@ export function CreditsConsumptionAnalytics() {
 								{ number: queryData?.total_tier_credits || 0, description: "Tier-covered", formatter: formatCredits },
 								{ number: queryData?.total_prepaid_credits || 0, description: "Prepaid", formatter: formatCredits },
 							]}
-							mode={mode}
+							mode={mode === "combined" ? "combined" : "by-model"}
 							combineLabel="Total credits"
 						/>
 					)}
