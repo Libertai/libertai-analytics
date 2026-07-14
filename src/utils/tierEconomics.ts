@@ -87,12 +87,14 @@ const value = (
 export const tierRangeTotals = (
 	daily: TierEconomicsDay[],
 	tierPrices: TierPrice[],
+	rangeDate: ChartDate,
 ): { tier: string; subscribers: number; revenue: number; credits: number; ratio: number | null }[] =>
 	tierPrices.map(({ tier, monthly_price }) => {
 		const rows = daily.filter((d) => d.tier === tier);
 		const credits = rows.reduce((sum, d) => sum + d.credits, 0);
 		const revenue = rows.reduce((sum, d) => sum + (d.active_subscribers * monthly_price) / DAYS_PER_MONTH, 0);
-		const subscribers = rows.length > 0 ? rows[rows.length - 1].active_subscribers : 0;
+		const subscribers =
+			daily.find((d) => d.tier === tier && d.date === rangeDate.end_date)?.active_subscribers ?? 0;
 		return {
 			tier,
 			subscribers,

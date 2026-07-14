@@ -24,7 +24,7 @@ const ALL_TIME_START = "2026-06-22";
 
 const LENSES = [
 	{ value: "payg-ratio", label: "PAYG value per $1" },
-	{ value: "credits-per-sub", label: "Credits per sub" },
+	{ value: "credits-per-sub", label: "Credits per sub/day" },
 ] as const;
 
 const WINDOWS = [
@@ -56,12 +56,12 @@ export function TierEconomicsAnalytics() {
 
 	const cards = useMemo(() => {
 		if (!deferred) return [];
-		return tierRangeTotals(deferred.daily, deferred.tier_prices).map((t) => ({
+		return tierRangeTotals(deferred.daily, deferred.tier_prices, selectedDates).map((t) => ({
 			number: t.ratio ?? 0,
 			description: `${segmentLabel(t.tier)}: ${t.subscribers} subs · $${t.revenue} paid · ${t.credits} credits`,
 			formatter: formatCredits,
 		}));
-	}, [deferred]);
+	}, [deferred, selectedDates]);
 
 	return (
 		<Card>
