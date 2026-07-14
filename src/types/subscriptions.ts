@@ -41,8 +41,12 @@ export const TierCreditsDaySchema = z.object({
 });
 export type TierCreditsDay = { date: string; tier: string; credits: number };
 
-export const TierPriceSchema = z.object({ tier: z.string(), monthly_price: z.number() });
-export type TierPrice = { tier: string; monthly_price: number };
+export const TierPriceSchema = z.object({
+	tier: z.string(),
+	monthly_price: z.number(),
+	weekly_credits: z.number(),
+});
+export type TierPrice = { tier: string; monthly_price: number; weekly_credits: number };
 
 export const TierEconomicsDaySchema = z.object({
 	date: z.string(),

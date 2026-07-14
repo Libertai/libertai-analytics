@@ -10,12 +10,7 @@ import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { useTierEconomicsQuery } from "@/hooks/useTierEconomicsQuery";
-import {
-	buildTierEconomicsSeries,
-	EconomicsLens,
-	EconomicsWindow,
-	tierRangeTotals,
-} from "@/utils/tierEconomics";
+import { buildTierEconomicsSeries, EconomicsLens, EconomicsWindow, tierRangeTotals } from "@/utils/tierEconomics";
 import { formatCredits } from "@/utils/format";
 import { segmentLabel } from "@/utils/subscriptions";
 
@@ -23,9 +18,12 @@ import { segmentLabel } from "@/utils/subscriptions";
 const ALL_TIME_START = "2026-06-22";
 
 const LENSES = [
+	{ value: "entitlement-used", label: "% of entitlement" },
 	{ value: "payg-ratio", label: "PAYG value per $1" },
 	{ value: "credits-per-sub", label: "Credits per sub/day" },
 ] as const;
+
+const formatPercent = (num: number) => `${formatCredits(num)}%`;
 
 const WINDOWS = [
 	{ value: "cumulative", label: "Cumulative" },
@@ -36,7 +34,7 @@ export function TierEconomicsAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const [lens, setLens] = useState<EconomicsLens>("payg-ratio");
+	const [lens, setLens] = useState<EconomicsLens>("entitlement-used");
 	const [windowMode, setWindowMode] = useState<EconomicsWindow>("cumulative");
 
 	const selectedDates = useMemo(() => {
@@ -56,21 +54,20 @@ export function TierEconomicsAnalytics() {
 
 	const cards = useMemo(() => {
 		if (!deferred) return [];
-		return tierRangeTotals(deferred.daily, deferred.tier_prices).map((t) => ({
-			number: t.ratio ?? 0,
+		return tierRangeTotals(deferred.daily, deferred.tier_prices, lens).map((t) => ({
+			number: t.value ?? 0,
 			description: segmentLabel(t.tier),
-			formatter: formatCredits,
+			formatter: lens === "entitlement-used" ? formatPercent : formatCredits,
 		}));
-	}, [deferred]);
+	}, [deferred, lens]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Tier value (PAYG value per $1 paid)</CardTitle>
+				<CardTitle>Tier value</CardTitle>
 				<CardDescription>
-					How much pay-as-you-go value a subscriber draws from their plan for each $1 they pay. Lower means
-					the tier is a better deal for us. Counts only credits the subscription covered — prepaid spend is
-					paid for separately. All providers (card and credits rail).
+					How much of their plan each tier&apos;s subscribers actually use. Counts only credits the subscription
+					covered, across all providers.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
@@ -80,9 +77,7 @@ export function TierEconomicsAnalytics() {
 							<Button
 								key={timeframe.label}
 								className="max-md:h-8 max-md:px-3 max-md:text-xs"
-								variant={
-									timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"
-								}
+								variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
 								onClick={() => {
 									setSelectedTimeframe(timeframe);
 									setSelectedCustomDates(false);
