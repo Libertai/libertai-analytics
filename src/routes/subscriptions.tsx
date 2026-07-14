@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UsersBySegment } from "@/components/charts/UsersBySegment";
 import { CreditsConsumptionAnalytics } from "@/components/charts/CreditsConsumptionAnalytics";
+import { TierEconomicsAnalytics } from "@/components/charts/TierEconomicsAnalytics";
 import { RevenueAnalytics } from "@/components/charts/RevenueAnalytics";
 import { ChurnAnalytics } from "@/components/charts/ChurnAnalytics";
 import { CurrentSubscribersTable } from "@/components/CurrentSubscribersTable";
@@ -23,6 +24,7 @@ function Subscriptions() {
 			<RevenueAnalytics />
 			<ChurnAnalytics />
 			<CreditsConsumptionAnalytics />
+			<TierEconomicsAnalytics />
 			<CurrentSubscribersTable />
 			<RecentActivityTable />
 		</div>
