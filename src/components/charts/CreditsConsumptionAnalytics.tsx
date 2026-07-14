@@ -50,9 +50,9 @@ export function CreditsConsumptionAnalytics() {
 			<CardHeader>
 				<CardTitle>Credits consumption</CardTitle>
 				<CardDescription>
-						Credits ($) consumed per day — by the tier the user was on that day, or split by what covered them
-						(subscription entitlement vs prepaid balance)
-					</CardDescription>
+					Credits ($) consumed per day — by the tier the user was on that day, or split by what covered them
+					(subscription entitlement vs prepaid balance)
+				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex items-center justify-between gap-2 mb-4">
