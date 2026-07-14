@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/utils/http";
 import { ChartDate } from "@/types/dates";
-import { MrrByTier, MrrByTierSchema, MrrDay, MrrDaySchema } from "@/types/revenue";
+import { MrrByTier, MrrByTierSchema, MrrDay, MrrDaySchema, TopupDay, TopupDaySchema } from "@/types/revenue";
 
 type Response = {
 	current_mrr: number;
 	mrr_by_tier: MrrByTier[];
 	daily: MrrDay[];
+	topups_daily: TopupDay[];
+	total_topups: number;
 };
 
 async function fetchRevenue(rangeDate: ChartDate): Promise<Response> {
@@ -17,6 +19,8 @@ async function fetchRevenue(rangeDate: ChartDate): Promise<Response> {
 		current_mrr: res.data["current_mrr"] ?? 0,
 		mrr_by_tier: (res.data["mrr_by_tier"] ?? []).map((t: MrrByTier) => MrrByTierSchema.parse(t)),
 		daily: (res.data["daily"] ?? []).map((d: MrrDay) => MrrDaySchema.parse(d)),
+		topups_daily: (res.data["topups_daily"] ?? []).map((t: TopupDay) => TopupDaySchema.parse(t)),
+		total_topups: res.data["total_topups"] ?? 0,
 	};
 }
 

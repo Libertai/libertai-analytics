@@ -10,6 +10,10 @@ import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useSubscriptionsRevenueQuery } from "@/hooks/useSubscriptionsRevenueQuery";
 import { formatCredits } from "@/utils/format";
+import { monthToDateTopups } from "@/utils/revenue";
+
+// Subscriptions launched 2026-06-22; earlier days have no revenue to show.
+const ALL_TIME_START = "2026-06-22";
 
 // MRR (Revolut/fiat only, nominal $) over time, with current MRR + per-tier cards.
 export function RevenueAnalytics() {
@@ -21,7 +25,7 @@ export function RevenueAnalytics() {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
 			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
 		}
-		return getDates(selectedTimeframe.days);
+		return getDates(selectedTimeframe.days, ALL_TIME_START);
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
 	const { data: revenue, isLoading, isFetching } = useSubscriptionsRevenueQuery(selectedDates);
@@ -29,15 +33,21 @@ export function RevenueAnalytics() {
 
 	const data = useMemo(() => {
 		if (!deferredRevenue) return [];
-		return deferredRevenue.daily.map((d) => ({ date: d.date, MRR: d.mrr }));
-	}, [deferredRevenue]);
+		const mtd = monthToDateTopups(deferredRevenue.topups_daily, selectedDates);
+		return deferredRevenue.daily.map((d) => ({
+			date: d.date,
+			MRR: d.mrr,
+			"Topups (MTD)": mtd[d.date] ?? 0,
+		}));
+	}, [deferredRevenue, selectedDates]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Revenue (MRR)</CardTitle>
+				<CardTitle>Revenue (MRR + prepaid topups)</CardTitle>
 				<CardDescription>
-					Monthly recurring revenue from fiat (Revolut) subscriptions — nominal, VAT-inclusive for EUR
+					Monthly recurring revenue from fiat (Revolut) subscriptions — nominal, VAT-inclusive for EUR.
+					Topups is completed Revolut credit purchases, accumulated within each calendar month.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
@@ -83,6 +93,11 @@ export function RevenueAnalytics() {
 									description: `MRR ${t.tier} ($)`,
 									formatter: formatCredits,
 								})),
+								{
+									number: revenue?.total_topups || 0,
+									description: "Topups in range ($)",
+									formatter: formatCredits,
+								},
 							]}
 						/>
 					)}

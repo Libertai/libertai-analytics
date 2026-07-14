@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const MrrDaySchema = z.object({ date: z.string(), mrr: z.number() });
+export const TopupDaySchema = z.object({ date: z.string(), amount: z.number() });
 export const MrrByTierSchema = z.object({ tier: z.string(), mrr: z.number() });
 export const ChurnWeekSchema = z.object({
 	week_start: z.string(),
@@ -30,6 +31,7 @@ export const SubscriptionActivityEventSchema = z.object({
 
 export type SubscriptionActivityEvent = z.infer<typeof SubscriptionActivityEventSchema>;
 export type MrrDay = z.infer<typeof MrrDaySchema>;
+export type TopupDay = z.infer<typeof TopupDaySchema>;
 export type MrrByTier = z.infer<typeof MrrByTierSchema>;
 export type ChurnWeek = z.infer<typeof ChurnWeekSchema>;
 export type LatestSubscriber = z.infer<typeof LatestSubscriberSchema>;
