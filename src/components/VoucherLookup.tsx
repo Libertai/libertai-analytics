@@ -80,7 +80,7 @@ export function VoucherLookup() {
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<ChartModeToggle modes={LOOKUP_MODES} value={mode} onChange={setMode} />
-				<div className="flex gap-2">
+				<div className="flex gap-2 flex-wrap sm:flex-nowrap">
 					{mode === "email" ? (
 						<Input
 							type="email"

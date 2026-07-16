@@ -55,7 +55,7 @@ export function CreditsConsumptionAnalytics() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex items-center justify-between gap-2 mb-4">
+				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
 					<div className="flex flex-wrap gap-2">
 						{timeframes.map((timeframe) => (
 							<Button

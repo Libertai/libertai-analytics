@@ -41,12 +41,12 @@ export function RecentActivityTable() {
 
 	return (
 		<Card>
-			<CardHeader className="flex-row items-center justify-between space-y-0">
+			<CardHeader className="flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<CardTitle>Recent activity</CardTitle>
 					<CardDescription>Subscription lifecycle events, newest first</CardDescription>
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-2 flex-wrap">
 					<Popover>
 						<PopoverTrigger asChild>
 							<Button variant="outline" size="sm" className="w-40 justify-between font-normal">

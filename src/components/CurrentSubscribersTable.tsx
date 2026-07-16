@@ -7,7 +7,7 @@ export function CurrentSubscribersTable() {
 
 	return (
 		<Card>
-			<CardHeader className="flex-row items-center justify-between space-y-0">
+			<CardHeader className="flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<CardTitle>Current subscribers</CardTitle>
 					<CardDescription>Active and overdue subscriptions — one row per subscriber</CardDescription>

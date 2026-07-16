@@ -70,7 +70,7 @@ export function CallsAnalytics({ type }: { type: RequestTypeConfig }) {
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex flex-col gap-3 mb-4">
-					<div className="flex items-center justify-between gap-2">
+					<div className="flex items-center justify-between gap-2 flex-wrap">
 						<div className="flex flex-wrap gap-2">
 							{timeframes.map((timeframe) => (
 								<Button

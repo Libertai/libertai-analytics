@@ -78,7 +78,7 @@ export function VoucherForm() {
 				{recipientMode === "email" ? (
 					<Input type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
 				) : (
-					<div className="flex gap-2">
+					<div className="flex gap-2 flex-wrap sm:flex-nowrap">
 						<Select value={chain} onChange={(e) => setChain(e.target.value as "base" | "solana")} className="w-32">
 							<option value="base">Base</option>
 							<option value="solana">Solana</option>
