@@ -10,20 +10,12 @@ import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { useTierEconomicsQuery } from "@/hooks/useTierEconomicsQuery";
-import { buildTierEconomicsSeries, EconomicsLens, EconomicsWindow, tierRangeTotals } from "@/utils/tierEconomics";
+import { buildTierEconomicsSeries, EconomicsWindow, tierRangeTotals } from "@/utils/tierEconomics";
 import { formatCredits } from "@/utils/format";
 import { segmentLabel } from "@/utils/subscriptions";
 
 // Subscriptions launched 2026-06-22.
 const ALL_TIME_START = "2026-06-22";
-
-const LENSES = [
-	{ value: "entitlement-used", label: "% of entitlement" },
-	{ value: "payg-ratio", label: "PAYG value per $1" },
-	{ value: "credits-per-sub", label: "Credits per sub/day" },
-] as const;
-
-const formatPercent = (num: number) => `${formatCredits(num)}%`;
 
 const WINDOWS = [
 	{ value: "cumulative", label: "Cumulative" },
@@ -34,7 +26,6 @@ export function TierEconomicsAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
 	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-	const [lens, setLens] = useState<EconomicsLens>("entitlement-used");
 	const [windowMode, setWindowMode] = useState<EconomicsWindow>("cumulative");
 
 	const selectedDates = useMemo(() => {
@@ -49,25 +40,25 @@ export function TierEconomicsAnalytics() {
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
-		return buildTierEconomicsSeries(deferred.daily, deferred.tier_prices, selectedDates, lens, windowMode);
-	}, [deferred, selectedDates, lens, windowMode]);
+		return buildTierEconomicsSeries(deferred.daily, deferred.tier_prices, selectedDates, windowMode);
+	}, [deferred, selectedDates, windowMode]);
 
 	const cards = useMemo(() => {
 		if (!deferred) return [];
-		return tierRangeTotals(deferred.daily, deferred.tier_prices, lens).map((t) => ({
+		return tierRangeTotals(deferred.daily, deferred.tier_prices).map((t) => ({
 			number: t.value ?? 0,
 			description: segmentLabel(t.tier),
-			formatter: lens === "entitlement-used" ? formatPercent : formatCredits,
+			formatter: formatCredits,
 		}));
-	}, [deferred, lens]);
+	}, [deferred]);
 
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle>Tier value</CardTitle>
 				<CardDescription>
-					How much of their plan each tier&apos;s subscribers actually use. Counts only credits the subscription
-					covered, across all providers.
+					PAYG credit value delivered per $1 of subscription revenue for each tier. Counts only credits the
+					subscription covered, across all providers.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
@@ -94,10 +85,7 @@ export function TierEconomicsAnalytics() {
 							/>
 						</div>
 					</div>
-					<div className="flex gap-2">
-						<ChartModeToggle modes={LENSES} value={lens} onChange={setLens} />
-						<ChartModeToggle modes={WINDOWS} value={windowMode} onChange={setWindowMode} />
-					</div>
+					<ChartModeToggle modes={WINDOWS} value={windowMode} onChange={setWindowMode} />
 				</div>
 				<div className="relative">
 					{isFetching && (
