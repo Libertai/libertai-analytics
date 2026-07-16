@@ -11,6 +11,9 @@ import { useSubscriptionsChurnQuery } from "@/hooks/useSubscriptionsChurnQuery";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+// Subscriptions launched 2026-06-22.
+const ALL_TIME_START = "2026-06-22";
+
 export function ChurnAnalytics() {
 	const [rangeDate, setRangeDate] = useState<DateRange>();
 	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
@@ -20,7 +23,7 @@ export function ChurnAnalytics() {
 		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
 			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
 		}
-		return getDates(selectedTimeframe.days);
+		return getDates(selectedTimeframe.days, ALL_TIME_START);
 	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
 
 	const { data: churn, isLoading, isFetching } = useSubscriptionsChurnQuery(selectedDates);
