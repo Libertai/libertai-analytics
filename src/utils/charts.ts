@@ -20,6 +20,11 @@ export const BY_MODEL_MODES = [
 ] as const;
 export type ByModelMode = (typeof BY_MODEL_MODES)[number]["value"];
 
+// For charts whose series can't exist before their feature launched: pull the range start
+// up to `minStart` so the x-axis doesn't render weeks of empty leading days.
+export const clampStartDate = (dates: ChartDate, minStart: string): ChartDate =>
+	dates.start_date >= minStart ? dates : { ...dates, start_date: minStart };
+
 export const getDates = (days: number | null, allTimeStartDate?: string): ChartDate => {
 	let startDate: Date;
 

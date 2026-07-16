@@ -8,16 +8,21 @@ import { useTierEconomicsQuery } from "@/hooks/useTierEconomicsQuery";
 import { buildTierEconomicsSeries, EconomicsWindow, tierRangeTotals } from "@/utils/tierEconomics";
 import { formatCredits } from "@/utils/format";
 import { segmentLabel } from "@/utils/subscriptions";
+import { clampStartDate } from "@/utils/charts";
 import { ChartDate } from "@/types/dates";
+
+// Subscriptions launched 2026-06-22; no covered credits before that.
+const LAUNCH_DATE = "2026-06-22";
 
 const WINDOWS = [
 	{ value: "cumulative", label: "Cumulative" },
 	{ value: "daily", label: "Daily" },
 ] as const;
 
-export function TierEconomicsAnalytics({ dates }: { dates: ChartDate }) {
+export function TierEconomicsAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 	const [windowMode, setWindowMode] = useState<EconomicsWindow>("cumulative");
 
+	const dates = useMemo(() => clampStartDate(pageDates, LAUNCH_DATE), [pageDates]);
 	const { data: queryData, isLoading, isFetching } = useTierEconomicsQuery(dates);
 	const deferred = useDeferredValue(queryData);
 

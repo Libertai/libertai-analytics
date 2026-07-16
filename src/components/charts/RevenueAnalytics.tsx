@@ -6,10 +6,15 @@ import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useSubscriptionsRevenueQuery } from "@/hooks/useSubscriptionsRevenueQuery";
 import { formatCredits } from "@/utils/format";
 import { monthToDateTopups } from "@/utils/revenue";
+import { clampStartDate } from "@/utils/charts";
 import { ChartDate } from "@/types/dates";
 
+// Subscriptions launched 2026-06-22; earlier days have no revenue to show.
+const LAUNCH_DATE = "2026-06-22";
+
 // MRR (Revolut/fiat only, nominal $) over time, with current MRR + per-tier cards.
-export function RevenueAnalytics({ dates }: { dates: ChartDate }) {
+export function RevenueAnalytics({ dates: pageDates }: { dates: ChartDate }) {
+	const dates = useMemo(() => clampStartDate(pageDates, LAUNCH_DATE), [pageDates]);
 	const { data: revenue, isLoading, isFetching } = useSubscriptionsRevenueQuery(dates);
 	const deferredRevenue = useDeferredValue(revenue);
 

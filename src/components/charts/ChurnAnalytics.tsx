@@ -2,14 +2,18 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeferredValue, useMemo } from "react";
-import { formatXAxis } from "@/utils/charts";
+import { clampStartDate, formatXAxis } from "@/utils/charts";
 import { useSubscriptionsChurnQuery } from "@/hooks/useSubscriptionsChurnQuery";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCards } from "@/components/SummaryCards";
 import { ChartDate } from "@/types/dates";
 
-export function ChurnAnalytics({ dates }: { dates: ChartDate }) {
+// Subscriptions launched 2026-06-22; no churn to show before that.
+const LAUNCH_DATE = "2026-06-22";
+
+export function ChurnAnalytics({ dates: pageDates }: { dates: ChartDate }) {
+	const dates = useMemo(() => clampStartDate(pageDates, LAUNCH_DATE), [pageDates]);
 	const { data: churn, isLoading, isFetching } = useSubscriptionsChurnQuery(dates);
 	const deferredChurn = useDeferredValue(churn);
 
