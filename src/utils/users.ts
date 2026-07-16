@@ -5,6 +5,13 @@ import { createEmptyResultByRangeDate } from "./dates";
 // Series key used for the single DAU line (shown in the chart legend/tooltip).
 export const DAU_SERIES_KEY = "Active users";
 
+// Options for the DAU/WAU/MAU window toggle.
+export const USER_WINDOWS = [
+	{ value: "day", label: "DAU" },
+	{ value: "week", label: "WAU" },
+	{ value: "month", label: "MAU" },
+] as const;
+
 // Suffix appended to the series/legend label when the window toggle is on week/month.
 export const WINDOW_LABEL_SUFFIX: Record<UsersWindow, string> = {
 	day: "",

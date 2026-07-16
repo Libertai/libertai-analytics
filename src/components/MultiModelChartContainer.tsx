@@ -1,18 +1,12 @@
 import { formatXAxis } from "@/utils/charts";
 import { formatLargeNumber } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { SummaryCard, SummaryCards } from "./SummaryCards";
 import { useMemo, memo } from "react";
-
-type Card = {
-	number: number;
-	description: string;
-	formatter?: (num: number) => string;
-};
 
 type MultiModelChartContainerProps = {
 	data: Record<string, string | number | null>[];
-	cards: Card[];
+	cards: SummaryCard[];
 	selectedModels?: string[];
 	mode?: "by-model" | "combined";
 	combineLabel?: string;
@@ -110,19 +104,7 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, comb
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
-			<div className="grid grid-cols-2 md:flex gap-3 mt-4">
-				{cards.map((card: Card) => {
-					const displayNumber = card.formatter ? card.formatter(card.number) : card.number;
-					return (
-						<Card key={card.description} className="md:w-fit md:mx-auto">
-							<CardHeader className="text-center py-4">
-								<CardTitle>{displayNumber}</CardTitle>
-								<CardDescription>{card.description}</CardDescription>
-							</CardHeader>
-						</Card>
-					);
-				})}
-			</div>
+			<SummaryCards cards={cards} />
 		</div>
 	);
 });

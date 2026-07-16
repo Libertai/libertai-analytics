@@ -1,19 +1,13 @@
 import { formatXAxis } from "@/utils/charts";
 import { formatLargeNumber } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { SummaryCard, SummaryCards } from "./SummaryCards";
 import { memo, useMemo } from "react";
-
-type Card = {
-	number: number;
-	description: string;
-	formatter?: (num: number) => string;
-};
 
 type TokensChartContainerProps = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	data: Record<string, any>[];
-	cards: Card[];
+	cards: SummaryCard[];
 	mode?: "by-model" | "combined";
 };
 
@@ -89,19 +83,7 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
-			<div className="grid grid-cols-2 md:flex gap-3 mt-4">
-				{cards.map((card: Card) => {
-					const displayNumber = card.formatter ? card.formatter(card.number) : card.number;
-					return (
-						<Card key={card.description} className="md:w-fit md:mx-auto">
-							<CardHeader className="text-center py-4">
-								<CardTitle>{displayNumber}</CardTitle>
-								<CardDescription>{card.description}</CardDescription>
-							</CardHeader>
-						</Card>
-					);
-				})}
-			</div>
+			<SummaryCards cards={cards} />
 		</div>
 	);
 });

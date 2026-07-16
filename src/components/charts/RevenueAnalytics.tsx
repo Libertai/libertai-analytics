@@ -1,78 +1,38 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
-import { getDates, timeframes } from "@/utils/charts";
+import { useDeferredValue, useMemo } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useSubscriptionsRevenueQuery } from "@/hooks/useSubscriptionsRevenueQuery";
 import { formatCredits } from "@/utils/format";
 import { monthToDateTopups } from "@/utils/revenue";
-
-// Subscriptions launched 2026-06-22; earlier days have no revenue to show.
-const ALL_TIME_START = "2026-06-22";
+import { ChartDate } from "@/types/dates";
 
 // MRR (Revolut/fiat only, nominal $) over time, with current MRR + per-tier cards.
-export function RevenueAnalytics() {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
-		}
-		return getDates(selectedTimeframe.days, ALL_TIME_START);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
-
-	const { data: revenue, isLoading, isFetching } = useSubscriptionsRevenueQuery(selectedDates);
+export function RevenueAnalytics({ dates }: { dates: ChartDate }) {
+	const { data: revenue, isLoading, isFetching } = useSubscriptionsRevenueQuery(dates);
 	const deferredRevenue = useDeferredValue(revenue);
 
 	const data = useMemo(() => {
 		if (!deferredRevenue) return [];
-		const mtd = monthToDateTopups(deferredRevenue.topups_daily, selectedDates);
+		const mtd = monthToDateTopups(deferredRevenue.topups_daily, dates);
 		return deferredRevenue.daily.map((d) => ({
 			date: d.date,
 			MRR: d.mrr,
 			"Topups (MTD)": mtd[d.date] ?? 0,
 		}));
-	}, [deferredRevenue, selectedDates]);
+	}, [deferredRevenue, dates]);
 
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle>Revenue (MRR and prepaid topups)</CardTitle>
 				<CardDescription>
-					Monthly recurring revenue from fiat (Revolut) subscriptions — nominal, VAT-inclusive for EUR.
-					Topups are completed Revolut credit purchases, accumulated within each calendar month.
+					Monthly recurring revenue from fiat (Revolut) subscriptions — nominal, VAT-inclusive for EUR. Topups are
+					completed Revolut credit purchases, accumulated within each calendar month.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-wrap gap-2 mb-4">
-					{timeframes.map((timeframe) => (
-						<Button
-							key={timeframe.label}
-							className="max-md:h-8 max-md:px-3 max-md:text-xs"
-							variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-							onClick={() => {
-								setSelectedTimeframe(timeframe);
-								setSelectedCustomDates(false);
-							}}
-						>
-							{timeframe.label}
-						</Button>
-					))}
-					<div onClick={() => setSelectedCustomDates(true)}>
-						<DateRangePicker
-							hasCustomDateBeenClicked={selectedCustomDates}
-							rangeDate={rangeDate}
-							setRangeDate={setRangeDate}
-						/>
-					</div>
-				</div>
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">

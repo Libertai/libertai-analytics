@@ -1,48 +1,25 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
-import { averageDau, describeWindow, DAU_SERIES_KEY, groupDauPerDay, WINDOW_LABEL_SUFFIX } from "@/utils/users";
-import { getDates, timeframes } from "@/utils/charts";
+import { averageDau, describeWindow, DAU_SERIES_KEY, groupDauPerDay, USER_WINDOWS, WINDOW_LABEL_SUFFIX } from "@/utils/users";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useUsersQuery } from "@/hooks/useUsersQuery";
 import { formatCount } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { UsersWindow } from "@/types/users";
-
-const USER_WINDOWS = [
-	{ value: "day", label: "DAU" },
-	{ value: "week", label: "WAU" },
-	{ value: "month", label: "MAU" },
-] as const;
+import { ChartDate } from "@/types/dates";
 
 // Daily-active-users (DAU) chart for one request type. Single series (no per-model split),
 // with headline cards for unique users over the range and the average DAU on active days.
-export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+export function UsersAnalytics({ type, dates }: { type: RequestTypeConfig; dates: ChartDate }) {
 	const [usersWindow, setUsersWindow] = useState<UsersWindow>("day");
 
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return {
-				start_date: formatDate(rangeDate.from),
-				end_date: formatDate(rangeDate.to),
-			};
-		}
-		return getDates(selectedTimeframe.days, type.allTimeStartDate);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
-
-	const { data: usersData, isLoading, isFetching } = useUsersQuery(type, selectedDates, usersWindow);
-	const { data: dauData } = useUsersQuery(type, selectedDates, "day");
-	const { data: wauData } = useUsersQuery(type, selectedDates, "week");
-	const { data: mauData } = useUsersQuery(type, selectedDates, "month");
+	const { data: usersData, isLoading, isFetching } = useUsersQuery(type, dates, usersWindow);
+	const { data: dauData } = useUsersQuery(type, dates, "day");
+	const { data: wauData } = useUsersQuery(type, dates, "week");
+	const { data: mauData } = useUsersQuery(type, dates, "month");
 	const currentWau = wauData?.daily_active_users.at(-1)?.active_users ?? 0;
 	const currentMau = mauData?.daily_active_users.at(-1)?.active_users ?? 0;
 
@@ -52,15 +29,12 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 
 	const data = useMemo(() => {
 		if (!deferredUsersData) return [];
-		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates, seriesLabel);
-	}, [deferredUsersData, selectedDates, seriesLabel]);
+		return groupDauPerDay(deferredUsersData.daily_active_users, dates, seriesLabel);
+	}, [deferredUsersData, dates, seriesLabel]);
 
 	const description = type.users && describeWindow(type.users.description, usersWindow);
 
-	const avgDau = useMemo(
-		() => (dauData ? averageDau(dauData.daily_active_users) : 0),
-		[dauData],
-	);
+	const avgDau = useMemo(() => (dauData ? averageDau(dauData.daily_active_users) : 0), [dauData]);
 
 	return (
 		<Card>
@@ -69,34 +43,8 @@ export function UsersAnalytics({ type }: { type: RequestTypeConfig }) {
 				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-col gap-3 mb-4">
-					<div className="flex items-center justify-between gap-2 flex-wrap">
-						<div className="flex flex-wrap gap-2">
-							{timeframes.map((timeframe) => (
-								<Button
-									key={timeframe.label}
-									className="max-md:h-8 max-md:px-3 max-md:text-xs"
-									variant={
-										timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
-									}
-									onClick={() => {
-										setSelectedTimeframe(timeframe);
-										setSelectedCustomDates(false);
-									}}
-								>
-									{timeframe.label}
-								</Button>
-							))}
-							<div onClick={() => setSelectedCustomDates(true)}>
-								<DateRangePicker
-									hasCustomDateBeenClicked={selectedCustomDates}
-									rangeDate={rangeDate}
-									setRangeDate={setRangeDate}
-								/>
-							</div>
-						</div>
-						<ChartModeToggle modes={USER_WINDOWS} value={usersWindow} onChange={setUsersWindow} />
-					</div>
+				<div className="flex justify-end mb-4">
+					<ChartModeToggle modes={USER_WINDOWS} value={usersWindow} onChange={setUsersWindow} />
 				</div>
 				<div className="relative">
 					{isFetching && (

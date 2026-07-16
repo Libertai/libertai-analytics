@@ -1,37 +1,22 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
-import { getDates, timeframes } from "@/utils/charts";
+import { useDeferredValue, useMemo } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCallsBySegmentQuery } from "@/hooks/useCallsBySegmentQuery";
 import { groupBySegmentPerDay } from "@/utils/subscriptions";
 import { formatCount } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
+import { ChartDate } from "@/types/dates";
 
-export function CallsBySegmentAnalytics({ type }: { type: RequestTypeConfig }) {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
-		}
-		return getDates(selectedTimeframe.days, type.allTimeStartDate);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
-
-	const { data: queryData, isLoading, isFetching } = useCallsBySegmentQuery(type, selectedDates);
+export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConfig; dates: ChartDate }) {
+	const { data: queryData, isLoading, isFetching } = useCallsBySegmentQuery(type, dates);
 	const deferred = useDeferredValue(queryData);
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
-		return groupBySegmentPerDay(deferred.calls, selectedDates, "call_count");
-	}, [deferred, selectedDates]);
+		return groupBySegmentPerDay(deferred.calls, dates, "call_count");
+	}, [deferred, dates]);
 
 	return (
 		<Card>
@@ -40,28 +25,6 @@ export function CallsBySegmentAnalytics({ type }: { type: RequestTypeConfig }) {
 				<CardDescription>{type.callsBySegment?.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-wrap gap-2 mb-4">
-					{timeframes.map((timeframe) => (
-						<Button
-							key={timeframe.label}
-							className="max-md:h-8 max-md:px-3 max-md:text-xs"
-							variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-							onClick={() => {
-								setSelectedTimeframe(timeframe);
-								setSelectedCustomDates(false);
-							}}
-						>
-							{timeframe.label}
-						</Button>
-					))}
-					<div onClick={() => setSelectedCustomDates(true)}>
-						<DateRangePicker
-							hasCustomDateBeenClicked={selectedCustomDates}
-							rangeDate={rangeDate}
-							setRangeDate={setRangeDate}
-						/>
-					</div>
-				</div>
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">

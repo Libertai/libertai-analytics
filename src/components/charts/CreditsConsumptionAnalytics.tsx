@@ -1,20 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
-import { getDates, timeframes } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCreditsConsumptionQuery } from "@/hooks/useCreditsConsumptionQuery";
 import { groupCreditsByTierPerDay, groupCreditsConsumptionPerDay } from "@/utils/subscriptions";
 import { formatCredits } from "@/utils/format";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
-
-// Credits are only tracked since metering launched.
-const ALL_TIME_START = "2026-06-01";
+import { ChartDate } from "@/types/dates";
 
 const CONSUMPTION_MODES = [
 	{ value: "per-tier", label: "Per tier" },
@@ -23,27 +16,17 @@ const CONSUMPTION_MODES = [
 ] as const;
 type ConsumptionMode = (typeof CONSUMPTION_MODES)[number]["value"];
 
-export function CreditsConsumptionAnalytics() {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+export function CreditsConsumptionAnalytics({ dates }: { dates: ChartDate }) {
 	const [mode, setMode] = useState<ConsumptionMode>("per-tier");
 
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
-		}
-		return getDates(selectedTimeframe.days, ALL_TIME_START);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
-
-	const { data: queryData, isLoading, isFetching } = useCreditsConsumptionQuery(selectedDates);
+	const { data: queryData, isLoading, isFetching } = useCreditsConsumptionQuery(dates);
 	const deferred = useDeferredValue(queryData);
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
-		if (mode === "per-tier") return groupCreditsByTierPerDay(deferred.daily_by_tier, selectedDates);
-		return groupCreditsConsumptionPerDay(deferred.daily, selectedDates);
-	}, [deferred, selectedDates, mode]);
+		if (mode === "per-tier") return groupCreditsByTierPerDay(deferred.daily_by_tier, dates);
+		return groupCreditsConsumptionPerDay(deferred.daily, dates);
+	}, [deferred, dates, mode]);
 
 	return (
 		<Card>
@@ -55,29 +38,7 @@ export function CreditsConsumptionAnalytics() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-					<div className="flex flex-wrap gap-2">
-						{timeframes.map((timeframe) => (
-							<Button
-								key={timeframe.label}
-								className="max-md:h-8 max-md:px-3 max-md:text-xs"
-								variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-								onClick={() => {
-									setSelectedTimeframe(timeframe);
-									setSelectedCustomDates(false);
-								}}
-							>
-								{timeframe.label}
-							</Button>
-						))}
-						<div onClick={() => setSelectedCustomDates(true)}>
-							<DateRangePicker
-								hasCustomDateBeenClicked={selectedCustomDates}
-								rangeDate={rangeDate}
-								setRangeDate={setRangeDate}
-							/>
-						</div>
-					</div>
+				<div className="flex justify-end mb-4">
 					<ChartModeToggle modes={CONSUMPTION_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">

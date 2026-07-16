@@ -1,52 +1,30 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
 import { groupCreditsPerDayAllModels } from "@/utils/credits";
 import FilterModelNames from "@/components/FilterModelNames";
-import { getDates, timeframes } from "@/utils/charts";
+import { BY_MODEL_MODES, ByModelMode } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCreditsQuery } from "@/hooks/useCreditsQuery";
 import { formatCredits } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
+import { ChartDate } from "@/types/dates";
 
-const CREDITS_MODES = [
-	{ value: "by-model", label: "By model" },
-	{ value: "combined", label: "Combined" },
-] as const;
-type CreditsMode = (typeof CREDITS_MODES)[number]["value"];
-
-export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+export function CreditsAnalytics({ type, dates }: { type: RequestTypeConfig; dates: ChartDate }) {
 	const [selectedModels, setSelectedModels] = useState<string[]>([]);
-	const [mode, setMode] = useState<CreditsMode>("by-model");
+	const [mode, setMode] = useState<ByModelMode>("by-model");
 
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return {
-				start_date: formatDate(rangeDate.from),
-				end_date: formatDate(rangeDate.to),
-			};
-		}
-		return getDates(selectedTimeframe.days, type.allTimeStartDate);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
-
-	const { data: creditsData, isLoading, isFetching } = useCreditsQuery(type, selectedDates);
+	const { data: creditsData, isLoading, isFetching } = useCreditsQuery(type, dates);
 
 	const deferredCreditsData = useDeferredValue(creditsData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredCreditsData) return [];
-		return groupCreditsPerDayAllModels(deferredCreditsData.credits, selectedDates, deferredSelectedModels);
-	}, [deferredCreditsData, selectedDates, deferredSelectedModels]);
+		return groupCreditsPerDayAllModels(deferredCreditsData.credits, dates, deferredSelectedModels);
+	}, [deferredCreditsData, dates, deferredSelectedModels]);
 
 	// Scope the total-credits card to the selected models (whole range when none selected).
 	const totalCreditsUsed = useMemo(() => {
@@ -56,11 +34,11 @@ export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
 			.filter(
 				(credit) =>
 					deferredSelectedModels.includes(credit.model_name) &&
-					credit.used_at >= selectedDates.start_date &&
-					credit.used_at <= selectedDates.end_date,
+					credit.used_at >= dates.start_date &&
+					credit.used_at <= dates.end_date,
 			)
 			.reduce((sum, credit) => sum + credit.credits_used, 0);
-	}, [deferredCreditsData, deferredSelectedModels, selectedDates]);
+	}, [deferredCreditsData, deferredSelectedModels, dates]);
 
 	return (
 		<Card>
@@ -69,35 +47,9 @@ export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
 				<CardDescription>{type.credits?.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-col gap-3 mb-4">
-					<div className="flex items-center justify-between gap-2 flex-wrap">
-						<div className="flex flex-wrap gap-2">
-							{timeframes.map((timeframe) => (
-								<Button
-									key={timeframe.label}
-									className="max-md:h-8 max-md:px-3 max-md:text-xs"
-									variant={
-										timeframe.days === selectedTimeframe.days && selectedCustomDates == false ? "default" : "outline"
-									}
-									onClick={() => {
-										setSelectedTimeframe(timeframe);
-										setSelectedCustomDates(false);
-									}}
-								>
-									{timeframe.label}
-								</Button>
-							))}
-							<div onClick={() => setSelectedCustomDates(true)}>
-								<DateRangePicker
-									hasCustomDateBeenClicked={selectedCustomDates}
-									rangeDate={rangeDate}
-									setRangeDate={setRangeDate}
-								/>
-							</div>
-						</div>
-						<ChartModeToggle modes={CREDITS_MODES} value={mode} onChange={setMode} />
-					</div>
+				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
 					<FilterModelNames setSelectedModels={setSelectedModels} />
+					<ChartModeToggle modes={BY_MODEL_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">
 					{isFetching && (
@@ -112,13 +64,7 @@ export function CreditsAnalytics({ type }: { type: RequestTypeConfig }) {
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[
-								{
-									number: totalCreditsUsed,
-									description: "Total credits used",
-									formatter: formatCredits,
-								},
-							]}
+							cards={[{ number: totalCreditsUsed, description: "Total credits used", formatter: formatCredits }]}
 							selectedModels={selectedModels}
 							mode={mode}
 							combineLabel="Total credits"

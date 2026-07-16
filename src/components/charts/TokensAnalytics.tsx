@@ -1,12 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDates, timeframes } from "@/utils/charts";
-import { Button } from "@/components/ui/button";
-import DateRangePicker from "@/components/DateRangePicker";
+import { BY_MODEL_MODES, ByModelMode } from "@/utils/charts";
 import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import { formatDate } from "@/utils/dates";
 import FilterModelNames from "@/components/FilterModelNames";
 import { groupTokensPerDayAllModels } from "@/utils/tokens";
 import TokensChartContainer from "@/components/TokensChartContainer";
@@ -14,39 +10,21 @@ import { useTokensQuery } from "@/hooks/useTokensQuery";
 import { formatCount } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
+import { ChartDate } from "@/types/dates";
 
-const TOKEN_MODES = [
-	{ value: "by-model", label: "By model" },
-	{ value: "combined", label: "Combined" },
-] as const;
-type TokenMode = (typeof TOKEN_MODES)[number]["value"];
-
-export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
+export function TokensAnalytics({ type, dates }: { type: RequestTypeConfig; dates: ChartDate }) {
 	const [selectedModels, setSelectedModels] = useState<string[]>([]);
-	const [mode, setMode] = useState<TokenMode>("by-model");
+	const [mode, setMode] = useState<ByModelMode>("by-model");
 
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return {
-				start_date: formatDate(rangeDate.from),
-				end_date: formatDate(rangeDate.to),
-			};
-		}
-		return getDates(selectedTimeframe.days, type.allTimeStartDate);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days, type.allTimeStartDate]);
-
-	const { data: tokensData, isLoading, isFetching } = useTokensQuery(type, selectedDates);
+	const { data: tokensData, isLoading, isFetching } = useTokensQuery(type, dates);
 
 	const deferredTokensData = useDeferredValue(tokensData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
 	const data = useMemo(() => {
 		if (!deferredTokensData) return [];
-		return groupTokensPerDayAllModels(deferredTokensData.tokens, selectedDates, deferredSelectedModels);
-	}, [deferredTokensData, selectedDates, deferredSelectedModels]);
+		return groupTokensPerDayAllModels(deferredTokensData.tokens, dates, deferredSelectedModels);
+	}, [deferredTokensData, dates, deferredSelectedModels]);
 
 	const cards = useMemo(() => {
 		if (!deferredTokensData) {
@@ -61,8 +39,8 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 			const filtered = deferredTokensData.tokens.filter(
 				(token) =>
 					deferredSelectedModels.includes(token.model_name) &&
-					token.date >= selectedDates.start_date &&
-					token.date <= selectedDates.end_date,
+					token.date >= dates.start_date &&
+					token.date <= dates.end_date,
 			);
 			return [
 				{
@@ -100,7 +78,7 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 				formatter: formatCount,
 			},
 		];
-	}, [deferredTokensData, deferredSelectedModels, selectedDates]);
+	}, [deferredTokensData, deferredSelectedModels, dates]);
 
 	return (
 		<Card>
@@ -109,33 +87,9 @@ export function TokensAnalytics({ type }: { type: RequestTypeConfig }) {
 				<CardDescription>{type.tokens.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-col gap-3 mb-4">
-					<div className="flex items-center justify-between gap-2 flex-wrap">
-						<div className="flex flex-wrap gap-2">
-							{timeframes.map((timeframe) => (
-								<Button
-									key={timeframe.label}
-									className="max-md:h-8 max-md:px-3 max-md:text-xs"
-									variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-									onClick={() => {
-										setSelectedTimeframe(timeframe);
-										setSelectedCustomDates(false);
-									}}
-								>
-									{timeframe.label}
-								</Button>
-							))}
-							<div onClick={() => setSelectedCustomDates(true)}>
-								<DateRangePicker
-									hasCustomDateBeenClicked={selectedCustomDates}
-									rangeDate={rangeDate}
-									setRangeDate={setRangeDate}
-								/>
-							</div>
-						</div>
-						<ChartModeToggle modes={TOKEN_MODES} value={mode} onChange={setMode} />
-					</div>
+				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
 					<FilterModelNames setSelectedModels={setSelectedModels} />
+					<ChartModeToggle modes={BY_MODEL_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">
 					{isFetching && (

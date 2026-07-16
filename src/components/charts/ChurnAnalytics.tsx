@@ -1,32 +1,16 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
-import { getDates, timeframes, formatXAxis } from "@/utils/charts";
+import { useDeferredValue, useMemo } from "react";
+import { formatXAxis } from "@/utils/charts";
 import { useSubscriptionsChurnQuery } from "@/hooks/useSubscriptionsChurnQuery";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { SummaryCards } from "@/components/SummaryCards";
+import { ChartDate } from "@/types/dates";
 
-// Subscriptions launched 2026-06-22.
-const ALL_TIME_START = "2026-06-22";
-
-export function ChurnAnalytics() {
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
-		}
-		return getDates(selectedTimeframe.days, ALL_TIME_START);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
-
-	const { data: churn, isLoading, isFetching } = useSubscriptionsChurnQuery(selectedDates);
+export function ChurnAnalytics({ dates }: { dates: ChartDate }) {
+	const { data: churn, isLoading, isFetching } = useSubscriptionsChurnQuery(dates);
 	const deferredChurn = useDeferredValue(churn);
 
 	const weekly = useMemo(() => deferredChurn?.weekly ?? [], [deferredChurn]);
@@ -39,28 +23,6 @@ export function ChurnAnalytics() {
 				<CardDescription>New vs churned fiat subscribers per week</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-wrap gap-2 mb-4">
-					{timeframes.map((timeframe) => (
-						<Button
-							key={timeframe.label}
-							className="max-md:h-8 max-md:px-3 max-md:text-xs"
-							variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-							onClick={() => {
-								setSelectedTimeframe(timeframe);
-								setSelectedCustomDates(false);
-							}}
-						>
-							{timeframe.label}
-						</Button>
-					))}
-					<div onClick={() => setSelectedCustomDates(true)}>
-						<DateRangePicker
-							hasCustomDateBeenClicked={selectedCustomDates}
-							rangeDate={rangeDate}
-							setRangeDate={setRangeDate}
-						/>
-					</div>
-				</div>
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
@@ -97,20 +59,13 @@ export function ChurnAnalytics() {
 									</BarChart>
 								</ResponsiveContainer>
 							</div>
-							<div className="grid grid-cols-2 md:flex gap-3 mt-4">
-								{[
-									{ number: deferredChurn?.total_new ?? 0, description: "Total new" },
-									{ number: deferredChurn?.total_churned ?? 0, description: "Total churned" },
-									{ number: net, description: "Net" },
-								].map((card) => (
-									<Card key={card.description} className="md:w-fit md:mx-auto">
-										<CardHeader className="text-center py-4">
-											<CardTitle>{formatCount(card.number)}</CardTitle>
-											<CardDescription>{card.description}</CardDescription>
-										</CardHeader>
-									</Card>
-								))}
-							</div>
+							<SummaryCards
+								cards={[
+									{ number: deferredChurn?.total_new ?? 0, description: "Total new", formatter: formatCount },
+									{ number: deferredChurn?.total_churned ?? 0, description: "Total churned", formatter: formatCount },
+									{ number: net, description: "Net", formatter: formatCount },
+								]}
+							/>
 						</div>
 					)}
 				</div>

@@ -6,12 +6,21 @@ import { RevenueAnalytics } from "@/components/charts/RevenueAnalytics";
 import { ChurnAnalytics } from "@/components/charts/ChurnAnalytics";
 import { CurrentSubscribersTable } from "@/components/CurrentSubscribersTable";
 import { RecentActivityTable } from "@/components/RecentActivityTable";
+import { DateFilterBar } from "@/components/DateFilterBar";
+import { dateFilterSearchSchema, useDateFilter } from "@/hooks/useDateFilter";
+
+// Earliest date any subscriptions chart has data (metering launch; paid plans came 06-22).
+const ALL_TIME_START = "2026-06-01";
 
 export const Route = createFileRoute("/subscriptions")({
 	component: Subscriptions,
+	validateSearch: dateFilterSearchSchema.parse,
 });
 
 function Subscriptions() {
+	const filter = useDateFilter(ALL_TIME_START);
+	const dates = filter.selectedDates;
+
 	return (
 		<div className="container mx-auto px-4 py-6 space-y-6">
 			<div>
@@ -20,11 +29,12 @@ function Subscriptions() {
 					User base by segment and credit consumption across all usage (chat, API, CLI).
 				</p>
 			</div>
-			<UsersBySegment />
-			<RevenueAnalytics />
-			<ChurnAnalytics />
-			<CreditsConsumptionAnalytics />
-			<TierEconomicsAnalytics />
+			<DateFilterBar filter={filter} />
+			<UsersBySegment dates={dates} />
+			<RevenueAnalytics dates={dates} />
+			<ChurnAnalytics dates={dates} />
+			<CreditsConsumptionAnalytics dates={dates} />
+			<TierEconomicsAnalytics dates={dates} />
 			<CurrentSubscribersTable />
 			<RecentActivityTable />
 		</div>

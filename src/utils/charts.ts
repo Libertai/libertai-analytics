@@ -13,6 +13,13 @@ export const timeframes = [
 	{ label: "All time", days: null },
 ];
 
+// Shared by every per-model chart's display-mode toggle.
+export const BY_MODEL_MODES = [
+	{ value: "by-model", label: "By model" },
+	{ value: "combined", label: "Combined" },
+] as const;
+export type ByModelMode = (typeof BY_MODEL_MODES)[number]["value"];
+
 export const getDates = (days: number | null, allTimeStartDate?: string): ChartDate => {
 	let startDate: Date;
 

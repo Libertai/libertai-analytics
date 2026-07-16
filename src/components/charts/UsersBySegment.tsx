@@ -1,26 +1,19 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useDeferredValue, useMemo, useState } from "react";
-import { DateRange } from "react-day-picker";
-import DateRangePicker from "@/components/DateRangePicker";
-import { formatDate } from "@/utils/dates";
-import { getDates, timeframes } from "@/utils/charts";
+import { useDeferredValue, useMemo } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useSubscriptionsQuery } from "@/hooks/useSubscriptionsQuery";
 import { useSubscribersOverTimeQuery } from "@/hooks/useSubscribersOverTimeQuery";
 import { groupSubscribersByTierPerDay } from "@/utils/subscriptions";
+import { ChartDate } from "@/types/dates";
 
 const TIER_ORDER = ["go", "plus", "max"];
 const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// Paid plans launched alongside metering.
-const ALL_TIME_START = "2026-06-01";
-
 /** Active paid subscribers per tier over time, with current user-base totals (anonymous + free +
  * paid tiers) as cards. Subscriptions cover all usage, so this is a users view, not a chat metric. */
-export function UsersBySegment() {
+export function UsersBySegment({ dates }: { dates: ChartDate }) {
 	const { data } = useSubscriptionsQuery();
 
 	const byTier = [...(data?.subscribers_by_tier ?? [])].sort(
@@ -33,24 +26,13 @@ export function UsersBySegment() {
 		...byTier.map((t) => ({ number: t.active_subscribers, description: `${label(t.tier)} (total)` })),
 	];
 
-	const [rangeDate, setRangeDate] = useState<DateRange>();
-	const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]);
-	const [selectedCustomDates, setSelectedCustomDates] = useState<boolean>(false);
-
-	const selectedDates = useMemo(() => {
-		if (selectedCustomDates && rangeDate?.from && rangeDate?.to) {
-			return { start_date: formatDate(rangeDate.from), end_date: formatDate(rangeDate.to) };
-		}
-		return getDates(selectedTimeframe.days, ALL_TIME_START);
-	}, [selectedCustomDates, rangeDate, selectedTimeframe.days]);
-
-	const { data: overTimeData, isLoading, isFetching } = useSubscribersOverTimeQuery(selectedDates);
+	const { data: overTimeData, isLoading, isFetching } = useSubscribersOverTimeQuery(dates);
 	const deferred = useDeferredValue(overTimeData);
 
 	const chartData = useMemo(() => {
 		if (!deferred) return [];
-		return groupSubscribersByTierPerDay(deferred.daily, selectedDates);
-	}, [deferred, selectedDates]);
+		return groupSubscribersByTierPerDay(deferred.daily, dates);
+	}, [deferred, dates]);
 
 	return (
 		<Card>
@@ -62,28 +44,6 @@ export function UsersBySegment() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
-				<div className="flex flex-wrap gap-2 mb-4">
-					{timeframes.map((timeframe) => (
-						<Button
-							key={timeframe.label}
-							className="max-md:h-8 max-md:px-3 max-md:text-xs"
-							variant={timeframe.days === selectedTimeframe.days && !selectedCustomDates ? "default" : "outline"}
-							onClick={() => {
-								setSelectedTimeframe(timeframe);
-								setSelectedCustomDates(false);
-							}}
-						>
-							{timeframe.label}
-						</Button>
-					))}
-					<div onClick={() => setSelectedCustomDates(true)}>
-						<DateRangePicker
-							hasCustomDateBeenClicked={selectedCustomDates}
-							rangeDate={rangeDate}
-							setRangeDate={setRangeDate}
-						/>
-					</div>
-				</div>
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
