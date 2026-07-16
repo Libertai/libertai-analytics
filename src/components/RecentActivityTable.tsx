@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ActivityType, ACTIVITY_TYPES, useSubscriptionActivityQuery } from "@/hooks/useSubscriptionActivityQuery";
 
-const LIMITS = [20, 50, 100] as const;
+const PAGE_SIZES = [20, 50, 100] as const;
 
 const TYPE_LABELS: Record<ActivityType, string> = {
 	subscribed: "Subscribed",
@@ -25,11 +25,16 @@ function typesLabel(types: ActivityType[]): string {
 }
 
 export function RecentActivityTable() {
-	const [limit, setLimit] = useState<number>(20);
+	const [pageSize, setPageSize] = useState<number>(20);
+	const [page, setPage] = useState(0);
 	const [types, setTypes] = useState<ActivityType[]>(ACTIVITY_TYPES);
-	const { data, isLoading } = useSubscriptionActivityQuery(limit, types);
+	const { data, isLoading } = useSubscriptionActivityQuery(pageSize, types, page * pageSize);
+
+	const total = data?.total ?? 0;
+	const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
 	const toggleType = (type: ActivityType) => {
+		setPage(0);
 		setTypes((prev) => {
 			if (prev.includes(type)) {
 				if (prev.length === 1) return prev; // keep at least one selected
@@ -74,9 +79,17 @@ export function RecentActivityTable() {
 						</PopoverContent>
 					</Popover>
 					<div className="flex gap-1">
-						{LIMITS.map((l) => (
-							<Button key={l} size="sm" variant={l === limit ? "default" : "outline"} onClick={() => setLimit(l)}>
-								{l}
+						{PAGE_SIZES.map((size) => (
+							<Button
+								key={size}
+								size="sm"
+								variant={size === pageSize ? "default" : "outline"}
+								onClick={() => {
+									setPage(0);
+									setPageSize(size);
+								}}
+							>
+								{size}
 							</Button>
 						))}
 					</div>
@@ -111,6 +124,26 @@ export function RecentActivityTable() {
 								))}
 							</TableBody>
 						</Table>
+						{total > pageSize && (
+							<div className="flex items-center justify-between mt-3">
+								<span className="text-xs text-muted-foreground">
+									{page * pageSize + 1}–{Math.min((page + 1) * pageSize, total)} of {total}
+								</span>
+								<div className="flex gap-1">
+									<Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
+										Previous
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										disabled={page >= pageCount - 1}
+										onClick={() => setPage(page + 1)}
+									>
+										Next
+									</Button>
+								</div>
+							</div>
+						)}
 					</div>
 				)}
 			</CardContent>

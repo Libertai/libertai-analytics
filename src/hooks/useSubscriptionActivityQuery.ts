@@ -20,19 +20,21 @@ function typesParam(types: ActivityType[]): string {
 
 type Response = {
 	events: SubscriptionActivityEvent[];
+	total: number;
 };
 
-async function fetchSubscriptionActivity(limit: number, types: ActivityType[]): Promise<Response> {
-	const res = await api.get(`/stats/global/subscriptions/activity?limit=${limit}${typesParam(types)}`);
+async function fetchSubscriptionActivity(limit: number, types: ActivityType[], offset: number): Promise<Response> {
+	const res = await api.get(`/stats/global/subscriptions/activity?limit=${limit}&offset=${offset}${typesParam(types)}`);
 	return {
 		events: (res.data["events"] ?? []).map((e: SubscriptionActivityEvent) => SubscriptionActivityEventSchema.parse(e)),
+		total: res.data["total"] ?? 0,
 	};
 }
 
-export function useSubscriptionActivityQuery(limit: number, types: ActivityType[]) {
+export function useSubscriptionActivityQuery(limit: number, types: ActivityType[], offset: number) {
 	return useQuery({
-		queryKey: ["subscription-activity", limit, typesParam(types)],
-		queryFn: () => fetchSubscriptionActivity(limit, types),
+		queryKey: ["subscription-activity", limit, typesParam(types), offset],
+		queryFn: () => fetchSubscriptionActivity(limit, types, offset),
 		staleTime: 5 * 60 * 1000,
 		gcTime: 10 * 60 * 1000,
 		placeholderData: (previousData) => previousData,
