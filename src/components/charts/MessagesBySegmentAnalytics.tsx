@@ -1,21 +1,33 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDeferredValue, useMemo } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
+import { FilterSegments } from "@/components/FilterSegments";
 import { useMessagesBySegmentQuery } from "@/hooks/useMessagesBySegmentQuery";
-import { groupBySegmentPerDay } from "@/utils/subscriptions";
+import { groupBySegmentPerDay, segmentLabel } from "@/utils/subscriptions";
 import { formatCount } from "@/utils/format";
 import { ChartDate } from "@/types/dates";
 
 export function MessagesBySegmentAnalytics({ dates }: { dates: ChartDate }) {
+	const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
 	const { data: queryData, isLoading, isFetching } = useMessagesBySegmentQuery(dates);
 	const deferred = useDeferredValue(queryData);
+	const deferredSegments = useDeferredValue(selectedSegments);
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
 		return groupBySegmentPerDay(deferred.messages, dates, "message_count");
 	}, [deferred, dates]);
+
+	// Scope the total-messages card to the selected plans (whole range when none selected).
+	const totalMessages = useMemo(() => {
+		if (!deferred) return 0;
+		if (deferredSegments.length === 0) return deferred.total_messages;
+		return deferred.messages
+			.filter((m) => deferredSegments.includes(segmentLabel(m.segment)))
+			.reduce((sum, m) => sum + m.message_count, 0);
+	}, [deferred, deferredSegments]);
 
 	return (
 		<Card>
@@ -24,6 +36,9 @@ export function MessagesBySegmentAnalytics({ dates }: { dates: ChartDate }) {
 				<CardDescription>Chat messages per day, split by subscription segment (anonymous, free, paid tiers)</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
+				<div className="flex items-center gap-2 mb-4 flex-wrap">
+					<FilterSegments selected={selectedSegments} onChange={setSelectedSegments} />
+				</div>
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
@@ -37,9 +52,8 @@ export function MessagesBySegmentAnalytics({ dates }: { dates: ChartDate }) {
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[
-								{ number: queryData?.total_messages || 0, description: "Total messages", formatter: formatCount },
-							]}
+							cards={[{ number: totalMessages, description: "Total messages", formatter: formatCount }]}
+							selectedModels={selectedSegments}
 						/>
 					)}
 				</div>
