@@ -17,7 +17,7 @@ initLibertaiAuth({
 	ltaiSolanaAddress: env.LTAI_SOLANA_ADDRESS,
 });
 
-const router = createRouter({ routeTree });
+const router = createRouter({ routeTree, scrollRestoration: true });
 
 const queryClient = new QueryClient({
 	defaultOptions: {

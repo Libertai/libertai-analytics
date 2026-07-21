@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Code, Coins, CreditCard, LayoutDashboard, MessageSquare, PawPrint, Terminal, Ticket } from "lucide-react";
 import { LibertaiLogo } from "@libertai/branding";
@@ -69,13 +69,6 @@ function isPathActive(currentPath: string, path: string): boolean {
 export function Layout({ children }: Readonly<{ children: ReactNode }>) {
 	const currentPath = useRouterState({ select: (state) => state.location.pathname });
 
-	// The content div (not the window) is the scroll container and survives route
-	// changes, so its scroll position must be reset explicitly on navigation.
-	const contentRef = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		contentRef.current?.scrollTo(0, 0);
-	}, [currentPath]);
-
 	return (
 		<SidebarProvider>
 			<div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
@@ -123,7 +116,8 @@ export function Layout({ children }: Readonly<{ children: ReactNode }>) {
 					</header>
 
 					{/* Content wrapper (SidebarInset is the <main> landmark); mobile padding clears the fixed header */}
-					<div ref={contentRef} className="flex-1 overflow-auto md:pt-0 pt-16 w-full">
+					{/* The scroll container: the router owns its scroll position via scrollRestoration. */}
+					<div data-scroll-restoration-id="content" className="flex-1 overflow-auto md:pt-0 pt-16 w-full">
 						{children}
 					</div>
 				</SidebarInset>
