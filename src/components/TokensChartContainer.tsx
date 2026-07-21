@@ -8,7 +8,7 @@ type TokensChartContainerProps = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	data: Record<string, any>[];
 	cards: SummaryCard[];
-	mode?: "by-model" | "combined";
+	mode?: "by-type" | "combined";
 };
 
 const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerProps) => {

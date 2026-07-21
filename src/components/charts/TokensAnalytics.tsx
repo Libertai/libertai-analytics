@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BY_MODEL_MODES, ByModelMode } from "@/utils/charts";
+import { BY_TYPE_MODES, ByTypeMode } from "@/utils/charts";
 import { useDeferredValue, useMemo, useState } from "react";
 import FilterModelNames from "@/components/FilterModelNames";
 import { groupTokensPerDayAllModels } from "@/utils/tokens";
@@ -14,7 +14,7 @@ import { ChartDate } from "@/types/dates";
 
 export function TokensAnalytics({ type, dates }: { type: RequestTypeConfig; dates: ChartDate }) {
 	const [selectedModels, setSelectedModels] = useState<string[]>([]);
-	const [mode, setMode] = useState<ByModelMode>("by-model");
+	const [mode, setMode] = useState<ByTypeMode>("by-type");
 
 	const { data: tokensData, isLoading, isFetching } = useTokensQuery(type, dates);
 
@@ -89,7 +89,7 @@ export function TokensAnalytics({ type, dates }: { type: RequestTypeConfig; date
 			<CardContent className="max-md:px-3">
 				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
 					<FilterModelNames setSelectedModels={setSelectedModels} />
-					<ChartModeToggle modes={BY_MODEL_MODES} value={mode} onChange={setMode} />
+					<ChartModeToggle modes={BY_TYPE_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">
 					{isFetching && (

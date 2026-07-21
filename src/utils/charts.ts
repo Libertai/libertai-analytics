@@ -31,6 +31,14 @@ export const BY_MODEL_MODES = [
 ] as const;
 export type ByModelMode = (typeof BY_MODEL_MODES)[number]["value"];
 
+// Tokens charts split by token type (input/output/cached), not by model — the model
+// dropdown only scopes which models are counted.
+export const BY_TYPE_MODES = [
+	{ value: "by-type", label: "By type" },
+	{ value: "combined", label: "Combined" },
+] as const;
+export type ByTypeMode = (typeof BY_TYPE_MODES)[number]["value"];
+
 // For charts whose series can't exist before their feature launched: pull the range start
 // up to `minStart` so the x-axis doesn't render weeks of empty leading days.
 export const clampStartDate = (dates: ChartDate, minStart: string): ChartDate =>
