@@ -8,6 +8,8 @@ import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarInset,
 	SidebarMenu,
@@ -18,15 +20,23 @@ import {
 	useSidebar,
 } from "@libertai/ui/sidebar";
 
-const SIDEBAR_ITEMS = [
-	{ to: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard" },
-	{ to: "/api", icon: <Code className="h-4 w-4" />, label: "API" },
-	{ to: "/chat", icon: <MessageSquare className="h-4 w-4" />, label: "Chat" },
-	{ to: "/liberclaw", icon: <PawPrint className="h-4 w-4" />, label: "LiberClaw" },
-	{ to: "/subscriptions", icon: <CreditCard className="h-4 w-4" />, label: "Subscriptions" },
-	{ to: "/cli", icon: <Terminal className="h-4 w-4" />, label: "CLI" },
-	{ to: "/x402", icon: <Coins className="h-4 w-4" />, label: "x402" },
-	{ to: "/vouchers", icon: <Ticket className="h-4 w-4" />, label: "Vouchers" },
+const SIDEBAR_SECTIONS = [
+	{
+		label: "Statistics",
+		items: [
+			{ to: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard" },
+			{ to: "/api", icon: <Code className="h-4 w-4" />, label: "API" },
+			{ to: "/chat", icon: <MessageSquare className="h-4 w-4" />, label: "Chat" },
+			{ to: "/liberclaw", icon: <PawPrint className="h-4 w-4" />, label: "LiberClaw" },
+			{ to: "/subscriptions", icon: <CreditCard className="h-4 w-4" />, label: "Subscriptions" },
+			{ to: "/cli", icon: <Terminal className="h-4 w-4" />, label: "CLI" },
+			{ to: "/x402", icon: <Coins className="h-4 w-4" />, label: "x402" },
+		],
+	},
+	{
+		label: "Tools",
+		items: [{ to: "/vouchers", icon: <Ticket className="h-4 w-4" />, label: "Vouchers" }],
+	},
 ] as const;
 
 // Wraps menu items to auto-close the sidebar on mobile.
@@ -90,17 +100,22 @@ export function Layout({ children }: Readonly<{ children: ReactNode }>) {
 					</SidebarHeader>
 
 					<SidebarContent>
-						<SidebarMenu>
-							{SIDEBAR_ITEMS.map((item) => (
-								<SidebarMenuItemWithAutoClose
-									to={item.to}
-									isActive={isPathActive(currentPath, item.to)}
-									icon={item.icon}
-									label={item.label}
-									key={item.to}
-								/>
-							))}
-						</SidebarMenu>
+						{SIDEBAR_SECTIONS.map((section) => (
+							<SidebarGroup key={section.label}>
+								<SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+								<SidebarMenu>
+									{section.items.map((item) => (
+										<SidebarMenuItemWithAutoClose
+											to={item.to}
+											isActive={isPathActive(currentPath, item.to)}
+											icon={item.icon}
+											label={item.label}
+											key={item.to}
+										/>
+									))}
+								</SidebarMenu>
+							</SidebarGroup>
+						))}
 					</SidebarContent>
 
 					<SidebarFooter>
