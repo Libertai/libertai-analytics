@@ -11,7 +11,8 @@ const SEGMENT_OPTIONS = SEGMENT_ORDER.map(segmentLabel);
 export function FilterSegments({
 	selected,
 	onChange,
-}: { selected: string[]; onChange: (next: string[]) => void }) {
+	options = SEGMENT_OPTIONS,
+}: { selected: string[]; onChange: (next: string[]) => void; options?: string[] }) {
 	const [open, setOpen] = useState(false);
 
 	const toggle = (segment: string) => {
@@ -39,7 +40,7 @@ export function FilterSegments({
 							Clear selection
 						</button>
 					)}
-					{SEGMENT_OPTIONS.map((option) => (
+					{options.map((option) => (
 						<label
 							key={option}
 							className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer text-sm"

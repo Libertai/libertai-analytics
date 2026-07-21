@@ -4,7 +4,7 @@ import { createEmptyResultByRangeDate } from "./dates";
 
 export const SEGMENT_ORDER = ["anonymous", "free", "go", "plus", "max"];
 const TIER_ORDER = ["go", "plus", "max"];
-const CREDITS_TIER_ORDER = ["free", "go", "plus", "max"];
+export const CREDITS_TIER_ORDER = ["free", "go", "plus", "max"];
 
 /** "free" -> "Free", "go" -> "Go", etc. — the chart series label. */
 export const segmentLabel = (segment: string): string => segment.charAt(0).toUpperCase() + segment.slice(1);
