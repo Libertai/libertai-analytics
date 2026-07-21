@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
-import { Navbar } from "@/components/Navbar";
+import { Layout } from "@/components/Layout";
 import { AuthGate } from "@/components/AuthGate";
 
 // OAuth/magic-link landing pages must render outside the gate (the session
@@ -16,8 +16,9 @@ function RootComponent() {
 	return (
 		<AuthGate>
 			<div className="font-sans antialiased">
-				<Navbar />
-				<Outlet />
+				<Layout>
+					<Outlet />
+				</Layout>
 			</div>
 		</AuthGate>
 	);

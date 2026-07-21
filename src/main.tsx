@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { initLibertaiAuth, useAccountStore, LibertaiProviders } from "@libertai/auth";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { routeTree } from "./routeTree.gen";
 import env from "@/config/env";
 import "./globals.css";
@@ -42,10 +43,12 @@ declare module "@tanstack/react-router" {
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<LibertaiProviders>
-				<RouterProvider router={router} />
-				<Toaster richColors />
-			</LibertaiProviders>
+			<ThemeProvider defaultTheme="system" storageKey="libertai-analytics-theme">
+				<LibertaiProviders>
+					<RouterProvider router={router} />
+					<Toaster richColors />
+				</LibertaiProviders>
+			</ThemeProvider>
 		</QueryClientProvider>
 	</React.StrictMode>,
 );
