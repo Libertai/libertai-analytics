@@ -95,12 +95,12 @@ function Index() {
 			<div className="relative">
 				{isFetching && (
 					<div className="absolute top-2 right-2 z-10">
-						<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+						<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
 					</div>
 				)}
 				{!summaryData && isLoading ? (
 					<div className="flex justify-center items-center py-8">
-						<p className="text-gray-500">Loading...</p>
+						<p className="text-muted-foreground">Loading...</p>
 					</div>
 				) : (
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

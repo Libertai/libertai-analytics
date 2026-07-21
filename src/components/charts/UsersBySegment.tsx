@@ -47,12 +47,12 @@ export function UsersBySegment({ dates }: { dates: ChartDate }) {
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
-							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
 						</div>
 					)}
 					{!overTimeData && isLoading ? (
 						<div className="flex justify-center items-center py-8">
-							<p className="text-gray-500">Loading...</p>
+							<p className="text-muted-foreground">Loading...</p>
 						</div>
 					) : (
 						<MultiModelChartContainer data={chartData} cards={cards} />

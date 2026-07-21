@@ -4,7 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { initLibertaiAuth, useAccountStore, LibertaiProviders } from "@libertai/auth";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "@libertai/ui/theme-provider";
 import { routeTree } from "./routeTree.gen";
 import env from "@/config/env";
 import "./globals.css";

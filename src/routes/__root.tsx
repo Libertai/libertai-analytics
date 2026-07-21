@@ -15,7 +15,7 @@ function RootComponent() {
 	}
 	return (
 		<AuthGate>
-			<div className="font-sans antialiased">
+			<div className="antialiased">
 				<Layout>
 					<Outlet />
 				</Layout>

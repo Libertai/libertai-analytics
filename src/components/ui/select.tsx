@@ -1,6 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+// Stays local (not @libertai/ui/select): this is a styled native <select>, the shared one is a
+// radix combobox with an incompatible API.
+
 export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
 	({ className, ...props }, ref) => (
 		<select

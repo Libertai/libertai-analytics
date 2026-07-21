@@ -14,7 +14,6 @@ export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConf
 	const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
 	const { data: queryData, isLoading, isFetching } = useCallsBySegmentQuery(type, dates);
 	const deferred = useDeferredValue(queryData);
-	const deferredSegments = useDeferredValue(selectedSegments);
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
@@ -24,11 +23,11 @@ export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConf
 	// Scope the total-calls card to the selected plans (whole range when none selected).
 	const totalCalls = useMemo(() => {
 		if (!deferred) return 0;
-		if (deferredSegments.length === 0) return deferred.total_calls;
+		if (selectedSegments.length === 0) return deferred.total_calls;
 		return deferred.calls
-			.filter((c) => deferredSegments.includes(segmentLabel(c.segment)))
+			.filter((c) => selectedSegments.includes(segmentLabel(c.segment)))
 			.reduce((sum, c) => sum + c.call_count, 0);
-	}, [deferred, deferredSegments]);
+	}, [deferred, selectedSegments]);
 
 	return (
 		<Card>
@@ -43,12 +42,12 @@ export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConf
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
-							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
 						</div>
 					)}
 					{!queryData && isLoading ? (
 						<div className="flex justify-center items-center py-8">
-							<p className="text-gray-500">Loading...</p>
+							<p className="text-muted-foreground">Loading...</p>
 						</div>
 					) : (
 						<MultiModelChartContainer

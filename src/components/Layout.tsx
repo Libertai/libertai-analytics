@@ -3,7 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Code, Coins, CreditCard, LayoutDashboard, MessageSquare, PawPrint, Terminal, Ticket } from "lucide-react";
 import { LibertaiLogo } from "@libertai/branding";
 import AccountFooter from "./AccountFooter";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeToggle } from "@libertai/ui/theme-toggle";
 import {
 	Sidebar,
 	SidebarContent,
@@ -70,7 +70,7 @@ export function Layout({ children }: Readonly<{ children: ReactNode }>) {
 	const currentPath = useRouterState({ select: (state) => state.location.pathname });
 
 	return (
-		<SidebarProvider defaultOpen={true}>
+		<SidebarProvider>
 			<div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
 				{/* Mobile Header */}
 				<header className="fixed z-20 top-0 left-0 right-0 h-16 border-b border-border px-4 flex items-center justify-between md:hidden bg-background">
@@ -115,8 +115,8 @@ export function Layout({ children }: Readonly<{ children: ReactNode }>) {
 						<ThemeToggle />
 					</header>
 
-					{/* Main content with padding on mobile for the fixed header */}
-					<main className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</main>
+					{/* Content wrapper (SidebarInset is the <main> landmark); mobile padding clears the fixed header */}
+					<div className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</div>
 				</SidebarInset>
 			</div>
 		</SidebarProvider>

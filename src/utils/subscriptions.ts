@@ -2,7 +2,7 @@ import { ChartDate } from "@/types/dates";
 import { CreditsConsumptionDay, TierCreditsDay, TierSubscribersDay } from "@/types/subscriptions";
 import { createEmptyResultByRangeDate } from "./dates";
 
-const SEGMENT_ORDER = ["anonymous", "free", "go", "plus", "max"];
+export const SEGMENT_ORDER = ["anonymous", "free", "go", "plus", "max"];
 const TIER_ORDER = ["go", "plus", "max"];
 const CREDITS_TIER_ORDER = ["free", "go", "plus", "max"];
 
