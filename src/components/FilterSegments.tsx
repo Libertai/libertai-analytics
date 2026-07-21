@@ -3,9 +3,10 @@ import { Button } from "@libertai/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
 import { ChevronDown } from "lucide-react";
+import { SEGMENT_ORDER, segmentLabel } from "@/utils/subscriptions";
 
 // Label-cased to match the chart series keys produced by segmentLabel().
-const SEGMENT_OPTIONS = ["Anonymous", "Free", "Go", "Plus", "Max"];
+const SEGMENT_OPTIONS = SEGMENT_ORDER.map(segmentLabel);
 
 export function FilterSegments({
 	selected,

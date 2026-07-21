@@ -13,7 +13,6 @@ export function MessagesBySegmentAnalytics({ dates }: { dates: ChartDate }) {
 	const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
 	const { data: queryData, isLoading, isFetching } = useMessagesBySegmentQuery(dates);
 	const deferred = useDeferredValue(queryData);
-	const deferredSegments = useDeferredValue(selectedSegments);
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
@@ -23,11 +22,11 @@ export function MessagesBySegmentAnalytics({ dates }: { dates: ChartDate }) {
 	// Scope the total-messages card to the selected plans (whole range when none selected).
 	const totalMessages = useMemo(() => {
 		if (!deferred) return 0;
-		if (deferredSegments.length === 0) return deferred.total_messages;
+		if (selectedSegments.length === 0) return deferred.total_messages;
 		return deferred.messages
-			.filter((m) => deferredSegments.includes(segmentLabel(m.segment)))
+			.filter((m) => selectedSegments.includes(segmentLabel(m.segment)))
 			.reduce((sum, m) => sum + m.message_count, 0);
-	}, [deferred, deferredSegments]);
+	}, [deferred, selectedSegments]);
 
 	return (
 		<Card>
@@ -42,12 +41,12 @@ export function MessagesBySegmentAnalytics({ dates }: { dates: ChartDate }) {
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
-							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
 						</div>
 					)}
 					{!queryData && isLoading ? (
 						<div className="flex justify-center items-center py-8">
-							<p className="text-gray-500">Loading...</p>
+							<p className="text-muted-foreground">Loading...</p>
 						</div>
 					) : (
 						<MultiModelChartContainer

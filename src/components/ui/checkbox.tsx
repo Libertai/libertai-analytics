@@ -1,5 +1,7 @@
 "use client"
 
+// Stays local: the shared ui module has no checkbox.
+
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"

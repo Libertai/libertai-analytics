@@ -2,6 +2,10 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// Stays local (not @libertai/ui/card): the shared card is a different API — its CardHeader takes
+// title/icon/action props and there is no CardTitle/CardDescription/CardContent. Container classes
+// are kept in sync with the shared card's visuals.
+
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
