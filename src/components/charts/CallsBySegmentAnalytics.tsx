@@ -1,22 +1,34 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDeferredValue, useMemo } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
+import { FilterSegments } from "@/components/FilterSegments";
 import { useCallsBySegmentQuery } from "@/hooks/useCallsBySegmentQuery";
-import { groupBySegmentPerDay } from "@/utils/subscriptions";
+import { groupBySegmentPerDay, segmentLabel } from "@/utils/subscriptions";
 import { formatCount } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { ChartDate } from "@/types/dates";
 
 export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConfig; dates: ChartDate }) {
+	const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
 	const { data: queryData, isLoading, isFetching } = useCallsBySegmentQuery(type, dates);
 	const deferred = useDeferredValue(queryData);
+	const deferredSegments = useDeferredValue(selectedSegments);
 
 	const data = useMemo(() => {
 		if (!deferred) return [];
 		return groupBySegmentPerDay(deferred.calls, dates, "call_count");
 	}, [deferred, dates]);
+
+	// Scope the total-calls card to the selected plans (whole range when none selected).
+	const totalCalls = useMemo(() => {
+		if (!deferred) return 0;
+		if (deferredSegments.length === 0) return deferred.total_calls;
+		return deferred.calls
+			.filter((c) => deferredSegments.includes(segmentLabel(c.segment)))
+			.reduce((sum, c) => sum + c.call_count, 0);
+	}, [deferred, deferredSegments]);
 
 	return (
 		<Card>
@@ -25,6 +37,9 @@ export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConf
 				<CardDescription>{type.callsBySegment?.description}</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
+				<div className="flex items-center gap-2 mb-4 flex-wrap">
+					<FilterSegments selected={selectedSegments} onChange={setSelectedSegments} />
+				</div>
 				<div className="relative">
 					{isFetching && (
 						<div className="absolute top-2 right-2 z-10">
@@ -38,7 +53,8 @@ export function CallsBySegmentAnalytics({ type, dates }: { type: RequestTypeConf
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[{ number: queryData?.total_calls || 0, description: "Total calls", formatter: formatCount }]}
+							cards={[{ number: totalCalls, description: "Total calls", formatter: formatCount }]}
+							selectedModels={selectedSegments}
 						/>
 					)}
 				</div>
