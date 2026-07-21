@@ -2,8 +2,8 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@libertai/ui/button";
+import { Input } from "@libertai/ui/input";
 import { Select } from "@/components/ui/select";
 import {
 	Dialog,
@@ -12,7 +12,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+} from "@libertai/ui/dialog";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { DatePicker } from "@/components/DatePicker";
 import { api } from "@/utils/http";

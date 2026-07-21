@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getModelsNames } from "@/utils/models";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
 import { ChevronDown } from "lucide-react";
 
 const FilterModelNames = ({

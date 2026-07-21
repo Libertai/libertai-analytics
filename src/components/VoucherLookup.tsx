@@ -2,10 +2,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@libertai/ui/button";
+import { Input } from "@libertai/ui/input";
 import { Select } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@libertai/ui/table";
 import {
 	Dialog,
 	DialogContent,
@@ -13,7 +13,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+} from "@libertai/ui/dialog";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { DatePicker } from "@/components/DatePicker";
 import { useVouchersQuery, VoucherLookupType } from "@/hooks/useVouchersQuery";
