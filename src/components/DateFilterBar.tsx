@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import DateRangePicker from "@/components/DateRangePicker";
 import { timeframes } from "@/utils/charts";
 import { DateFilter } from "@/hooks/useDateFilter";

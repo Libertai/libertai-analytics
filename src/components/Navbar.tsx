@@ -3,14 +3,14 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { LogOut, Menu } from "lucide-react";
 import { useAccountStore } from "@libertai/auth";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import {
 	Sheet,
 	SheetContent,
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@libertai/ui/sheet";
 
 const navLinks = [
 	{ to: "/", label: "Dashboard" },

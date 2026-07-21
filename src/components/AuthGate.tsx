@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { LoginPanel, useAccountStore } from "@libertai/auth";
 import type { CurrentUserResponse } from "@libertai/inference-sdk";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 
 // Three-state gate: session probe pending -> spinner; no session -> login;
 // session without the staff flag -> blocked. Only staff reach the app.

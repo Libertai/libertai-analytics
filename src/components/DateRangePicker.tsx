@@ -1,8 +1,8 @@
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@libertai/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover"
 import { format } from "date-fns"
 import React, { Dispatch } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import { DateRange } from "react-day-picker";
 
 type DateRangePickerProps = {
