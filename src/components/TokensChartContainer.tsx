@@ -1,4 +1,4 @@
-import { formatXAxis } from "@/utils/charts";
+import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
 import { formatLargeNumber } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCard, SummaryCards } from "./SummaryCards";
@@ -33,7 +33,7 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 							tickFormatter={formatXAxis}
 						/>
 						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatLargeNumber} />
-						<Tooltip formatter={(value) => formatLargeNumber(Number(value) || 0)} />
+						<Tooltip {...CHART_TOOLTIP_PROPS} formatter={(value) => formatLargeNumber(Number(value) || 0)} />
 						<Legend />
 						{mode === "combined" ? (
 							<Area

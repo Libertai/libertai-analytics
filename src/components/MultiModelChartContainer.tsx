@@ -1,4 +1,4 @@
-import { formatXAxis } from "@/utils/charts";
+import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
 import { formatLargeNumber } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCard, SummaryCards } from "./SummaryCards";
@@ -82,6 +82,7 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, comb
 						/>
 						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatLargeNumber} />
 						<Tooltip
+							{...CHART_TOOLTIP_PROPS}
 							itemSorter={(item) => -(Number(item.value) || 0)}
 							formatter={(value) => formatLargeNumber(Number(value) || 0)}
 						/>

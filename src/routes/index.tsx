@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeferredValue, useMemo, useState } from "react";
-import { formatXAxis } from "@/utils/charts";
+import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
 import { useSummaryQuery } from "@/hooks/useSummaryQuery";
 import { useCallsQuery } from "@/hooks/useCallsQuery";
 import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
@@ -141,7 +141,7 @@ function Index() {
 										tick={{ fontSize: 12 }}
 										tickFormatter={(value) => formatLargeNumber(Number(value) || 0)}
 									/>
-									<Tooltip formatter={(value) => formatLargeNumber(Number(value) || 0)} />
+									<Tooltip {...CHART_TOOLTIP_PROPS} formatter={(value) => formatLargeNumber(Number(value) || 0)} />
 									<Area
 										type="monotone"
 										dataKey="total"

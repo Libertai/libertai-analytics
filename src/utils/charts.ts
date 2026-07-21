@@ -7,6 +7,17 @@ export const formatXAxis = (tickItem: string) => {
 	return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
+// Recharts' default tooltip hardcodes a white background while the label inherits the
+// page foreground — unreadable in dark mode. Spread on every <Tooltip>.
+export const CHART_TOOLTIP_PROPS = {
+	contentStyle: {
+		backgroundColor: "var(--popover)",
+		border: "1px solid var(--border)",
+		borderRadius: "0.5rem",
+	},
+	labelStyle: { color: "var(--popover-foreground)" },
+} as const;
+
 export const timeframes = [
 	{ label: "7 days", days: 7 },
 	{ label: "30 days", days: 30 },
