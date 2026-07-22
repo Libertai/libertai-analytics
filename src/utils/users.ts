@@ -1,6 +1,7 @@
 import { ChartDate } from "@/types/dates";
-import { DailyActiveUsers, UsersWindow } from "@/types/users";
+import { DailyActiveUsers, DailyTierActiveUsers, UsersWindow } from "@/types/users";
 import { createEmptyResultByRangeDate } from "./dates";
+import { segmentLabel } from "./subscriptions";
 
 // Series key used for the single DAU line (shown in the chart legend/tooltip).
 export const DAU_SERIES_KEY = "Active users";
@@ -11,6 +12,17 @@ export const USER_WINDOWS = [
 	{ value: "week", label: "WAU" },
 	{ value: "month", label: "MAU" },
 ] as const;
+
+// Options for the combined / by-tier view toggle.
+export const USERS_VIEW_MODES = [
+	{ value: "combined", label: "Combined" },
+	{ value: "by-tier", label: "By tier" },
+] as const;
+
+export type UsersViewMode = (typeof USERS_VIEW_MODES)[number]["value"];
+
+// Liberclaw users have no account/subscription, so they form their own segment.
+export const USERS_TIER_ORDER = ["free", "go", "plus", "max", "liberclaw"];
 
 // Suffix appended to the series/legend label when the window toggle is on week/month.
 export const WINDOW_LABEL_SUFFIX: Record<UsersWindow, string> = {
@@ -60,4 +72,30 @@ export const averageDau = (daily: DailyActiveUsers[]): number => {
 	if (daily.length === 0) return 0;
 	const total = daily.reduce((sum, d) => sum + d.active_users, 0);
 	return Math.round(total / daily.length);
+};
+
+/** [{date, Free, Go, Plus, Max, Liberclaw}] — one zero-filled row per day, active users per segment. */
+export const groupDauByTierPerDay = (daily: DailyTierActiveUsers[], rangeDate: ChartDate) => {
+	const startDate = new Date(rangeDate.start_date);
+	const endDate = new Date(rangeDate.end_date);
+	const diffTime = Math.abs(startDate.valueOf() - endDate.valueOf());
+	const timeframe = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+	const tiers = Array.from(new Set(daily.map((d) => d.tier))).sort(
+		(a, b) => (USERS_TIER_ORDER.indexOf(a) + 1 || 99) - (USERS_TIER_ORDER.indexOf(b) + 1 || 99),
+	);
+	const initial: Record<string, number> = {};
+	tiers.forEach((t) => {
+		initial[segmentLabel(t)] = 0;
+	});
+
+	const result = createEmptyResultByRangeDate<ChartDataDAU>(timeframe, rangeDate, initial);
+
+	for (const d of daily) {
+		if (result[d.date]) result[d.date][segmentLabel(d.tier)] = d.active_users;
+	}
+
+	return Object.entries(result)
+		.map(([date, values]) => ({ date, ...values }))
+		.sort((a, b) => a.date.localeCompare(b.date));
 };
