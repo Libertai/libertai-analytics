@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DailyActiveUsers, DailyActiveUsersSchema, DailyTierActiveUsers, UsersWindow } from "@/types/users";
+import { DailyActiveUsers, DailyActiveUsersSchema, DailyTierActiveUsers, DailyTierActiveUsersSchema, UsersWindow } from "@/types/users";
 import { ChartDate } from "@/types/dates";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { api } from "@/utils/http";
@@ -17,10 +17,14 @@ async function fetchUsers(type: RequestTypeConfig, rangeDate: ChartDate, window:
 
 	const daily = (res.data["daily_active_users"] ?? []).map((d: DailyActiveUsers) => DailyActiveUsersSchema.parse(d));
 
+	const dailyByTier = (res.data["daily_active_users_by_tier"] ?? []).map((d: DailyTierActiveUsers) =>
+		DailyTierActiveUsersSchema.parse(d),
+	);
+
 	return {
 		total_unique_users: res.data["total_unique_users"] ?? 0,
 		daily_active_users: daily,
-		daily_active_users_by_tier: [],
+		daily_active_users_by_tier: dailyByTier,
 	};
 }
 

@@ -30,7 +30,8 @@ export type RequestTypeConfig = {
 	// null when the type has no credits (chat).
 	credits: { title: string; description: string } | null;
 	// Daily-active-users (DAU) chart config. null when distinct users aren't tracked (x402).
-	users: { title: string; description: string } | null;
+	// byTier: per-subscription-tier split available (identities are account users; liberclaw's aren't).
+	users: { title: string; description: string; byTier?: boolean } | null;
 	// "Calls by plan" chart config. null when the type has no per-plan split (chat/liberclaw/x402).
 	callsBySegment: { title: string; description: string } | null;
 };
@@ -43,7 +44,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		calls: { title: "API", description: "Number of API calls", cardLabel: "API calls", responseField: "api_usage" },
 		tokens: { title: "Tokens", description: "Tokens consumption by users", responseField: "calls" },
 		credits: { title: "Credits", description: "Number of credits ($) consumed" },
-		users: { title: "Active Users", description: "Distinct users making API calls per day" },
+		users: { title: "Active Users", description: "Distinct users making API calls per day", byTier: true },
 		callsBySegment: { title: "Calls by plan", description: "API calls per day, split by subscriber tier" },
 	},
 	chat: {
@@ -63,7 +64,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 			responseField: "token_usage",
 		},
 		credits: null,
-		users: { title: "Active Users", description: "Distinct users making chat requests per day" },
+		users: { title: "Active Users", description: "Distinct users making chat requests per day", byTier: true },
 		callsBySegment: null,
 	},
 	liberclaw: {
@@ -104,7 +105,7 @@ export const REQUEST_TYPES: Record<RequestTypeKey, RequestTypeConfig> = {
 		calls: { title: "CLI", description: "Number of CLI calls", cardLabel: "CLI calls", responseField: "api_usage" },
 		tokens: { title: "CLI Tokens", description: "Tokens consumption by CLI", responseField: "calls" },
 		credits: { title: "CLI Credits", description: "Credits ($) consumed by CLI" },
-		users: { title: "Active Users", description: "Distinct users making CLI calls per day" },
+		users: { title: "Active Users", description: "Distinct users making CLI calls per day", byTier: true },
 		callsBySegment: { title: "Calls by plan", description: "CLI calls per day, split by subscriber tier" },
 	},
 };
