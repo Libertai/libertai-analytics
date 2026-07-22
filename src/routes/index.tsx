@@ -8,21 +8,38 @@ import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
-import { averageDau, describeWindow, DAU_SERIES_KEY, groupDauPerDay, USER_WINDOWS, WINDOW_LABEL_SUFFIX } from "@/utils/users";
+import {
+	averageDau,
+	describeWindow,
+	DAU_SERIES_KEY,
+	groupDauByTierPerDay,
+	groupDauPerDay,
+	USER_WINDOWS,
+	USERS_TIER_ORDER,
+	USERS_VIEW_MODES,
+	UsersViewMode,
+	WINDOW_LABEL_SUFFIX,
+} from "@/utils/users";
 import MultiModelChartContainer from "@/components/MultiModelChartContainer";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
+import { FilterSegments } from "@/components/FilterSegments";
 import { UsersWindow } from "@/types/users";
 import { DateFilterBar } from "@/components/DateFilterBar";
 import { dateFilterSearchSchema, useDateFilter } from "@/hooks/useDateFilter";
+import { segmentLabel } from "@/utils/subscriptions";
 
 export const Route = createFileRoute("/")({
 	component: Index,
 	validateSearch: dateFilterSearchSchema.parse,
 });
 
+const TIER_OPTIONS = USERS_TIER_ORDER.map(segmentLabel);
+
 function Index() {
 	const [usersWindow, setUsersWindow] = useState<UsersWindow>("day");
+	const [usersMode, setUsersMode] = useState<UsersViewMode>("combined");
+	const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
 
 	const filter = useDateFilter();
 	const selectedDates = filter.selectedDates;
@@ -69,8 +86,9 @@ function Index() {
 
 	const dauChartData = useMemo(() => {
 		if (!deferredUsersData) return [];
+		if (usersMode === "by-tier") return groupDauByTierPerDay(deferredUsersData.daily_active_users_by_tier, selectedDates);
 		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates, usersSeriesLabel);
-	}, [deferredUsersData, selectedDates, usersSeriesLabel]);
+	}, [deferredUsersData, selectedDates, usersSeriesLabel, usersMode]);
 
 	const avgDau = useMemo(() => (dauData ? averageDau(dauData.daily_active_users) : 0), [dauData]);
 
@@ -183,11 +201,16 @@ function Index() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="max-md:px-3">
-					<div className="flex items-center justify-end gap-2 mb-4">
+					<div className="flex items-center justify-end gap-2 mb-4 flex-wrap">
+						{usersMode === "by-tier" && (
+							<FilterSegments selected={selectedTiers} onChange={setSelectedTiers} options={TIER_OPTIONS} />
+						)}
+						<ChartModeToggle modes={USERS_VIEW_MODES} value={usersMode} onChange={setUsersMode} />
 						<ChartModeToggle modes={USER_WINDOWS} value={usersWindow} onChange={setUsersWindow} />
 					</div>
 					<MultiModelChartContainer
 						data={dauChartData}
+						selectedModels={usersMode === "by-tier" ? selectedTiers : []}
 						cards={[
 							{ number: usersData?.total_unique_users ?? 0, description: "Unique users (range)", formatter: formatCount },
 							{ number: avgDau, description: "Avg DAU (active days)", formatter: formatCount },
