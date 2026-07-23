@@ -51,6 +51,7 @@ export function RevenueAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 					) : (
 						<MultiModelChartContainer
 							data={data}
+							stacked
 							cards={[
 								{ number: revenue?.current_mrr || 0, description: "Current MRR ($)", formatter: formatCredits },
 								...(revenue?.mrr_by_tier ?? []).map((t) => ({

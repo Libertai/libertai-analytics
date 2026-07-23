@@ -10,6 +10,8 @@ type MultiModelChartContainerProps = {
 	selectedModels?: string[];
 	mode?: "by-model" | "combined";
 	combineLabel?: string;
+	// Stack the series on top of each other (top edge of the stack = sum of all series).
+	stacked?: boolean;
 };
 
 
@@ -31,7 +33,7 @@ const COLORS = [
 	"#ff6347",
 ];
 
-const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, combineLabel }: MultiModelChartContainerProps) => {
+const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, combineLabel, stacked }: MultiModelChartContainerProps) => {
 	const chartData = useMemo(() => {
 		if (mode !== "combined") return data;
 		return data.map((row) => {
@@ -94,6 +96,7 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, comb
 									key={modelName}
 									type="monotone"
 									dataKey={modelName}
+									stackId={stacked ? "total" : undefined}
 									stroke={COLORS[colorIndex % COLORS.length]}
 									fill={COLORS[colorIndex % COLORS.length]}
 									fillOpacity={0.1}
