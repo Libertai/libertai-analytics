@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as X402RouteImport } from './routes/x402'
 import { Route as VouchersRouteImport } from './routes/vouchers'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
+import { Route as RevenueRouteImport } from './routes/revenue'
 import { Route as LiberclawRouteImport } from './routes/liberclaw'
 import { Route as CliRouteImport } from './routes/cli'
 import { Route as ChatRouteImport } from './routes/chat'
@@ -33,6 +34,11 @@ const VouchersRoute = VouchersRouteImport.update({
 const SubscriptionsRoute = SubscriptionsRouteImport.update({
   id: '/subscriptions',
   path: '/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevenueRoute = RevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LiberclawRoute = LiberclawRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
+  '/revenue': typeof RevenueRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/vouchers': typeof VouchersRoute
   '/x402': typeof X402Route
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
+  '/revenue': typeof RevenueRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/vouchers': typeof VouchersRoute
   '/x402': typeof X402Route
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/cli': typeof CliRoute
   '/liberclaw': typeof LiberclawRoute
+  '/revenue': typeof RevenueRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/vouchers': typeof VouchersRoute
   '/x402': typeof X402Route
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/cli'
     | '/liberclaw'
+    | '/revenue'
     | '/subscriptions'
     | '/vouchers'
     | '/x402'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/cli'
     | '/liberclaw'
+    | '/revenue'
     | '/subscriptions'
     | '/vouchers'
     | '/x402'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/cli'
     | '/liberclaw'
+    | '/revenue'
     | '/subscriptions'
     | '/vouchers'
     | '/x402'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   CliRoute: typeof CliRoute
   LiberclawRoute: typeof LiberclawRoute
+  RevenueRoute: typeof RevenueRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
   VouchersRoute: typeof VouchersRoute
   X402Route: typeof X402Route
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/subscriptions'
       fullPath: '/subscriptions'
       preLoaderRoute: typeof SubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revenue': {
+      id: '/revenue'
+      path: '/revenue'
+      fullPath: '/revenue'
+      preLoaderRoute: typeof RevenueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/liberclaw': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   CliRoute: CliRoute,
   LiberclawRoute: LiberclawRoute,
+  RevenueRoute: RevenueRoute,
   SubscriptionsRoute: SubscriptionsRoute,
   VouchersRoute: VouchersRoute,
   X402Route: X402Route,

@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { UsersBySegment } from "@/components/charts/UsersBySegment";
 import { CreditsConsumptionAnalytics } from "@/components/charts/CreditsConsumptionAnalytics";
 import { TierEconomicsAnalytics } from "@/components/charts/TierEconomicsAnalytics";
-import { RevenueAnalytics } from "@/components/charts/RevenueAnalytics";
 import { ChurnAnalytics } from "@/components/charts/ChurnAnalytics";
 import { CurrentSubscribersTable } from "@/components/CurrentSubscribersTable";
 import { RecentActivityTable } from "@/components/RecentActivityTable";
@@ -31,7 +30,6 @@ function Subscriptions() {
 			</div>
 			<DateFilterBar filter={filter} />
 			<UsersBySegment dates={dates} />
-			<RevenueAnalytics dates={dates} />
 			<ChurnAnalytics dates={dates} />
 			<CreditsConsumptionAnalytics dates={dates} />
 			<TierEconomicsAnalytics dates={dates} />
