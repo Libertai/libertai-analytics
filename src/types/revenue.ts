@@ -2,7 +2,14 @@ import { z } from "zod";
 
 export const MrrDaySchema = z.object({ date: z.string(), mrr: z.number() });
 export const TopupDaySchema = z.object({ date: z.string(), amount: z.number() });
-export const TopupRowSchema = z.object({ created_at: z.string(), user_label: z.string(), amount: z.number() });
+export const TopupRowSchema = z.object({
+	created_at: z.string(),
+	user_label: z.string(),
+	amount: z.number(),
+	used: z.number(),
+	// Current sub tier, "past" when only ended subs exist, null when never subscribed.
+	subscription: z.string().nullable(),
+});
 export const MrrByTierSchema = z.object({ tier: z.string(), mrr: z.number() });
 export const ChurnWeekSchema = z.object({
 	week_start: z.string(),

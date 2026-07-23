@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Banknote, Code, Coins, CreditCard, LayoutDashboard, MessageSquare, PawPrint, Terminal, Ticket } from "lucide-react";
+import { Code, Coins, CreditCard, DollarSign, LayoutDashboard, MessageSquare, PawPrint, Terminal, Ticket } from "lucide-react";
 import { LibertaiLogo } from "@libertai/branding";
 import AccountFooter from "./AccountFooter";
 import { ThemeToggle } from "@libertai/ui/theme-toggle";
@@ -29,7 +29,7 @@ const SIDEBAR_SECTIONS = [
 			{ to: "/chat", icon: <MessageSquare className="h-4 w-4" />, label: "Chat" },
 			{ to: "/liberclaw", icon: <PawPrint className="h-4 w-4" />, label: "LiberClaw" },
 			{ to: "/subscriptions", icon: <CreditCard className="h-4 w-4" />, label: "Subscriptions" },
-			{ to: "/revenue", icon: <Banknote className="h-4 w-4" />, label: "Revenue" },
+			{ to: "/revenue", icon: <DollarSign className="h-4 w-4" />, label: "Revenue" },
 			{ to: "/cli", icon: <Terminal className="h-4 w-4" />, label: "CLI" },
 			{ to: "/x402", icon: <Coins className="h-4 w-4" />, label: "x402" },
 		],

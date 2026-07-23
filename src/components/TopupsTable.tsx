@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@libertai/ui/table";
 import { Button } from "@libertai/ui/button";
 import { useRevenueTopupsQuery } from "@/hooks/useRevenueTopupsQuery";
+import { segmentLabel } from "@/utils/subscriptions";
 import { ChartDate } from "@/types/dates";
 
 const PAGE_SIZE = 20;
@@ -39,7 +40,9 @@ export function TopupsTable({ dates }: { dates: ChartDate }) {
 								<TableRow>
 									<TableHead>Date</TableHead>
 									<TableHead>User</TableHead>
+									<TableHead>Subscription</TableHead>
 									<TableHead>Amount ($)</TableHead>
+									<TableHead>Used ($)</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -47,7 +50,11 @@ export function TopupsTable({ dates }: { dates: ChartDate }) {
 									<TableRow key={`${t.user_label}-${t.created_at}-${i}`}>
 										<TableCell>{t.created_at.slice(0, 10)}</TableCell>
 										<TableCell className="font-medium">{t.user_label}</TableCell>
+										<TableCell className={t.subscription ? "" : "text-muted-foreground"}>
+											{t.subscription === null ? "-" : t.subscription === "past" ? "Past" : segmentLabel(t.subscription)}
+										</TableCell>
 										<TableCell>{t.amount.toFixed(2)}</TableCell>
+										<TableCell>{t.used.toFixed(2)}</TableCell>
 									</TableRow>
 								))}
 							</TableBody>
