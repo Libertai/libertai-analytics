@@ -30,7 +30,7 @@ export const LatestSubscriberSchema = z.object({
 
 export const SubscriptionActivityEventSchema = z.object({
 	created_at: z.string(),
-	type: z.enum(["subscribed", "upgraded", "downgraded", "cancelled", "churned", "payment_failed"]),
+	type: z.enum(["subscribed", "renewed", "upgraded", "downgraded", "cancelled", "churned", "payment_failed"]),
 	user_label: z.string(),
 	tier: z.string(),
 	from_tier: z.string().nullish(),

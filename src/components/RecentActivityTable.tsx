@@ -11,6 +11,7 @@ const PAGE_SIZE = 20;
 
 const TYPE_LABELS: Record<ActivityType, string> = {
 	subscribed: "Subscribed",
+	renewed: "Renewed",
 	upgraded: "Upgraded",
 	downgraded: "Downgraded",
 	cancelled: "Cancelled",

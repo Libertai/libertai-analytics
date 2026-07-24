@@ -6,6 +6,7 @@ export type ActivityType = SubscriptionActivityEvent["type"];
 
 export const ACTIVITY_TYPES: ActivityType[] = [
 	"subscribed",
+	"renewed",
 	"upgraded",
 	"downgraded",
 	"cancelled",
