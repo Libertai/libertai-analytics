@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@libertai/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
 import {
+	SUBSCRIBER_STATUS_LABELS,
 	SUBSCRIBER_STATUSES,
 	SubscriberStatus,
 	useCurrentSubscribersQuery,
@@ -137,14 +138,14 @@ export function CurrentSubscribersTable() {
 								return (
 									<label
 										key={status}
-										className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm capitalize hover:bg-accent"
+										className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
 									>
 										<Checkbox
 											checked={checked}
 											disabled={checked && statuses.length === 1}
 											onCheckedChange={() => toggleStatus(status)}
 										/>
-										{status}
+										{SUBSCRIBER_STATUS_LABELS[status]}
 									</label>
 								);
 							})}
@@ -207,7 +208,7 @@ export function CurrentSubscribersTable() {
 											<TableCell className="font-medium">{sub.user_label}</TableCell>
 											<TableCell className="capitalize">{sub.tier}</TableCell>
 											<TableCell>
-												{sub.status}
+												{SUBSCRIBER_STATUS_LABELS[sub.status as SubscriberStatus] ?? sub.status}
 												{sub.cancel_at_period_end && " (ending)"}
 												{sub.is_trial && " (trial)"}
 											</TableCell>
