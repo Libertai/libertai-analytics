@@ -47,5 +47,11 @@
   },
   "include": [
     "src"
+  ],
+  // Setting "exclude" drops the default node_modules exclusion, hence the explicit glob.
+  // The submodule's codegen config needs its own devDependencies, installed only in that repo.
+  "exclude": [
+    "**/node_modules",
+    "src/shared/openapi-ts.config.ts"
   ]
 }
