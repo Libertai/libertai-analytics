@@ -33,10 +33,11 @@ export function CreditsConsumptionAnalytics({ dates }: { dates: ChartDate }) {
 		return groupCreditsConsumptionPerDay(deferred.daily, dates);
 	}, [deferred, dates, mode]);
 
-	// Scope the total-credits card to the selected tiers (whole range when none selected).
-	const totalCredits = useMemo(() => {
+	// daily_by_tier holds only the tier-covered portion, so scope that card (not the total) to the
+	// selected tiers; whole range when none selected.
+	const tierCovered = useMemo(() => {
 		if (!queryData) return 0;
-		if (mode !== "per-tier" || selectedTiers.length === 0) return queryData.total_credits;
+		if (mode !== "per-tier" || selectedTiers.length === 0) return queryData.total_tier_credits;
 		return queryData.daily_by_tier
 			.filter((d) => selectedTiers.includes(segmentLabel(d.tier)))
 			.reduce((sum, d) => sum + d.credits, 0);
@@ -47,8 +48,8 @@ export function CreditsConsumptionAnalytics({ dates }: { dates: ChartDate }) {
 			<CardHeader>
 				<CardTitle>Credits consumption</CardTitle>
 				<CardDescription>
-					Credits ($) consumed per day — by the tier the user was on that day, or split by what covered them
-					(subscription entitlement vs prepaid balance)
+					Credits ($) consumed per day — the subscription-covered portion by the tier the user was on that day, or the
+					whole split by what covered them (subscription entitlement vs prepaid balance)
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="max-md:px-3">
@@ -72,8 +73,8 @@ export function CreditsConsumptionAnalytics({ dates }: { dates: ChartDate }) {
 						<MultiModelChartContainer
 							data={data}
 							cards={[
-								{ number: totalCredits, description: "Total credits", formatter: formatCredits },
-								{ number: queryData?.total_tier_credits || 0, description: "Tier-covered", formatter: formatCredits },
+								{ number: queryData?.total_credits || 0, description: "Total credits", formatter: formatCredits },
+								{ number: tierCovered, description: "Tier-covered", formatter: formatCredits },
 								{ number: queryData?.total_prepaid_credits || 0, description: "Prepaid", formatter: formatCredits },
 							]}
 							selectedModels={mode === "per-tier" ? selectedTiers : []}
