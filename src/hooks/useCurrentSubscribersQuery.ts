@@ -7,19 +7,18 @@ export const SUBSCRIBER_STATUSES = [
 	"overdue",
 	"pending",
 	"pending_upgrade",
-	"upgrading",
 	"cancelled",
 	"expired",
 ] as const;
 export type SubscriberStatus = (typeof SUBSCRIBER_STATUSES)[number];
 
-// "upgrading" is a legacy status retained alongside "pending_upgrade" while old rows drain.
+// The API can still return a status that is not selectable here — the payments manager parks a row
+// in the legacy "upgrading" mid-upgrade. The table falls back to the raw string for those.
 export const SUBSCRIBER_STATUS_LABELS: Record<SubscriberStatus, string> = {
 	active: "Active",
 	overdue: "Overdue",
 	pending: "Pending",
 	pending_upgrade: "Upgrade checkout",
-	upgrading: "Upgrading (legacy)",
 	cancelled: "Cancelled",
 	expired: "Expired",
 };

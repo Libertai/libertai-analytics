@@ -15,7 +15,7 @@ import {
 import { LatestSubscriber } from "@/types/revenue";
 
 const DEFAULT_STATUSES: SubscriberStatus[] = ["active", "overdue"];
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 20;
 
 type SortKey = "user_label" | "tier" | "status" | "provider" | "created_at" | "current_period_end";
 type SortDir = "asc" | "desc";
