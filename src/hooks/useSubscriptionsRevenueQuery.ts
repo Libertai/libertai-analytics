@@ -7,6 +7,10 @@ type Response = {
 	current_mrr: number;
 	mrr_by_tier: MrrByTier[];
 	daily: MrrDay[];
+	// Credits-rail MRR, restricted server-side to subscribers who bought their credits.
+	credits_mrr: number;
+	credits_mrr_by_tier: MrrByTier[];
+	credits_daily: MrrDay[];
 	topups_daily: TopupDay[];
 	total_topups: number;
 };
@@ -19,6 +23,9 @@ async function fetchRevenue(rangeDate: ChartDate): Promise<Response> {
 		current_mrr: res.data["current_mrr"] ?? 0,
 		mrr_by_tier: (res.data["mrr_by_tier"] ?? []).map((t: MrrByTier) => MrrByTierSchema.parse(t)),
 		daily: (res.data["daily"] ?? []).map((d: MrrDay) => MrrDaySchema.parse(d)),
+		credits_mrr: res.data["credits_mrr"] ?? 0,
+		credits_mrr_by_tier: (res.data["credits_mrr_by_tier"] ?? []).map((t: MrrByTier) => MrrByTierSchema.parse(t)),
+		credits_daily: (res.data["credits_daily"] ?? []).map((d: MrrDay) => MrrDaySchema.parse(d)),
 		topups_daily: (res.data["topups_daily"] ?? []).map((t: TopupDay) => TopupDaySchema.parse(t)),
 		total_topups: res.data["total_topups"] ?? 0,
 	};
