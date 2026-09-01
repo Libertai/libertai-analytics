@@ -20,6 +20,7 @@ import { useVouchersQuery, VoucherLookupType } from "@/hooks/useVouchersQuery";
 import { Voucher } from "@/types/vouchers";
 import { api } from "@/utils/http";
 import { expirationPayload } from "@/utils/dates";
+import { formatUsd } from "@/utils/format";
 
 const LOOKUP_MODES = [
 	{ value: "email", label: "Email" },
@@ -120,8 +121,8 @@ export function VoucherLookup() {
 							<TableBody>
 								{(vouchers ?? []).map((voucher) => (
 									<TableRow key={voucher.id}>
-										<TableCell>{voucher.amount}</TableCell>
-										<TableCell>{voucher.amount_left}</TableCell>
+										<TableCell>{formatUsd(voucher.amount)}</TableCell>
+										<TableCell>{formatUsd(voucher.amount_left)}</TableCell>
 										<TableCell>{voucher.created_at.slice(0, 10)}</TableCell>
 										<TableCell>{voucher.expired_at?.slice(0, 10) ?? "—"}</TableCell>
 										<TableCell>{voucher.is_active ? "yes" : "no"}</TableCell>

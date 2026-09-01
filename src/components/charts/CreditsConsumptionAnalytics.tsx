@@ -5,7 +5,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCreditsConsumptionQuery } from "@/hooks/useCreditsConsumptionQuery";
 import { CREDITS_TIER_ORDER, groupCreditsByTierPerDay, groupCreditsConsumptionPerDay, segmentLabel } from "@/utils/subscriptions";
-import { formatCredits } from "@/utils/format";
+import { formatUsd } from "@/utils/format";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { FilterSegments } from "@/components/FilterSegments";
 import { ChartDate } from "@/types/dates";
@@ -72,10 +72,11 @@ export function CreditsConsumptionAnalytics({ dates }: { dates: ChartDate }) {
 					) : (
 						<MultiModelChartContainer
 							data={data}
+							money
 							cards={[
-								{ number: queryData?.total_credits || 0, description: "Total credits", formatter: formatCredits },
-								{ number: tierCovered, description: "Tier-covered", formatter: formatCredits },
-								{ number: queryData?.total_prepaid_credits || 0, description: "Prepaid", formatter: formatCredits },
+								{ number: queryData?.total_credits || 0, description: "Total credits", formatter: formatUsd },
+								{ number: tierCovered, description: "Tier-covered", formatter: formatUsd },
+								{ number: queryData?.total_prepaid_credits || 0, description: "Prepaid", formatter: formatUsd },
 							]}
 							selectedModels={mode === "per-tier" ? selectedTiers : []}
 							mode={mode === "combined" ? "combined" : "by-model"}

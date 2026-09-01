@@ -16,6 +16,7 @@ import {
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { DatePicker } from "@/components/DatePicker";
 import { api } from "@/utils/http";
+import { formatUsd } from "@/utils/format";
 import { expirationPayload } from "@/utils/dates";
 
 const RECIPIENT_MODES = [
@@ -53,7 +54,7 @@ export function VoucherForm() {
 				expired_at: expiration ? expirationPayload(expiration) : undefined,
 				...(recipientMode === "email" ? { email: email.trim() } : { chain, address: address.trim() }),
 			});
-			toast.success(`Granted $${parsedAmount} to ${recipient}`);
+			toast.success(`Granted ${formatUsd(parsedAmount)} to ${recipient}`);
 			setEmail("");
 			setAddress("");
 			setAmount("");

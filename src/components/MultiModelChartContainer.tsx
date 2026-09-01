@@ -1,5 +1,5 @@
 import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
-import { formatLargeNumber } from "@/utils/format";
+import { formatLargeNumber, formatUsd, formatUsdCompact } from "@/utils/format";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCard, SummaryCards } from "./SummaryCards";
 import { useMemo, memo } from "react";
@@ -12,8 +12,9 @@ type MultiModelChartContainerProps = {
 	combineLabel?: string;
 	// Stack the series on top of each other (top edge of the stack = sum of all series).
 	stacked?: boolean;
+	// Series are USD amounts: $-prefixed axis ticks, and full 2-decimal amounts in the tooltip.
+	money?: boolean;
 };
-
 
 const COLORS = [
 	"#8884d8",
@@ -33,7 +34,8 @@ const COLORS = [
 	"#ff6347",
 ];
 
-const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, combineLabel, stacked }: MultiModelChartContainerProps) => {
+const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => {
+	const { data, cards, selectedModels, mode, combineLabel, stacked, money } = props;
 	const chartData = useMemo(() => {
 		if (mode !== "combined") return data;
 		return data.map((row) => {
@@ -82,11 +84,18 @@ const MultiModelChartContainer = memo(({ data, cards, selectedModels, mode, comb
 							tick={{ fontSize: 12 }}
 							tickFormatter={formatXAxis}
 						/>
-						<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatLargeNumber} />
+						<YAxis
+							tickLine={false}
+							axisLine={false}
+							tick={{ fontSize: 12 }}
+							tickFormatter={(value) =>
+								money ? formatUsdCompact(Number(value) || 0) : formatLargeNumber(Number(value) || 0)
+							}
+						/>
 						<Tooltip
 							{...CHART_TOOLTIP_PROPS}
 							itemSorter={(item) => -(Number(item.value) || 0)}
-							formatter={(value) => formatLargeNumber(Number(value) || 0)}
+							formatter={(value) => (money ? formatUsd(Number(value) || 0) : formatLargeNumber(Number(value) || 0))}
 						/>
 						<Legend />
 						{modelsToShow.map((modelName, index) => {

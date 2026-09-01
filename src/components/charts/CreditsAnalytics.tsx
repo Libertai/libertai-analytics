@@ -7,7 +7,7 @@ import FilterModelNames from "@/components/FilterModelNames";
 import { BY_MODEL_MODES, ByModelMode } from "@/utils/charts";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useCreditsQuery } from "@/hooks/useCreditsQuery";
-import { formatCredits } from "@/utils/format";
+import { formatUsd } from "@/utils/format";
 import { RequestTypeConfig } from "@/config/requestTypes";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { ChartDate } from "@/types/dates";
@@ -64,7 +64,8 @@ export function CreditsAnalytics({ type, dates }: { type: RequestTypeConfig; dat
 					) : (
 						<MultiModelChartContainer
 							data={data}
-							cards={[{ number: totalCreditsUsed, description: "Total credits used", formatter: formatCredits }]}
+							money
+							cards={[{ number: totalCreditsUsed, description: "Total credits used", formatter: formatUsd }]}
 							selectedModels={selectedModels}
 							mode={mode}
 							combineLabel="Total credits"

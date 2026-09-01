@@ -44,3 +44,21 @@ export function formatCredits(num: number): string {
 export function formatCount(num: number): string {
 	return formatLargeNumber(num, 2);
 }
+
+/**
+ * Format a USD amount: grouped thousands and exactly 2 decimals ($1,234.56)
+ * @param num - The amount in dollars
+ * @returns Formatted string prefixed with $
+ */
+export function formatUsd(num: number): string {
+	return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Format a USD amount compactly for chart axes ($10K)
+ * @param num - The amount in dollars
+ * @returns Formatted string prefixed with $
+ */
+export function formatUsdCompact(num: number): string {
+	return `$${formatLargeNumber(num, 2)}`;
+}
