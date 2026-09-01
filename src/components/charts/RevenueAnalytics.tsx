@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useDeferredValue, useMemo } from "react";
 import MultiModelChartContainer from "../MultiModelChartContainer";
 import { useSubscriptionsRevenueQuery } from "@/hooks/useSubscriptionsRevenueQuery";
-import { formatCredits } from "@/utils/format";
+import { formatUsd } from "@/utils/format";
 import { monthToDateTopups } from "@/utils/revenue";
 import { clampStartDate } from "@/utils/charts";
 import { ChartDate } from "@/types/dates";
@@ -58,28 +58,19 @@ export function RevenueAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 						<MultiModelChartContainer
 							data={data}
 							stacked
+							money
 							cards={[
 								{
 									number: (revenue?.current_mrr || 0) + (revenue?.credits_mrr || 0),
-									description: "Current MRR ($)",
-									formatter: formatCredits,
+									description: "Current MRR",
+									formatter: formatUsd,
 								},
-								{ number: revenue?.current_mrr || 0, description: "MRR fiat ($)", formatter: formatCredits },
-								{ number: revenue?.credits_mrr || 0, description: "MRR credits ($)", formatter: formatCredits },
-								...(revenue?.mrr_by_tier ?? []).map((t) => ({
-									number: t.mrr,
-									description: `MRR fiat ${t.tier} ($)`,
-									formatter: formatCredits,
-								})),
-								...(revenue?.credits_mrr_by_tier ?? []).map((t) => ({
-									number: t.mrr,
-									description: `MRR credits ${t.tier} ($)`,
-									formatter: formatCredits,
-								})),
+								{ number: revenue?.current_mrr || 0, description: "MRR fiat", formatter: formatUsd },
+								{ number: revenue?.credits_mrr || 0, description: "MRR credits", formatter: formatUsd },
 								{
 									number: revenue?.total_topups || 0,
-									description: "Topups in range ($)",
-									formatter: formatCredits,
+									description: "Topups in range",
+									formatter: formatUsd,
 								},
 							]}
 						/>
