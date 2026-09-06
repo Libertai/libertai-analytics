@@ -12,7 +12,8 @@ import {
 	SubscriberStatus,
 	useCurrentSubscribersQuery,
 } from "@/hooks/useCurrentSubscribersQuery";
-import { LatestSubscriber } from "@/types/revenue";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@libertai/ui/tooltip";
+import { LatestSubscriber, SubscriberWindowUsage } from "@/types/revenue";
 
 const DEFAULT_STATUSES: SubscriberStatus[] = ["active", "overdue"];
 const PAGE_SIZE = 20;
@@ -28,6 +29,35 @@ const COLUMNS: { key: SortKey; label: string }[] = [
 	{ key: "created_at", label: "Started" },
 	{ key: "current_period_end", label: "Period end" },
 ];
+
+// Fill level -> dot colour. Ordered high to low; the first match wins.
+const LIMIT_LEVELS: { min: number; className: string }[] = [
+	{ min: 90, className: "bg-red-500" },
+	{ min: 75, className: "bg-orange-500" },
+	{ min: 50, className: "bg-amber-400" },
+	{ min: 0, className: "bg-emerald-500" },
+];
+
+function dotClass(usage: SubscriberWindowUsage): string {
+	// A tier granting no allowance has nothing to fill: neutral, not "available".
+	if (usage.limit <= 0) return "bg-muted-foreground/30";
+	return LIMIT_LEVELS.find((level) => usage.percent >= level.min)!.className;
+}
+
+function WindowDot({ label, usage }: { label: string; usage: SubscriberWindowUsage }) {
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<span className={`inline-block h-2 w-2 rounded-full ${dotClass(usage)}`} aria-label={label} />
+			</TooltipTrigger>
+			<TooltipContent side="top">
+				{usage.limit <= 0
+					? `${label} — no allowance on this plan`
+					: `${label} — ${usage.percent.toFixed(1)}% (${usage.used.toFixed(2)} / ${usage.limit.toFixed(2)} credits)`}
+			</TooltipContent>
+		</Tooltip>
+	);
+}
 
 function statusesLabel(statuses: SubscriberStatus[]): string {
 	if (statuses.length === SUBSCRIBER_STATUSES.length) return "All statuses";
@@ -54,17 +84,13 @@ export function CurrentSubscribersTable() {
 
 	const { data, isLoading } = useCurrentSubscribersQuery(statuses);
 
-	const tierOptions = useMemo(
-		() => [...new Set((data?.subscribers ?? []).map((s) => s.tier))].sort(),
-		[data],
-	);
+	const tierOptions = useMemo(() => [...new Set((data?.subscribers ?? []).map((s) => s.tier))].sort(), [data]);
 
 	const filtered = useMemo(() => {
 		const query = search.trim().toLowerCase();
 		const rows = (data?.subscribers ?? []).filter(
 			(s) =>
-				(query === "" || s.user_label.toLowerCase().includes(query)) &&
-				(tiers.length === 0 || tiers.includes(s.tier)),
+				(query === "" || s.user_label.toLowerCase().includes(query)) && (tiers.length === 0 || tiers.includes(s.tier)),
 		);
 		rows.sort((a, b) => (sortDir === "asc" ? 1 : -1) * compare(a, b, sortKey));
 		return rows;
@@ -200,6 +226,7 @@ export function CurrentSubscribersTable() {
 												</button>
 											</TableHead>
 										))}
+										<TableHead className="whitespace-nowrap">5h / 7d</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -215,11 +242,17 @@ export function CurrentSubscribersTable() {
 											<TableCell>{sub.provider}</TableCell>
 											<TableCell>{sub.created_at.slice(0, 10)}</TableCell>
 											<TableCell>{sub.current_period_end?.slice(0, 10) ?? "—"}</TableCell>
+											<TableCell>
+												<span className="flex items-center gap-1.5">
+													<WindowDot label="5h window" usage={sub.window_5h} />
+													<WindowDot label="7d window" usage={sub.weekly} />
+												</span>
+											</TableCell>
 										</TableRow>
 									))}
 									{pageRows.length === 0 && (
 										<TableRow>
-											<TableCell colSpan={COLUMNS.length} className="py-8 text-center text-muted-foreground">
+											<TableCell colSpan={COLUMNS.length + 1} className="py-8 text-center text-muted-foreground">
 												No subscriptions match the current filters
 											</TableCell>
 										</TableRow>

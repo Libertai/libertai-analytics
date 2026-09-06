@@ -17,6 +17,13 @@ export const ChurnWeekSchema = z.object({
 	churned: z.number(),
 	net: z.number(),
 });
+// Consumption of one entitlement window, measured against the tier the user is on now
+// (which is free once a subscription has ended, whatever the row's tier says).
+export const SubscriberWindowUsageSchema = z.object({
+	used: z.number(),
+	limit: z.number(),
+	percent: z.number(),
+});
 export const LatestSubscriberSchema = z.object({
 	user_label: z.string(),
 	tier: z.string(),
@@ -26,6 +33,8 @@ export const LatestSubscriberSchema = z.object({
 	cancel_at_period_end: z.boolean(),
 	created_at: z.string(),
 	current_period_end: z.string().nullable(),
+	window_5h: SubscriberWindowUsageSchema,
+	weekly: SubscriberWindowUsageSchema,
 });
 
 export const SubscriptionActivityEventSchema = z.object({
@@ -44,3 +53,4 @@ export type TopupRow = z.infer<typeof TopupRowSchema>;
 export type MrrByTier = z.infer<typeof MrrByTierSchema>;
 export type ChurnWeek = z.infer<typeof ChurnWeekSchema>;
 export type LatestSubscriber = z.infer<typeof LatestSubscriberSchema>;
+export type SubscriberWindowUsage = z.infer<typeof SubscriberWindowUsageSchema>;
