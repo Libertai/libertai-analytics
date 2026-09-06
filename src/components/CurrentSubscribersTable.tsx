@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@libertai/ui/table";
@@ -44,6 +44,11 @@ function dotClass(usage: SubscriberWindowUsage): string {
 	return LIMIT_LEVELS.find((level) => usage.percent >= level.min)!.className;
 }
 
+// Credits are USD-equivalent, so they read as money. Trailing zeros dropped: $8, not $8.00.
+function credits(amount: number): string {
+	return `$${amount.toFixed(2).replace(/\.?0+$/, "")}`;
+}
+
 function WindowDot({ label, usage }: { label: string; usage: SubscriberWindowUsage }) {
 	return (
 		<Tooltip>
@@ -52,8 +57,8 @@ function WindowDot({ label, usage }: { label: string; usage: SubscriberWindowUsa
 			</TooltipTrigger>
 			<TooltipContent side="top">
 				{usage.limit <= 0
-					? `${label} — no allowance on this plan`
-					: `${label} — ${usage.percent.toFixed(1)}% (${usage.used.toFixed(2)} / ${usage.limit.toFixed(2)} credits)`}
+					? `${label}: no allowance on this plan`
+					: `${label}: ${usage.percent.toFixed(1)}% (${credits(usage.used)}/${credits(usage.limit)})`}
 			</TooltipContent>
 		</Tooltip>
 	);
@@ -208,25 +213,27 @@ export function CurrentSubscribersTable() {
 								<TableHeader>
 									<TableRow>
 										{COLUMNS.map((col) => (
-											<TableHead key={col.key}>
-												<button
-													className="inline-flex items-center gap-1 hover:text-foreground"
-													onClick={() => toggleSort(col.key)}
-												>
-													{col.label}
-													{sortKey === col.key ? (
-														sortDir === "asc" ? (
-															<ArrowUp className="h-3 w-3" />
+											<Fragment key={col.key}>
+												<TableHead>
+													<button
+														className="inline-flex items-center gap-1 hover:text-foreground"
+														onClick={() => toggleSort(col.key)}
+													>
+														{col.label}
+														{sortKey === col.key ? (
+															sortDir === "asc" ? (
+																<ArrowUp className="h-3 w-3" />
+															) : (
+																<ArrowDown className="h-3 w-3" />
+															)
 														) : (
-															<ArrowDown className="h-3 w-3" />
-														)
-													) : (
-														<ArrowUpDown className="h-3 w-3 opacity-40" />
-													)}
-												</button>
-											</TableHead>
+															<ArrowUpDown className="h-3 w-3 opacity-40" />
+														)}
+													</button>
+												</TableHead>
+												{col.key === "status" && <TableHead className="whitespace-nowrap">5h / 7d</TableHead>}
+											</Fragment>
 										))}
-										<TableHead className="whitespace-nowrap">5h / 7d</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -239,15 +246,15 @@ export function CurrentSubscribersTable() {
 												{sub.cancel_at_period_end && " (ending)"}
 												{sub.is_trial && " (trial)"}
 											</TableCell>
-											<TableCell>{sub.provider}</TableCell>
-											<TableCell>{sub.created_at.slice(0, 10)}</TableCell>
-											<TableCell>{sub.current_period_end?.slice(0, 10) ?? "—"}</TableCell>
 											<TableCell>
 												<span className="flex items-center gap-1.5">
 													<WindowDot label="5h window" usage={sub.window_5h} />
 													<WindowDot label="7d window" usage={sub.weekly} />
 												</span>
 											</TableCell>
+											<TableCell>{sub.provider}</TableCell>
+											<TableCell>{sub.created_at.slice(0, 10)}</TableCell>
+											<TableCell>{sub.current_period_end?.slice(0, 10) ?? "—"}</TableCell>
 										</TableRow>
 									))}
 									{pageRows.length === 0 && (
