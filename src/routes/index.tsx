@@ -28,6 +28,8 @@ import { UsersWindow } from "@/types/users";
 import { DateFilterBar } from "@/components/DateFilterBar";
 import { dateFilterSearchSchema, useDateFilter } from "@/hooks/useDateFilter";
 import { segmentLabel } from "@/utils/subscriptions";
+import { TopUsersTable } from "@/components/TopUsersTable";
+import { ActiveUsersTable } from "@/components/ActiveUsersTable";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -220,6 +222,11 @@ function Index() {
 					/>
 				</CardContent>
 			</Card>
+
+			<div className="grid grid-cols-1 gap-6 mt-6">
+				<TopUsersTable dates={selectedDates} />
+				<ActiveUsersTable dates={selectedDates} />
+			</div>
 		</main>
 	);
 }
