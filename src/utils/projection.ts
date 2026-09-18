@@ -5,6 +5,9 @@ export type ChartRow = Record<string, string | number | null>;
 export const PROJECTED_SUFFIX = "__projected";
 export const projectedKey = (key: string) => `${key}${PROJECTED_SUFFIX}`;
 
+export const PARTIAL_SUFFIX = "__partial";
+export const partialKey = (key: string) => `${key}${PARTIAL_SUFFIX}`;
+
 // How many complete periods the projection averages over.
 const COMPLETE_PERIODS = 3;
 
@@ -18,12 +21,12 @@ export type PartialPeriodProjection = {
 
 export type PartialPeriodOptions = {
 	// Last date of the series. Defaults to today (UTC), matching the UTC date buckets.
+	// Tests pass a fixed date to make the projection deterministic.
 	periodEnd?: string;
 	// Series accumulate over the range (running totals). The partial period then continues
 	// the recent *increments*; averaging the running values themselves would project a
 	// point below the last complete one.
 	cumulative?: boolean;
-	periods?: number;
 };
 
 const toNumber = (value: unknown): number | null => {
@@ -68,18 +71,20 @@ const projectIncrement = (complete: ChartRow[], key: string): number | null => {
  * The estimate is the average of the last complete periods (or, for cumulative series,
  * the last value plus the average increment). The projected series carries the value of
  * the last complete period too, so the dashed segment connects to the end of the solid
- * line. Series without enough complete periods are left alone.
+ * line. The value observed so far in the incomplete period stays available as a
+ * ``<key>__partial`` series, for tooltips. Series without enough complete periods are
+ * left alone.
  */
 export const applyPartialPeriodProjection = (
 	rows: ChartRow[],
-	{ periodEnd = formatDate(new Date()), cumulative = false, periods = COMPLETE_PERIODS }: PartialPeriodOptions = {},
+	{ periodEnd = formatDate(new Date()), cumulative = false }: PartialPeriodOptions = {},
 ): PartialPeriodProjection => {
 	const last = rows[rows.length - 1];
 	if (!last || last.date !== periodEnd || rows.length < 2) {
 		return { rows, hasProjection: false, projectedKeys: new Set() };
 	}
 
-	const complete = rows.slice(0, -1).slice(-periods);
+	const complete = rows.slice(0, -1).slice(-COMPLETE_PERIODS);
 	const keys = new Set(rows.flatMap((row) => Object.keys(row)));
 	keys.delete("date");
 
@@ -98,6 +103,7 @@ export const applyPartialPeriodProjection = (
 		const out: ChartRow = { ...row };
 		for (const key of projectedValues.keys()) {
 			out[projectedKey(key)] = null;
+			out[partialKey(key)] = null;
 		}
 		if (index === lastCompleteIndex) {
 			for (const key of projectedValues.keys()) {
@@ -106,6 +112,7 @@ export const applyPartialPeriodProjection = (
 		}
 		if (index === rows.length - 1) {
 			for (const [key, value] of projectedValues) {
+				out[partialKey(key)] = out[key];
 				out[key] = null;
 				out[projectedKey(key)] = value;
 			}
@@ -114,4 +121,14 @@ export const applyPartialPeriodProjection = (
 	});
 
 	return { rows: projectedRows, hasProjection: true, projectedKeys: new Set(projectedValues.keys()) };
+};
+
+/**
+ * True when the weekly bucket starting at ``weekStart`` (a Monday, ``YYYY-MM-DD``) ended
+ * before ``today``. Both dates are UTC, matching the backend's week bucketing.
+ */
+export const isWeekComplete = (weekStart: string, today: string): boolean => {
+	const sunday = new Date(`${weekStart}T00:00:00Z`);
+	sunday.setUTCDate(sunday.getUTCDate() + 6);
+	return sunday.toISOString().slice(0, 10) < today;
 };
