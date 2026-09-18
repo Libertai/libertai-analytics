@@ -8,7 +8,7 @@ import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
-import { applyPartialPeriodProjection, projectedKey } from "@/utils/projection";
+import { applyPartialPeriodProjection, partialKey, projectedKey } from "@/utils/projection";
 import {
 	averageDau,
 	describeWindow,
@@ -188,6 +188,18 @@ function Index() {
 											strokeDasharray="6 4"
 											legendType="none"
 											name="Total Requests (projected)"
+										/>
+									)}
+									{cumulativeTotalData.hasProjection && (
+										<Area
+											type="monotone"
+											dataKey={partialKey("total")}
+											stroke="none"
+											fill="none"
+											legendType="none"
+											activeDot={false}
+											dot={false}
+											name="Total Requests (so far)"
 										/>
 									)}
 								</AreaChart>

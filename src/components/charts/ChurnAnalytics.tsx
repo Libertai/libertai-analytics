@@ -9,16 +9,10 @@ import { Bar, BarChart, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis
 import { SummaryCards } from "@/components/SummaryCards";
 import { ChartDate } from "@/types/dates";
 import { formatDate } from "@/utils/dates";
+import { isWeekComplete } from "@/utils/projection";
 
 // Subscriptions launched 2026-06-22; no churn to show before that.
 const LAUNCH_DATE = "2026-06-22";
-
-// A weekly bucket is complete once its Sunday is strictly before today (both UTC).
-const isWeekComplete = (weekStart: string, today: string): boolean => {
-	const sunday = new Date(`${weekStart}T00:00:00Z`);
-	sunday.setUTCDate(sunday.getUTCDate() + 6);
-	return sunday.toISOString().slice(0, 10) < today;
-};
 
 export function ChurnAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 	const dates = useMemo(() => clampStartDate(pageDates, LAUNCH_DATE), [pageDates]);
@@ -27,19 +21,21 @@ export function ChurnAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 
 	// The current week is still running: replace its partial counts with the average of the
 	// last complete weeks and mark the bar dashed, so a mid-week dip isn't read as churn.
-	const { weekly, projectedIndex } = useMemo(() => {
+	// Counts are people, so the average is rounded before it reaches the tooltip.
+	const { weekly, projectedWeekStart } = useMemo(() => {
 		const rows = deferredChurn?.weekly ?? [];
 		const last = rows[rows.length - 1];
 		const complete = rows.slice(0, -1).slice(-3);
 		if (!last || isWeekComplete(last.week_start, formatDate(new Date())) || complete.length === 0) {
-			return { weekly: rows, projectedIndex: -1 };
+			return { weekly: rows, projectedWeekStart: null as string | null };
 		}
-		const average = (key: "new" | "churned") => complete.reduce((sum, row) => sum + row[key], 0) / complete.length;
+		const average = (key: "new" | "churned") =>
+			Math.round(complete.reduce((sum, row) => sum + row[key], 0) / complete.length);
 		return {
 			weekly: rows.map((row, index) =>
 				index === rows.length - 1 ? { ...row, new: average("new"), churned: average("churned") } : row,
 			),
-			projectedIndex: rows.length - 1,
+			projectedWeekStart: last.week_start,
 		};
 	}, [deferredChurn]);
 
@@ -81,23 +77,30 @@ export function ChurnAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 											allowDecimals={false}
 											tickFormatter={formatLargeNumber}
 										/>
-										<Tooltip {...CHART_TOOLTIP_PROPS} formatter={(value) => formatLargeNumber(Number(value) || 0)} />
+										<Tooltip
+											{...CHART_TOOLTIP_PROPS}
+											formatter={(value, name, item) => {
+												const formatted = formatLargeNumber(Number(value) || 0);
+												const row = item?.payload as { week_start?: string } | undefined;
+												return row?.week_start === projectedWeekStart ? [formatted, `${name} (projected)`] : formatted;
+											}}
+										/>
 										<Legend />
 										<Bar dataKey="new" name="New" fill="#82ca9d" radius={[3, 3, 0, 0]}>
-											{weekly.map((_, index) => (
+											{weekly.map((row) => (
 												<Cell
-													key={index}
-													{...(index === projectedIndex
+													key={row.week_start}
+													{...(row.week_start === projectedWeekStart
 														? { strokeDasharray: "4 3", stroke: "#82ca9d", fillOpacity: 0.35 }
 														: {})}
 												/>
 											))}
 										</Bar>
 										<Bar dataKey="churned" name="Churned" fill="#ff7300" radius={[3, 3, 0, 0]}>
-											{weekly.map((_, index) => (
+											{weekly.map((row) => (
 												<Cell
-													key={index}
-													{...(index === projectedIndex
+													key={row.week_start}
+													{...(row.week_start === projectedWeekStart
 														? { strokeDasharray: "4 3", stroke: "#ff7300", fillOpacity: 0.35 }
 														: {})}
 												/>

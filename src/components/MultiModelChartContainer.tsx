@@ -1,6 +1,6 @@
 import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
 import { formatLargeNumber, formatUsd, formatUsdCompact } from "@/utils/format";
-import { applyPartialPeriodProjection, ChartRow, projectedKey } from "@/utils/projection";
+import { applyPartialPeriodProjection, ChartRow, partialKey, projectedKey } from "@/utils/projection";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCard, SummaryCards } from "./SummaryCards";
 import { useMemo, memo } from "react";
@@ -101,7 +101,10 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 		const totalKey = projectedKey(STACK_TOTAL_KEY);
 		const lastIndex = chartData.length - 1;
 		return chartData.map((row, index) => {
-			const out = { ...row, [totalKey]: stackedProjection.rows[index]?.[totalKey] ?? null };
+			const out: ChartRow = { ...row, [totalKey]: stackedProjection.rows[index]?.[totalKey] ?? null };
+			for (const name of modelsToShow) {
+				out[partialKey(name)] = index === lastIndex && stackedProjection.hasProjection ? (row[name] ?? null) : null;
+			}
 			// The dashed total replaces the stack's incomplete last day, like the solid
 			// series are cut at the last complete day when the chart is not stacked.
 			if (stackedProjection.hasProjection && index === lastIndex) {
@@ -182,6 +185,36 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 								legendType="none"
 								name="Projected total"
 							/>
+						)}
+						{/* Tooltip-only: the value observed so far today, next to its projection. */}
+						{modelsToShow.map((modelName) =>
+							stacked
+								? stackedProjection?.hasProjection && (
+										<Area
+											key={partialKey(modelName)}
+											type="monotone"
+											dataKey={partialKey(modelName)}
+											stroke="none"
+											fill="none"
+											legendType="none"
+											activeDot={false}
+											dot={false}
+											name={`${modelName} (so far)`}
+										/>
+									)
+								: projection?.projectedKeys.has(modelName) && (
+										<Area
+											key={partialKey(modelName)}
+											type="monotone"
+											dataKey={partialKey(modelName)}
+											stroke="none"
+											fill="none"
+											legendType="none"
+											activeDot={false}
+											dot={false}
+											name={`${modelName} (so far)`}
+										/>
+									),
 						)}
 					</AreaChart>
 				</ResponsiveContainer>

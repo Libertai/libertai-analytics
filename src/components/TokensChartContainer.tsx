@@ -1,6 +1,6 @@
 import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
 import { formatLargeNumber } from "@/utils/format";
-import { applyPartialPeriodProjection, ChartRow, projectedKey } from "@/utils/projection";
+import { applyPartialPeriodProjection, ChartRow, partialKey, projectedKey } from "@/utils/projection";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCard, SummaryCards } from "./SummaryCards";
 import { memo, useMemo } from "react";
@@ -78,6 +78,23 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 										strokeDasharray="6 4"
 										legendType="none"
 										name={`${item.name} (projected)`}
+									/>
+								) : null,
+							)}
+						{/* Tooltip-only: the value observed so far today, next to its projection. */}
+						{projection.hasProjection &&
+							series.map((item) =>
+								projection.projectedKeys.has(item.key) ? (
+									<Area
+										key={partialKey(item.key)}
+										type="monotone"
+										dataKey={partialKey(item.key)}
+										stroke="none"
+										fill="none"
+										legendType="none"
+										activeDot={false}
+										dot={false}
+										name={`${item.name} (so far)`}
 									/>
 								) : null,
 							)}
