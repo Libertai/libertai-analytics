@@ -27,9 +27,7 @@ export function ActiveUsersTable({ dates }: { dates: ChartDate }) {
 		<Card>
 			<CardHeader>
 				<CardTitle>Active Users</CardTitle>
-				<CardDescription>
-					All users with at least one request in the selected range (API, CLI, Chat and Liberclaw)
-				</CardDescription>
+				<CardDescription>All users with at least one request in the selected range (API, CLI and Chat)</CardDescription>
 			</CardHeader>
 			<CardContent>
 				{isError ? (
