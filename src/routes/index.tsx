@@ -8,6 +8,7 @@ import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
+import { applyPartialPeriodProjection, projectedKey } from "@/utils/projection";
 import {
 	averageDau,
 	describeWindow,
@@ -72,10 +73,14 @@ function Index() {
 
 	const deferredAllCalls = useDeferredValue(allCalls);
 
-	const cumulativeTotalData = useMemo(() => {
-		if (deferredAllCalls.length === 0) return [];
-		return groupCumulativeTotal(deferredAllCalls, selectedDates);
-	}, [deferredAllCalls, selectedDates]);
+	const cumulativeTotalData = useMemo(
+		() =>
+			applyPartialPeriodProjection(
+				deferredAllCalls.length === 0 ? [] : groupCumulativeTotal(deferredAllCalls, selectedDates),
+				{ cumulative: true },
+			),
+		[deferredAllCalls, selectedDates],
+	);
 
 	const cumulativePerModelData = useMemo(() => {
 		if (deferredAllCalls.length === 0) return [];
@@ -88,7 +93,8 @@ function Index() {
 
 	const dauChartData = useMemo(() => {
 		if (!deferredUsersData) return [];
-		if (usersMode === "by-tier") return groupDauByTierPerDay(deferredUsersData.daily_active_users_by_tier, selectedDates);
+		if (usersMode === "by-tier")
+			return groupDauByTierPerDay(deferredUsersData.daily_active_users_by_tier, selectedDates);
 		return groupDauPerDay(deferredUsersData.daily_active_users, selectedDates, usersSeriesLabel);
 	}, [deferredUsersData, selectedDates, usersSeriesLabel, usersMode]);
 
@@ -147,7 +153,7 @@ function Index() {
 					<CardContent className="max-md:px-3">
 						<div className="h-[350px] md:h-[300px]">
 							<ResponsiveContainer width="100%" height="100%">
-								<AreaChart data={cumulativeTotalData}>
+								<AreaChart data={cumulativeTotalData.rows}>
 									<XAxis
 										dataKey="date"
 										tickLine={false}
@@ -171,6 +177,19 @@ function Index() {
 										strokeWidth={2}
 										name="Total Requests"
 									/>
+									{cumulativeTotalData.hasProjection && (
+										<Area
+											type="monotone"
+											dataKey={projectedKey("total")}
+											stroke="#8884d8"
+											fill="none"
+											fillOpacity={0}
+											strokeWidth={2}
+											strokeDasharray="6 4"
+											legendType="none"
+											name="Total Requests (projected)"
+										/>
+									)}
 								</AreaChart>
 							</ResponsiveContainer>
 						</div>
@@ -183,11 +202,7 @@ function Index() {
 						<CardDescription>Total number of requests over time by model</CardDescription>
 					</CardHeader>
 					<CardContent className="max-md:px-3">
-						<MultiModelChartContainer
-							data={cumulativePerModelData}
-							cards={[]}
-							selectedModels={[]}
-						/>
+						<MultiModelChartContainer data={cumulativePerModelData} cards={[]} selectedModels={[]} cumulative />
 					</CardContent>
 				</Card>
 			</div>
@@ -214,7 +229,11 @@ function Index() {
 						data={dauChartData}
 						selectedModels={usersMode === "by-tier" ? selectedTiers : []}
 						cards={[
-							{ number: usersData?.total_unique_users ?? 0, description: "Unique users (range)", formatter: formatCount },
+							{
+								number: usersData?.total_unique_users ?? 0,
+								description: "Unique users (range)",
+								formatter: formatCount,
+							},
 							{ number: avgDau, description: "Avg DAU (active days)", formatter: formatCount },
 							{ number: currentWau, description: "WAU (last day)", formatter: formatCount },
 							{ number: currentMau, description: "MAU (last day)", formatter: formatCount },
