@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@libertai/ui/button";
 import { useActiveUsersQuery } from "@/hooks/useActiveUsersQuery";
 import { ChartDate } from "@/types/dates";
-import { formatCount } from "@/utils/format";
+import { formatCount, formatUsd } from "@/utils/format";
 
 const PAGE_SIZE = 20;
 
@@ -18,7 +18,7 @@ export function ActiveUsersTable({ dates }: { dates: ChartDate }) {
 		setPage(0);
 	}
 
-	const { data, isLoading } = useActiveUsersQuery(dates, PAGE_SIZE, page * PAGE_SIZE);
+	const { data, isLoading, isError } = useActiveUsersQuery(dates, PAGE_SIZE, page * PAGE_SIZE);
 
 	const total = data?.total ?? 0;
 	const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -28,11 +28,13 @@ export function ActiveUsersTable({ dates }: { dates: ChartDate }) {
 			<CardHeader>
 				<CardTitle>Active Users</CardTitle>
 				<CardDescription>
-					All users with at least one request in the selected range (API, CLI and Chat)
+					All users with at least one request in the selected range (API, CLI, Chat and Liberclaw)
 				</CardDescription>
-			</CardContent>
+			</CardHeader>
 			<CardContent>
-				{isLoading ? (
+				{isError ? (
+					<p className="py-8 text-center text-muted-foreground">Failed to load active users.</p>
+				) : isLoading ? (
 					<p className="py-8 text-center text-muted-foreground">Loading...</p>
 				) : total === 0 ? (
 					<p className="py-8 text-center text-muted-foreground">No active users in this range.</p>
@@ -55,13 +57,11 @@ export function ActiveUsersTable({ dates }: { dates: ChartDate }) {
 									<TableRow key={`${user.user_label}-${i}`}>
 										<TableCell className="text-muted-foreground">#{page * PAGE_SIZE + i + 1}</TableCell>
 										<TableCell className="font-medium">{user.user_label}</TableCell>
-										<TableCell className="text-right">${formatCount(user.credits_spent)}</TableCell>
+										<TableCell className="text-right">{formatUsd(user.credits_spent)}</TableCell>
 										<TableCell className="text-right">{formatCount(user.calls)}</TableCell>
-										<TableCell>{user.first_active_at.slice(0, 10)}</TableCell>
-										<TableCell>{user.last_active_at.slice(0, 10)}</TableCell>
-										<TableCell>
-											{user.account_created_at ? user.account_created_at.slice(0, 10) : "-"}
-										</TableCell>
+										<TableCell>{user.first_active_at?.slice(0, 10) ?? "-"}</TableCell>
+										<TableCell>{user.last_active_at?.slice(0, 10) ?? "-"}</TableCell>
+										<TableCell>{user.account_created_at ? user.account_created_at.slice(0, 10) : "-"}</TableCell>
 									</TableRow>
 								))}
 							</TableBody>

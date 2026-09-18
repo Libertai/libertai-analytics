@@ -1,37 +1,33 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@libertai/ui/table";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { Select } from "@/components/ui/select";
 import { ChartModeToggle } from "@/components/ChartModeToggle";
 import { useTopUsersQuery } from "@/hooks/useTopUsersQuery";
 import { ChartDate } from "@/types/dates";
 import {
+	TOP_USAGE_GROUPS,
 	TOP_USAGE_SIZES,
 	TOP_USAGE_TYPES,
 	TopUsageGroup,
 	TopUsageSize,
 	TopUsageType,
 } from "@/types/topUsage";
-import { formatCount } from "@/utils/format";
+import { formatCount, formatUsd } from "@/utils/format";
 
 const TYPE_LABELS: Record<TopUsageType, string> = {
 	api: "API",
 	cli: "CLI",
 	liberclaw: "Liberclaw",
 	chat: "Chat",
-	x402: "x402",
 };
 
-const GROUP_MODES = [
-	{ label: "By user", value: "user" },
-	{ label: "By API key", value: "api_key" },
-];
+const GROUP_LABELS: Record<TopUsageGroup, string> = {
+	user: "By user",
+	api_key: "By API key",
+};
+
+const GROUP_MODES = TOP_USAGE_GROUPS.map((value) => ({ label: GROUP_LABELS[value], value }));
 
 function formatDate(iso: string | null): string {
 	if (!iso) return "-";
@@ -43,7 +39,7 @@ export function TopUsersTable({ dates }: { dates: ChartDate }) {
 	const [size, setSize] = useState<TopUsageSize>(10);
 	const [groupBy, setGroupBy] = useState<TopUsageGroup>("user");
 
-	const { data, isLoading } = useTopUsersQuery(type, dates, groupBy, size);
+	const { data, isLoading, isError } = useTopUsersQuery(type, dates, groupBy, size);
 	const rows = data?.rows ?? [];
 
 	return (
@@ -54,35 +50,31 @@ export function TopUsersTable({ dates }: { dates: ChartDate }) {
 					<CardDescription>Heaviest consumers of the selected usage type in the range</CardDescription>
 				</div>
 				<div className="flex items-center gap-2 flex-wrap">
-					<Select value={type} onValueChange={(v) => setType(v as TopUsageType)}>
-						<SelectTrigger className="w-32">
-							<SelectValue placeholder="Usage type" />
-						</SelectTrigger>
-						<SelectContent>
-							{TOP_USAGE_TYPES.map((t) => (
-								<SelectItem key={t} value={t}>
-									{TYPE_LABELS[t]}
-								</SelectItem>
-							))}
-						</SelectContent>
+					<Select value={type} onChange={(e) => setType(e.target.value as TopUsageType)} className="w-32">
+						{TOP_USAGE_TYPES.map((t) => (
+							<option key={t} value={t}>
+								{TYPE_LABELS[t]}
+							</option>
+						))}
 					</Select>
 					<ChartModeToggle modes={GROUP_MODES} value={groupBy} onChange={setGroupBy} />
-					<Select value={String(size)} onValueChange={(v) => setSize(Number(v) as TopUsageSize)}>
-						<SelectTrigger className="w-24">
-							<SelectValue placeholder="Rows" />
-						</SelectTrigger>
-						<SelectContent>
-							{TOP_USAGE_SIZES.map((s) => (
-								<SelectItem key={s} value={String(s)}>
-									Top {s}
-								</SelectItem>
-							))}
-						</SelectContent>
+					<Select
+						value={String(size)}
+						onChange={(e) => setSize(Number(e.target.value) as TopUsageSize)}
+						className="w-24"
+					>
+						{TOP_USAGE_SIZES.map((s) => (
+							<option key={s} value={String(s)}>
+								Top {s}
+							</option>
+						))}
 					</Select>
 				</div>
 			</CardHeader>
 			<CardContent>
-				{isLoading ? (
+				{isError ? (
+					<p className="py-8 text-center text-muted-foreground">Failed to load usage data.</p>
+				) : isLoading ? (
 					<p className="py-8 text-center text-muted-foreground">Loading...</p>
 				) : rows.length === 0 ? (
 					<p className="py-8 text-center text-muted-foreground">No usage in this range.</p>
@@ -106,7 +98,7 @@ export function TopUsersTable({ dates }: { dates: ChartDate }) {
 										<TableCell className="text-muted-foreground">#{row.rank}</TableCell>
 										<TableCell className="font-medium">{row.user_label}</TableCell>
 										<TableCell className="font-mono text-xs">{row.api_key_label ?? "-"}</TableCell>
-										<TableCell className="text-right">${formatCount(row.credits_spent)}</TableCell>
+										<TableCell className="text-right">{formatUsd(row.credits_spent)}</TableCell>
 										<TableCell className="text-right">{formatCount(row.calls)}</TableCell>
 										<TableCell>{formatDate(row.account_created_at)}</TableCell>
 										<TableCell>{formatDate(row.api_key_created_at)}</TableCell>
