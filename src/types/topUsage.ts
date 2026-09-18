@@ -23,8 +23,8 @@ export const ActiveUserRowSchema = z.object({
 	user_label: z.string(),
 	credits_spent: z.number(),
 	calls: z.number(),
-	first_active_at: z.string(),
-	last_active_at: z.string(),
+	first_active_at: z.string().nullable(),
+	last_active_at: z.string().nullable(),
 	account_created_at: z.string().nullable(),
 });
 
