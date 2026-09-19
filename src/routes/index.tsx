@@ -8,7 +8,7 @@ import { useGlobalUsersQuery } from "@/hooks/useGlobalUsersQuery";
 import { REQUEST_TYPES } from "@/config/requestTypes";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { groupCumulativeTotal, groupCumulativePerModel } from "@/utils/cumulative";
-import { applyPartialPeriodProjection, partialKey, projectedKey } from "@/utils/projection";
+import { partialKey, splitPartialPeriod } from "@/utils/partialPeriod";
 import {
 	averageDau,
 	describeWindow,
@@ -74,11 +74,7 @@ function Index() {
 	const deferredAllCalls = useDeferredValue(allCalls);
 
 	const cumulativeTotalData = useMemo(
-		() =>
-			applyPartialPeriodProjection(
-				deferredAllCalls.length === 0 ? [] : groupCumulativeTotal(deferredAllCalls, selectedDates),
-				{ cumulative: true },
-			),
+		() => splitPartialPeriod(deferredAllCalls.length === 0 ? [] : groupCumulativeTotal(deferredAllCalls, selectedDates)),
 		[deferredAllCalls, selectedDates],
 	);
 
@@ -177,29 +173,17 @@ function Index() {
 										strokeWidth={2}
 										name="Total Requests"
 									/>
-									{cumulativeTotalData.hasProjection && (
+									{cumulativeTotalData.hasPartial && (
 										<Area
 											type="monotone"
-											dataKey={projectedKey("total")}
+											dataKey={partialKey("total")}
 											stroke="#8884d8"
 											fill="none"
 											fillOpacity={0}
 											strokeWidth={2}
 											strokeDasharray="6 4"
 											legendType="none"
-											name="Total Requests (projected)"
-										/>
-									)}
-									{cumulativeTotalData.hasProjection && (
-										<Area
-											type="monotone"
-											dataKey={partialKey("total")}
-											stroke="none"
-											fill="none"
-											legendType="none"
-											activeDot={false}
-											dot={false}
-											name="Total Requests (so far)"
+											name="Total Requests (today, partial)"
 										/>
 									)}
 								</AreaChart>
@@ -214,7 +198,7 @@ function Index() {
 						<CardDescription>Total number of requests over time by model</CardDescription>
 					</CardHeader>
 					<CardContent className="max-md:px-3">
-						<MultiModelChartContainer data={cumulativePerModelData} cards={[]} selectedModels={[]} cumulative />
+						<MultiModelChartContainer data={cumulativePerModelData} cards={[]} selectedModels={[]} />
 					</CardContent>
 				</Card>
 			</div>

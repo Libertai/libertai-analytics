@@ -1,6 +1,6 @@
 import { CHART_TOOLTIP_PROPS, formatXAxis } from "@/utils/charts";
 import { formatLargeNumber, formatUsd, formatUsdCompact } from "@/utils/format";
-import { applyPartialPeriodProjection, ChartRow, partialKey, projectedKey } from "@/utils/projection";
+import { ChartRow, partialKey, splitPartialPeriod } from "@/utils/partialPeriod";
 import { Area, AreaChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SummaryCard, SummaryCards } from "./SummaryCards";
 import { useMemo, memo } from "react";
@@ -15,13 +15,10 @@ type MultiModelChartContainerProps = {
 	stacked?: boolean;
 	// Series are USD amounts: $-prefixed axis ticks, and full 2-decimal amounts in the tooltip.
 	money?: boolean;
-	// Series accumulate over the range: the incomplete last period is projected from the
-	// recent increments instead of the recent values.
-	cumulative?: boolean;
 };
 
-// Stacked series can't carry a per-series dashed overlay (the projected copy would stack
-// on top of the real one), so the chart projects the combined top edge instead.
+// Stacked series can't carry a per-series dashed overlay (the partial copy would stack on
+// top of the real one), so the chart dashes the combined top edge instead.
 const STACK_TOTAL_KEY = "stack total";
 
 const COLORS = [
@@ -43,7 +40,7 @@ const COLORS = [
 ];
 
 const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => {
-	const { data, cards, selectedModels, mode, combineLabel, stacked, money, cumulative } = props;
+	const { data, cards, selectedModels, mode, combineLabel, stacked, money } = props;
 	const chartData = useMemo(() => {
 		if (mode !== "combined") return data;
 		return data.map((row) => {
@@ -80,39 +77,36 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 		return modelNames.filter((name) => selected.has(name));
 	}, [modelNames, selectedModels, mode]);
 
-	const projection = useMemo(
-		() => (stacked ? null : applyPartialPeriodProjection(chartData, { cumulative })),
-		[stacked, chartData, cumulative],
-	);
+	const partial = useMemo(() => (stacked ? null : splitPartialPeriod(chartData)), [stacked, chartData]);
 
-	const stackedProjection = useMemo(() => {
+	const stackedPartial = useMemo(() => {
 		if (!stacked) return null;
 		const totals: ChartRow[] = chartData.map((row) => {
 			let total = 0;
 			for (const name of modelsToShow) total += Number(row[name]) || 0;
 			return { date: row.date, [STACK_TOTAL_KEY]: total };
 		});
-		return applyPartialPeriodProjection(totals);
+		return splitPartialPeriod(totals);
 	}, [stacked, chartData, modelsToShow]);
 
 	const displayData = useMemo(() => {
-		if (!stacked) return projection?.rows ?? chartData;
-		if (!stackedProjection) return chartData;
-		const totalKey = projectedKey(STACK_TOTAL_KEY);
+		if (!stacked) return partial?.rows ?? chartData;
+		if (!stackedPartial) return chartData;
+		const totalKey = partialKey(STACK_TOTAL_KEY);
 		const lastIndex = chartData.length - 1;
 		return chartData.map((row, index) => {
-			const out: ChartRow = { ...row, [totalKey]: stackedProjection.rows[index]?.[totalKey] ?? null };
+			const out: ChartRow = { ...row, [totalKey]: stackedPartial.rows[index]?.[totalKey] ?? null };
 			for (const name of modelsToShow) {
-				out[partialKey(name)] = index === lastIndex && stackedProjection.hasProjection ? (row[name] ?? null) : null;
+				out[partialKey(name)] = index === lastIndex && stackedPartial.hasPartial ? (row[name] ?? null) : null;
 			}
 			// The dashed total replaces the stack's incomplete last day, like the solid
 			// series are cut at the last complete day when the chart is not stacked.
-			if (stackedProjection.hasProjection && index === lastIndex) {
+			if (stackedPartial.hasPartial && index === lastIndex) {
 				for (const name of modelsToShow) out[name] = null;
 			}
 			return out;
 		});
-	}, [stacked, projection, stackedProjection, chartData, modelsToShow]);
+	}, [stacked, partial, stackedPartial, chartData, modelsToShow]);
 
 	const colorFor = (modelName: string, index: number) =>
 		COLORS[(selectedModels && selectedModels.length > 0 ? modelNames.indexOf(modelName) : index) % COLORS.length];
@@ -156,66 +150,51 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 								name={modelName}
 							/>
 						))}
-						{projection?.hasProjection &&
+						{partial?.hasPartial &&
 							modelsToShow.map((modelName, index) =>
-								projection.projectedKeys.has(modelName) ? (
+								partial.partialKeys.has(modelName) ? (
 									<Area
-										key={projectedKey(modelName)}
+										key={partialKey(modelName)}
 										type="monotone"
-										dataKey={projectedKey(modelName)}
+										dataKey={partialKey(modelName)}
 										stroke={colorFor(modelName, index)}
 										fill="none"
 										fillOpacity={0}
 										strokeWidth={2}
 										strokeDasharray="6 4"
 										legendType="none"
-										name={`${modelName} (projected)`}
+										name={`${modelName} (today, partial)`}
 									/>
 								) : null,
 							)}
-						{stackedProjection?.hasProjection && (
+						{stackedPartial?.hasPartial && (
 							<Area
 								type="monotone"
-								dataKey={projectedKey(STACK_TOTAL_KEY)}
+								dataKey={partialKey(STACK_TOTAL_KEY)}
 								stroke={COLORS[0]}
 								fill="none"
 								fillOpacity={0}
 								strokeWidth={2}
 								strokeDasharray="6 4"
 								legendType="none"
-								name="Projected total"
+								name="Total (today, partial)"
 							/>
 						)}
-						{/* Tooltip-only: the value observed so far today, next to its projection. */}
-						{modelsToShow.map((modelName) =>
-							stacked
-								? stackedProjection?.hasProjection && (
-										<Area
-											key={partialKey(modelName)}
-											type="monotone"
-											dataKey={partialKey(modelName)}
-											stroke="none"
-											fill="none"
-											legendType="none"
-											activeDot={false}
-											dot={false}
-											name={`${modelName} (so far)`}
-										/>
-									)
-								: projection?.projectedKeys.has(modelName) && (
-										<Area
-											key={partialKey(modelName)}
-											type="monotone"
-											dataKey={partialKey(modelName)}
-											stroke="none"
-											fill="none"
-											legendType="none"
-											activeDot={false}
-											dot={false}
-											name={`${modelName} (so far)`}
-										/>
-									),
-						)}
+						{/* Tooltip-only: each stacked series' value so far today, which the dashed total hides. */}
+						{stackedPartial?.hasPartial &&
+							modelsToShow.map((modelName) => (
+								<Area
+									key={partialKey(modelName)}
+									type="monotone"
+									dataKey={partialKey(modelName)}
+									stroke="none"
+									fill="none"
+									legendType="none"
+									activeDot={false}
+									dot={false}
+									name={`${modelName} (so far)`}
+								/>
+							))}
 					</AreaChart>
 				</ResponsiveContainer>
 			</div>
