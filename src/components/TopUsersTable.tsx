@@ -41,6 +41,8 @@ export function TopUsersTable({ dates }: { dates: ChartDate }) {
 
 	const { data, isLoading, isError } = useTopUsersQuery(type, dates, groupBy, size);
 	const rows = data?.rows ?? [];
+	// The backend only fills the key columns when the rows are keys.
+	const showApiKey = groupBy === "api_key";
 
 	return (
 		<Card>
@@ -85,11 +87,11 @@ export function TopUsersTable({ dates }: { dates: ChartDate }) {
 								<TableRow>
 									<TableHead className="w-12">#</TableHead>
 									<TableHead>User</TableHead>
-									<TableHead>API key</TableHead>
+									{showApiKey && <TableHead>API key</TableHead>}
 									<TableHead className="text-right">Spent</TableHead>
 									<TableHead className="text-right">Calls</TableHead>
 									<TableHead>Account created</TableHead>
-									<TableHead>API key created</TableHead>
+									{showApiKey && <TableHead>API key created</TableHead>}
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -97,11 +99,11 @@ export function TopUsersTable({ dates }: { dates: ChartDate }) {
 									<TableRow key={`${row.rank}-${row.user_label}`}>
 										<TableCell className="text-muted-foreground">#{row.rank}</TableCell>
 										<TableCell className="font-medium">{row.user_label}</TableCell>
-										<TableCell className="font-mono text-xs">{row.api_key_label ?? "-"}</TableCell>
+										{showApiKey && <TableCell className="font-mono text-xs">{row.api_key_label ?? "-"}</TableCell>}
 										<TableCell className="text-right">{formatUsd(row.credits_spent)}</TableCell>
 										<TableCell className="text-right">{formatCount(row.calls)}</TableCell>
 										<TableCell>{formatDate(row.account_created_at)}</TableCell>
-										<TableCell>{formatDate(row.api_key_created_at)}</TableCell>
+										{showApiKey && <TableCell>{formatDate(row.api_key_created_at)}</TableCell>}
 									</TableRow>
 								))}
 							</TableBody>
