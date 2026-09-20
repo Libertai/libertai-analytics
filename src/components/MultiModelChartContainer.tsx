@@ -17,9 +17,10 @@ type MultiModelChartContainerProps = {
 	money?: boolean;
 };
 
-// Stacked series can't carry a per-series dashed overlay (the partial copy would stack on
-// top of the real one), so the chart dashes the combined top edge instead.
-const STACK_TOTAL_KEY = "stack total";
+// A stacked series can't carry its dashed partial copy inside the stack (the copy would
+// stack on top of the real one), so the copy is drawn outside it, at the height the stack
+// reaches for that series.
+const stackLevelKey = (key: string) => `${key}__stacklevel`;
 
 const COLORS = [
 	"#8884d8",
@@ -79,29 +80,35 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 
 	const partial = useMemo(() => (stacked ? null : splitPartialPeriod(chartData)), [stacked, chartData]);
 
+	// Heights of each series' top edge in the stack, split so the last period is dashed.
 	const stackedPartial = useMemo(() => {
 		if (!stacked) return null;
-		const totals: ChartRow[] = chartData.map((row) => {
-			let total = 0;
-			for (const name of modelsToShow) total += Number(row[name]) || 0;
-			return { date: row.date, [STACK_TOTAL_KEY]: total };
+		const levels: ChartRow[] = chartData.map((row) => {
+			const out: ChartRow = { date: row.date };
+			let level = 0;
+			for (const name of modelsToShow) {
+				level += Number(row[name]) || 0;
+				out[name] = level;
+			}
+			return out;
 		});
-		return splitPartialPeriod(totals);
+		return splitPartialPeriod(levels);
 	}, [stacked, chartData, modelsToShow]);
 
 	const displayData = useMemo(() => {
 		if (!stacked) return partial?.rows ?? chartData;
-		if (!stackedPartial) return chartData;
-		const totalKey = partialKey(STACK_TOTAL_KEY);
+		if (!stackedPartial?.hasPartial) return chartData;
 		const lastIndex = chartData.length - 1;
 		return chartData.map((row, index) => {
-			const out: ChartRow = { ...row, [totalKey]: stackedPartial.rows[index]?.[totalKey] ?? null };
+			const out: ChartRow = { ...row };
 			for (const name of modelsToShow) {
-				out[partialKey(name)] = index === lastIndex && stackedPartial.hasPartial ? (row[name] ?? null) : null;
+				out[stackLevelKey(name)] = stackedPartial.rows[index]?.[partialKey(name)] ?? null;
+				// Tooltip-only: the series' own value, which the dashed stack levels don't carry.
+				out[partialKey(name)] = index === lastIndex ? (row[name] ?? null) : null;
 			}
-			// The dashed total replaces the stack's incomplete last day, like the solid
-			// series are cut at the last complete day when the chart is not stacked.
-			if (stackedPartial.hasPartial && index === lastIndex) {
+			// The dashed levels replace the stack's incomplete last period, like the solid
+			// series are cut at the last complete one when the chart is not stacked.
+			if (index === lastIndex) {
 				for (const name of modelsToShow) out[name] = null;
 			}
 			return out;
@@ -163,24 +170,25 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 										strokeWidth={2}
 										strokeDasharray="6 4"
 										legendType="none"
-										name={`${modelName} (today, partial)`}
+										name={modelName}
 									/>
 								) : null,
 							)}
-						{stackedPartial?.hasPartial && (
-							<Area
-								type="monotone"
-								dataKey={partialKey(STACK_TOTAL_KEY)}
-								stroke={COLORS[0]}
-								fill="none"
-								fillOpacity={0}
-								strokeWidth={2}
-								strokeDasharray="6 4"
-								legendType="none"
-								name="Total (today, partial)"
-							/>
-						)}
-						{/* Tooltip-only: each stacked series' value so far today, which the dashed total hides. */}
+						{stackedPartial?.hasPartial &&
+							modelsToShow.map((modelName, index) => (
+								<Area
+									key={stackLevelKey(modelName)}
+									type="monotone"
+									dataKey={stackLevelKey(modelName)}
+									stroke={colorFor(modelName, index)}
+									fill="none"
+									fillOpacity={0}
+									strokeWidth={2}
+									strokeDasharray="6 4"
+									legendType="none"
+									tooltipType="none"
+								/>
+							))}
 						{stackedPartial?.hasPartial &&
 							modelsToShow.map((modelName) => (
 								<Area
@@ -192,7 +200,7 @@ const MultiModelChartContainer = memo((props: MultiModelChartContainerProps) => 
 									legendType="none"
 									activeDot={false}
 									dot={false}
-									name={`${modelName} (so far)`}
+									name={modelName}
 								/>
 							))}
 					</AreaChart>

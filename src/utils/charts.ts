@@ -1,3 +1,4 @@
+import { ChartTooltipContent } from "@/components/ChartTooltip";
 import { ChartDate } from "@/types/dates";
 import { formatDate } from "./dates";
 
@@ -10,6 +11,7 @@ export const formatXAxis = (tickItem: string) => {
 // Recharts' default tooltip hardcodes a white background while the label inherits the
 // page foreground — unreadable in dark mode. Spread on every <Tooltip>.
 export const CHART_TOOLTIP_PROPS = {
+	content: ChartTooltipContent,
 	contentStyle: {
 		backgroundColor: "var(--popover)",
 		border: "1px solid var(--border)",
@@ -17,6 +19,10 @@ export const CHART_TOOLTIP_PROPS = {
 	},
 	labelStyle: { color: "var(--popover-foreground)" },
 } as const;
+
+// Recharts' bar cursor defaults to an opaque light grey, which washes out the chart in
+// dark mode. Spread on the <Tooltip> of bar charts.
+export const CHART_BAR_CURSOR = { fill: "var(--foreground)", fillOpacity: 0.06 } as const;
 
 export const timeframes = [
 	{ label: "7 days", days: 7 },

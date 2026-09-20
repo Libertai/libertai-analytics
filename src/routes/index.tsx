@@ -183,7 +183,7 @@ function Index() {
 											strokeWidth={2}
 											strokeDasharray="6 4"
 											legendType="none"
-											name="Total Requests (today, partial)"
+											name="Total Requests"
 										/>
 									)}
 								</AreaChart>

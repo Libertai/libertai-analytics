@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeferredValue, useMemo } from "react";
-import { CHART_TOOLTIP_PROPS, clampStartDate, formatXAxis } from "@/utils/charts";
+import { CHART_BAR_CURSOR, CHART_TOOLTIP_PROPS, clampStartDate, formatXAxis } from "@/utils/charts";
 import { useSubscriptionsChurnQuery } from "@/hooks/useSubscriptionsChurnQuery";
 import { formatCount, formatLargeNumber } from "@/utils/format";
 import { Bar, BarChart, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -68,11 +68,8 @@ export function ChurnAnalytics({ dates: pageDates }: { dates: ChartDate }) {
 										/>
 										<Tooltip
 											{...CHART_TOOLTIP_PROPS}
-											formatter={(value, name, item) => {
-												const formatted = formatLargeNumber(Number(value) || 0);
-												const row = item?.payload as { week_start?: string } | undefined;
-												return row?.week_start === partialWeekStart ? [formatted, `${name} (this week, partial)`] : formatted;
-											}}
+											cursor={CHART_BAR_CURSOR}
+											formatter={(value) => formatLargeNumber(Number(value) || 0)}
 										/>
 										<Legend />
 										<Bar dataKey="new" name="New" fill="#82ca9d" radius={[3, 3, 0, 0]}>

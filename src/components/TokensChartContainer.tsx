@@ -77,7 +77,7 @@ const TokensChartContainer = memo(({ data, cards, mode }: TokensChartContainerPr
 										strokeWidth={2}
 										strokeDasharray="6 4"
 										legendType="none"
-										name={`${item.name} (today, partial)`}
+										name={item.name}
 									/>
 								) : null,
 							)}
