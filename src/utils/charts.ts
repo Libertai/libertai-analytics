@@ -1,6 +1,6 @@
 import { ChartTooltipContent } from "@/components/ChartTooltip";
 import { ChartDate } from "@/types/dates";
-import { formatDate } from "./dates";
+import { formatCalendarDate } from "./dates";
 
 export const formatXAxis = (tickItem: string) => {
 	const [year, month, day] = tickItem.split("-").map(Number);
@@ -58,11 +58,11 @@ export const getDates = (days: number | null, allTimeStartDate?: string): ChartD
 		startDate = new Date(allTimeStartDate || "2025-04-26");
 	} else {
 		startDate = new Date();
-		startDate.setUTCDate(startDate.getUTCDate() - days);
+		startDate.setDate(startDate.getDate() - days);
 	}
 
 	return {
-		start_date: formatDate(startDate),
-		end_date: formatDate(new Date()),
+		start_date: formatCalendarDate(startDate),
+		end_date: formatCalendarDate(new Date()),
 	};
 };
