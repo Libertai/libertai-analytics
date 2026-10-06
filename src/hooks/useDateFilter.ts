@@ -4,7 +4,7 @@ import { DateRange } from "react-day-picker";
 import { z } from "zod";
 import { ChartDate } from "@/types/dates";
 import { getDates } from "@/utils/charts";
-import { formatCalendarDate } from "@/utils/dates";
+import { formatDate } from "@/utils/dates";
 
 const isoDate = z
 	.string()
@@ -51,7 +51,7 @@ export const useDateFilter = (allTimeStartDate?: string): DateFilter => {
 
 	const rangeDate = useMemo<DateRange | undefined>(() => {
 		if (!search.from || !search.to) return undefined;
-		return { from: new Date(`${search.from}T00:00:00`), to: new Date(`${search.to}T00:00:00`) };
+		return { from: new Date(`${search.from}T00:00:00Z`), to: new Date(`${search.to}T00:00:00Z`) };
 	}, [search.from, search.to]);
 
 	const selectedDates = useMemo<ChartDate>(() => {
@@ -78,8 +78,8 @@ export const useDateFilter = (allTimeStartDate?: string): DateFilter => {
 	const setRange = useCallback(
 		(range: DateRange) => {
 			if (!range.from || !range.to) return;
-			const from = formatCalendarDate(range.from);
-			const to = formatCalendarDate(range.to);
+			const from = formatDate(range.from);
+			const to = formatDate(range.to);
 			void navigate({
 				to: ".",
 				search: (prev: DateFilterSearch) => ({ ...prev, tf: undefined, from, to }),

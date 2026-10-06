@@ -1,8 +1,8 @@
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { Button } from "@libertai/ui/button";
 import { Calendar } from "@libertai/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
+import { formatUTCDay } from "@/utils/dates";
 
 export function DatePicker({
 	date,
@@ -18,11 +18,11 @@ export function DatePicker({
 			<PopoverTrigger asChild>
 				<Button variant="outline" className="w-full justify-start text-left font-normal">
 					<CalendarIcon className="mr-2 h-4 w-4" />
-					{date ? format(date, "PPP") : placeholder}
+					{date ? formatUTCDay(date, { dateStyle: "long" }) : placeholder}
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0">
-				<Calendar mode="single" selected={date} onSelect={setDate} />
+				<Calendar timeZone="UTC" mode="single" selected={date} onSelect={setDate} />
 			</PopoverContent>
 		</Popover>
 	);

@@ -1,27 +1,23 @@
 import { ChartDate } from "@/types/dates";
 
+// Days are UTC days, matching the backend: "today" is the current UTC day.
 export const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-// A calendar day the user picked or is living in, not an instant: the API takes plain
-// YYYY-MM-DD and treats it as a whole day. toISOString() would renumber it to the UTC day,
-// which east of UTC is the day before.
-export const formatCalendarDate = (date: Date) =>
-	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+export const formatUTCDay = (date: Date, options: Intl.DateTimeFormatOptions) =>
+	date.toLocaleDateString("en-US", { ...options, timeZone: "UTC" });
 
-// react-day-picker returns local midnight; serialize from local parts so the
-// selected calendar day survives UTC conversion, expiring at that day's end.
-export const expirationPayload = (d: Date) =>
-	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T23:59:59Z`;
+// Expires at the end of the picked UTC day.
+export const expirationPayload = (d: Date) => `${formatDate(d)}T23:59:59Z`;
 
 
 export function getDateRange(days: number): ChartDate {
 	const end_date = new Date();
 	const start_date = new Date();
-	start_date.setDate(end_date.getDate() - days);
+	start_date.setUTCDate(end_date.getUTCDate() - days);
 
 	return {
-		start_date: formatCalendarDate(start_date),
-		end_date: formatCalendarDate(end_date),
+		start_date: formatDate(start_date),
+		end_date: formatDate(end_date),
 	};
 }
 

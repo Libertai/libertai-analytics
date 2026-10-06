@@ -1,15 +1,18 @@
 import { Calendar } from "@libertai/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover"
-import { format } from "date-fns"
 import React, { Dispatch } from "react";
 import { Button } from "@libertai/ui/button";
 import { DateRange } from "react-day-picker";
+import { formatUTCDay } from "@/utils/dates";
 
 type DateRangePickerProps = {
 	hasCustomDateBeenClicked: boolean,
 	rangeDate: DateRange | undefined,
 	setRangeDate: Dispatch<React.SetStateAction<DateRange | undefined>>,
 }
+
+const LONG: Intl.DateTimeFormatOptions = { month: "short", day: "2-digit", year: "numeric" };
+const SHORT: Intl.DateTimeFormatOptions = { month: "2-digit", day: "2-digit" };
 
 const DateRangePicker = ({hasCustomDateBeenClicked, rangeDate, setRangeDate}: DateRangePickerProps) => {
 
@@ -21,14 +24,14 @@ const DateRangePicker = ({hasCustomDateBeenClicked, rangeDate, setRangeDate}: Da
 						rangeDate?.to ? (
 							<>
 								<span className="hidden sm:inline">
-									{format(rangeDate?.from, "LLL dd, y")} - {format(rangeDate?.to, "LLL dd, y")}
+									{formatUTCDay(rangeDate.from, LONG)} - {formatUTCDay(rangeDate.to, LONG)}
 								</span>
 								<span className="sm:hidden">
-									{format(rangeDate?.from, "MM/dd")} - {format(rangeDate?.to, "MM/dd")}
+									{formatUTCDay(rangeDate.from, SHORT)} - {formatUTCDay(rangeDate.to, SHORT)}
 								</span>
 							</>
 						) : (
-							format(rangeDate?.from, "LLL dd, y")
+							formatUTCDay(rangeDate.from, LONG)
 						)
 					) : (
 						<span>Pick a date</span>
@@ -38,6 +41,7 @@ const DateRangePicker = ({hasCustomDateBeenClicked, rangeDate, setRangeDate}: Da
 			<PopoverContent className="w-auto p-0" align="start">
 				<Calendar
 					className=""
+					timeZone="UTC"
 					mode="range"
 					selected={rangeDate}
 					onSelect={setRangeDate}
