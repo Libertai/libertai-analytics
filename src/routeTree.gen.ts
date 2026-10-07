@@ -9,51 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as X402RouteImport } from './routes/x402'
-import { Route as VouchersRouteImport } from './routes/vouchers'
-import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
-import { Route as RevenueRouteImport } from './routes/revenue'
-import { Route as LiberclawRouteImport } from './routes/liberclaw'
-import { Route as CliRouteImport } from './routes/cli'
-import { Route as ChatRouteImport } from './routes/chat'
-import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
+import { Route as ApiRouteImport } from './routes/api'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as CliRouteImport } from './routes/cli'
+import { Route as LiberclawRouteImport } from './routes/liberclaw'
+import { Route as RevenueRouteImport } from './routes/revenue'
+import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
+import { Route as VouchersRouteImport } from './routes/vouchers'
+import { Route as X402RouteImport } from './routes/x402'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
 
-const X402Route = X402RouteImport.update({
-  id: '/x402',
-  path: '/x402',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VouchersRoute = VouchersRouteImport.update({
-  id: '/vouchers',
-  path: '/vouchers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SubscriptionsRoute = SubscriptionsRouteImport.update({
-  id: '/subscriptions',
-  path: '/subscriptions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RevenueRoute = RevenueRouteImport.update({
-  id: '/revenue',
-  path: '/revenue',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LiberclawRoute = LiberclawRouteImport.update({
-  id: '/liberclaw',
-  path: '/liberclaw',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CliRoute = CliRouteImport.update({
-  id: '/cli',
-  path: '/cli',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRoute = ApiRouteImport.update({
@@ -61,19 +31,49 @@ const ApiRoute = ApiRouteImport.update({
   path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthVerifyRoute = AuthVerifyRouteImport.update({
-  id: '/auth/verify',
-  path: '/auth/verify',
+const CliRoute = CliRouteImport.update({
+  id: '/cli',
+  path: '/cli',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiberclawRoute = LiberclawRouteImport.update({
+  id: '/liberclaw',
+  path: '/liberclaw',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevenueRoute = RevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionsRoute = SubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VouchersRoute = VouchersRouteImport.update({
+  id: '/vouchers',
+  path: '/vouchers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const X402Route = X402RouteImport.update({
+  id: '/x402',
+  path: '/x402',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthVerifyRoute = AuthVerifyRouteImport.update({
+  id: '/auth/verify',
+  path: '/auth/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -175,53 +175,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/x402': {
-      id: '/x402'
-      path: '/x402'
-      fullPath: '/x402'
-      preLoaderRoute: typeof X402RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/vouchers': {
-      id: '/vouchers'
-      path: '/vouchers'
-      fullPath: '/vouchers'
-      preLoaderRoute: typeof VouchersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/subscriptions': {
-      id: '/subscriptions'
-      path: '/subscriptions'
-      fullPath: '/subscriptions'
-      preLoaderRoute: typeof SubscriptionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/revenue': {
-      id: '/revenue'
-      path: '/revenue'
-      fullPath: '/revenue'
-      preLoaderRoute: typeof RevenueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/liberclaw': {
-      id: '/liberclaw'
-      path: '/liberclaw'
-      fullPath: '/liberclaw'
-      preLoaderRoute: typeof LiberclawRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cli': {
-      id: '/cli'
-      path: '/cli'
-      fullPath: '/cli'
-      preLoaderRoute: typeof CliRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api': {
@@ -231,18 +189,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/verify': {
-      id: '/auth/verify'
-      path: '/auth/verify'
-      fullPath: '/auth/verify'
-      preLoaderRoute: typeof AuthVerifyRouteImport
+    '/cli': {
+      id: '/cli'
+      path: '/cli'
+      fullPath: '/cli'
+      preLoaderRoute: typeof CliRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/liberclaw': {
+      id: '/liberclaw'
+      path: '/liberclaw'
+      fullPath: '/liberclaw'
+      preLoaderRoute: typeof LiberclawRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revenue': {
+      id: '/revenue'
+      path: '/revenue'
+      fullPath: '/revenue'
+      preLoaderRoute: typeof RevenueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscriptions': {
+      id: '/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof SubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vouchers': {
+      id: '/vouchers'
+      path: '/vouchers'
+      fullPath: '/vouchers'
+      preLoaderRoute: typeof VouchersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/x402': {
+      id: '/x402'
+      path: '/x402'
+      fullPath: '/x402'
+      preLoaderRoute: typeof X402RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/callback': {
@@ -250,6 +243,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/verify': {
+      id: '/auth/verify'
+      path: '/auth/verify'
+      fullPath: '/auth/verify'
+      preLoaderRoute: typeof AuthVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
