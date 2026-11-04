@@ -48,7 +48,7 @@
     "tailwindcss-animate": "^1.0.7",
     "thirdweb": "^5.121.6",
     "viem": "^2.57.3",
-    "zod": "^4.6.5",
+    "zod": "^4.6.6",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
