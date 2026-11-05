@@ -21,6 +21,12 @@ export function CreditsAnalytics({ type, dates }: { type: RequestTypeConfig; dat
 	const deferredCreditsData = useDeferredValue(creditsData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
+	const modelNames = useMemo(() => {
+		if (!deferredCreditsData) return [];
+		const inRange = deferredCreditsData.credits.filter((row) => row.used_at >= dates.start_date && row.used_at <= dates.end_date);
+		return [...new Set(inRange.map((row) => row.model_name))];
+	}, [deferredCreditsData, dates]);
+
 	const data = useMemo(() => {
 		if (!deferredCreditsData) return [];
 		return groupCreditsPerDayAllModels(deferredCreditsData.credits, dates, deferredSelectedModels);
@@ -48,7 +54,7 @@ export function CreditsAnalytics({ type, dates }: { type: RequestTypeConfig; dat
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-					<FilterModelNames setSelectedModels={setSelectedModels} />
+					<FilterModelNames models={modelNames} setSelectedModels={setSelectedModels} />
 					<ChartModeToggle modes={BY_MODEL_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">

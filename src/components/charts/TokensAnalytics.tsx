@@ -21,6 +21,12 @@ export function TokensAnalytics({ type, dates }: { type: RequestTypeConfig; date
 	const deferredTokensData = useDeferredValue(tokensData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
+	const modelNames = useMemo(() => {
+		if (!deferredTokensData) return [];
+		const inRange = deferredTokensData.tokens.filter((row) => row.date >= dates.start_date && row.date <= dates.end_date);
+		return [...new Set(inRange.map((row) => row.model_name))];
+	}, [deferredTokensData, dates]);
+
 	const data = useMemo(() => {
 		if (!deferredTokensData) return [];
 		return groupTokensPerDayAllModels(deferredTokensData.tokens, dates, deferredSelectedModels);
@@ -88,7 +94,7 @@ export function TokensAnalytics({ type, dates }: { type: RequestTypeConfig; date
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-					<FilterModelNames setSelectedModels={setSelectedModels} />
+					<FilterModelNames models={modelNames} setSelectedModels={setSelectedModels} />
 					<ChartModeToggle modes={BY_TYPE_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">

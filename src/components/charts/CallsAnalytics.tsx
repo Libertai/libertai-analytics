@@ -21,6 +21,12 @@ export function CallsAnalytics({ type, dates }: { type: RequestTypeConfig; dates
 	const deferredApiData = useDeferredValue(apiData);
 	const deferredSelectedModels = useDeferredValue(selectedModels);
 
+	const modelNames = useMemo(() => {
+		if (!deferredApiData) return [];
+		const inRange = deferredApiData.calls.filter((row) => row.used_at >= dates.start_date && row.used_at <= dates.end_date);
+		return [...new Set(inRange.map((row) => row.model_name))];
+	}, [deferredApiData, dates]);
+
 	const data = useMemo(() => {
 		if (!deferredApiData) return [];
 		return groupApiUsagePerDayAllModels(deferredApiData.calls, dates, deferredSelectedModels);
@@ -48,7 +54,7 @@ export function CallsAnalytics({ type, dates }: { type: RequestTypeConfig; dates
 			</CardHeader>
 			<CardContent className="max-md:px-3">
 				<div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-					<FilterModelNames setSelectedModels={setSelectedModels} />
+					<FilterModelNames models={modelNames} setSelectedModels={setSelectedModels} />
 					<ChartModeToggle modes={BY_MODEL_MODES} value={mode} onChange={setMode} />
 				</div>
 				<div className="relative">

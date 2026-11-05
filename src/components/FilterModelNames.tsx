@@ -1,28 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { getModelsNames } from "@/utils/models";
+import React, { useMemo, useState } from "react";
 import { Button } from "@libertai/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
 import { ChevronDown } from "lucide-react";
 
 const FilterModelNames = ({
+	models,
 	setSelectedModels,
-}: { setSelectedModels: React.Dispatch<React.SetStateAction<string[]>> }) => {
-	const [options, setOptions] = useState<string[]>([]);
+}: {
+	models: string[];
+	setSelectedModels: React.Dispatch<React.SetStateAction<string[]>>;
+}) => {
 	const [selected, setSelected] = useState<string[]>([]);
 	const [open, setOpen] = useState(false);
 
-	useEffect(() => {
-		const fetchModelsNames = async () => {
-			try {
-				const modelsNames = await getModelsNames();
-				setOptions(modelsNames);
-			} catch {
-				// silently fail — dropdown stays empty
-			}
-		};
-		fetchModelsNames();
-	}, []);
+	// Selected models stay listed after a date change drops them from the data, so they can be unchecked.
+	const options = useMemo(() => [...new Set([...models, ...selected])].sort(), [models, selected]);
 
 	const toggle = (model: string) => {
 		const next = selected.includes(model)
